@@ -31,6 +31,7 @@
         "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap/**",
     ],
     "exclude": [
+        "private/build",
         "DBDofusUnity/datas/bundles",
         "DBDofusUnity/datas/proto_mapper",
         "DBDofusUnity/Il2CppInspectorRedux",

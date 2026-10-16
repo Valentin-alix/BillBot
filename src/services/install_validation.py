@@ -25,7 +25,6 @@ def validate_resources() -> None:
         bundles / "i18n.json",
         bundles / "standalone" / "world-graph.json",
         bundles / "maps.zip",
-        BUNDLE_ROOT / "DBDofusUnity" / "datas" / "protos" / "game_mappings.json",
         FRIDA_SCRIPT_PATH,
     ]
     paths.extend((bundles / "data").glob("*.json"))
@@ -52,12 +51,11 @@ def validate_resources() -> None:
 
 def validate_browser() -> None:
     try:
-        with sync_playwright() as playwright:
-            with playwright.chromium.launch(channel="chromium") as browser:
-                page = browser.new_page()
-                page.set_content("<title>Installation OK</title>")
-                if page.title() != "Installation OK":
-                    raise RuntimeSetupError("The Chromium diagnostic did not complete.")
+        with sync_playwright() as playwright, playwright.chromium.launch(channel="chromium") as browser:
+            page = browser.new_page()
+            page.set_content("<title>Installation OK</title>")
+            if page.title() != "Installation OK":
+                raise RuntimeSetupError("The Chromium diagnostic did not complete.")
     except Error as error:
         raise RuntimeSetupError(browser_repair_message()) from error
 

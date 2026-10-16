@@ -7,7 +7,7 @@ import msgspec
 a = Analysis(
     ['__main__.py'],
     pathex=['DBDofusUnity', 'AnkamaLauncherEmulator'],
-    binaries=[],
+    binaries=[('resources/mapping/_billbot_protocol.cp312-win_amd64.pyd', 'resources/mapping')],
     datas=[('resources/icons', 'resources/icons'), ('VERSION', '.'), ('DBDofusUnity/datas/bundles', 'DBDofusUnity/datas/bundles'), ('DBDofusUnity/datas/protos', 'DBDofusUnity/datas/protos'), ('AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js', 'AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3')],
     hiddenimports=[],
     hookspath=[],
@@ -23,7 +23,7 @@ def keep_browser_file(entry):
 
 
 a.binaries = [entry for entry in a.binaries if keep_browser_file(entry)]
-a.datas = [entry for entry in a.datas if keep_browser_file(entry)]
+a.datas = [entry for entry in a.datas if keep_browser_file(entry) and Path(entry[0]).name not in {'game_mappings.json', 'game_mappings_detailed.json'}]
 
 # Preserve source JSON files and runtime paths; only compact the packaged copies.
 compact_root = Path(SPECPATH) / 'build' / 'package-data'

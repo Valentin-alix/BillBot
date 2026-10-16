@@ -89,3 +89,6 @@ DBDofusUnity/.cod*/
 DBDofusUnity/**/*.understand*
 !DBDofusUnity/datas/bundles/
 !DBDofusUnity/datas/bundles/**
+
+private/
+resources/mapping/

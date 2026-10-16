@@ -98,6 +98,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cython"
+version = "3.2.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/de/db48b8870e766cfea809986cc50c1e986c663a9ab7bafd0ac1a2512c4a26/cython-3.2.9.tar.gz", hash = "sha256:d249c9022ab13286b17bd66f30609e800c5f95efeecb06168990c7a66cecde6c", size = 3293493, upload-time = "2026-07-24T06:21:21.867Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/b5/4ce33235a25b19fcd51dc639f0f403b783a3b7f9b1934eade0d993fbe029/cython-3.2.9-cp312-cp312-win_amd64.whl", hash = "sha256:4b1fd5a9c03f72a18618668a8e90d569442ed742f910e3ad003dcc9348e9598b", size = 2778077, upload-time = "2026-07-24T06:21:58.7Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/48/27c948cbbfe6050994e67a497ae530955dcda7e79084319321c49969e0fd/cython-3.2.9-cp39-abi3-win32.whl", hash = "sha256:61d4abbf84f77c8d19361d05d9f51d65d8d95e74f736eae55fa1aed8a1430469", size = 2435609, upload-time = "2026-07-24T06:22:40.005Z" },
+    { url = "https://files.pythonhosted.org/packages/17/ef/cf0e1bd7542296f1752be63b027f90271448d8c8062eac66d8e44a79b883/cython-3.2.9-cp39-abi3-win_arm64.whl", hash = "sha256:57a6a78d14f7dd7d6062d9bca694e2a8c1c14113b6ceceea076abcd1161fdc5a", size = 2458025, upload-time = "2026-07-24T06:22:41.973Z" },
+    { url = "https://files.pythonhosted.org/packages/00/ec/e61deec9bcfbb0e1b36f8b5ba75cb44644419b4bfd0fdd666bffd21d9579/cython-3.2.9-py3-none-any.whl", hash = "sha256:a2b0e87f6b80790c929308ca0831d686f7a180feab684fe8cd4a4380bd96aaca", size = 1259272, upload-time = "2026-07-24T06:21:18.95Z" },
+]
+
+[[package]]
 name = "darkdetect"
 version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -202,6 +214,7 @@ dependencies = [
 dev = [
     { name = "cachetools", marker = "sys_platform == 'win32'" },
     { name = "coverage", marker = "sys_platform == 'win32'" },
+    { name = "cython", marker = "sys_platform == 'win32'" },
     { name = "frida-tools", marker = "sys_platform == 'win32'" },
     { name = "idapro", marker = "sys_platform == 'win32'" },
     { name = "numpy", marker = "sys_platform == 'win32'" },
@@ -215,6 +228,7 @@ dev = [
     { name = "scapy", marker = "sys_platform == 'win32'" },
     { name = "scipy", marker = "sys_platform == 'win32'" },
     { name = "scipy-stubs", marker = "sys_platform == 'win32'" },
+    { name = "setuptools", marker = "sys_platform == 'win32'" },
     { name = "tqdm", marker = "sys_platform == 'win32'" },
     { name = "types-cachetools", marker = "sys_platform == 'win32'" },
     { name = "types-protobuf", marker = "sys_platform == 'win32'" },
@@ -246,6 +260,7 @@ requires-dist = [
 dev = [
     { name = "cachetools", specifier = "==7.2.0" },
     { name = "coverage", specifier = ">=7.13.1" },
+    { name = "cython", specifier = "==3.2.9" },
     { name = "frida-tools", specifier = "==14.10.4" },
     { name = "idapro", specifier = ">=0.0.7" },
     { name = "numpy", specifier = "==2.5.3" },
@@ -259,6 +274,7 @@ dev = [
     { name = "scapy", specifier = "==2.7.0" },
     { name = "scipy", specifier = "==1.18.1" },
     { name = "scipy-stubs", specifier = ">=1.18,<2" },
+    { name = "setuptools", specifier = ">=80" },
     { name = "tqdm", specifier = ">=4.66.5,<5" },
     { name = "types-cachetools", specifier = ">=5.5.0.20240820" },
     { name = "types-protobuf", specifier = ">=6.32.1.20251210" },

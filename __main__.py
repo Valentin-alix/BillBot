@@ -86,6 +86,7 @@ def parse_runtime_args(argv: list[str]) -> RuntimeArgs:
 def validate_startup(progress: Callable[[str], None]) -> None:
     from src.services.game_version import validate_game_version
     from src.services.install_validation import validate_browser, validate_resources
+    from src.services.protocol_mapping import initialize_mapping
 
     progress("Checking Dofus version...")
     validate_game_version()
@@ -94,6 +95,7 @@ def validate_startup(progress: Callable[[str], None]) -> None:
     progress("Checking browser...")
     validate_browser()
     ensure_packaged_runtime_data()
+    initialize_mapping(progress)
 
 
 def main(argv: list[str] | None = None) -> int:

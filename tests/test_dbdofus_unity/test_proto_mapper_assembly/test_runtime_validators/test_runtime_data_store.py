@@ -33,7 +33,6 @@ class TestRuntimeDataStore:
         from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem, SpellsEvent
         from src.protocol.protocol_game import (
             get_game_msg,
-            get_mapping_proto_to_obf,
             get_obf_game_message_from_msg,
         )
 
@@ -43,8 +42,15 @@ class TestRuntimeDataStore:
         packed = get_obf_game_message_from_msg(Event.DESCRIPTOR.full_name, spells)
         assert packed is not None
         game_message, _ = packed
-        spell_event_name, spell_fields = get_mapping_proto_to_obf()[SpellsEvent.DESCRIPTOR.full_name]
-        spell_item_name, _ = get_mapping_proto_to_obf()[SpellItem.DESCRIPTOR.full_name]
+        _, _, obfuscated_spells, _ = get_game_msg(
+            game_message.SerializeToString(), False, from_server=from_server
+        )
+        spell_event_name = obfuscated_spells.DESCRIPTOR.full_name
+        spell_field = next(
+            field for field, _ in obfuscated_spells.ListFields() if field.message_type is not None
+        )
+        assert spell_field.message_type is not None
+        spell_item_name = spell_field.message_type.full_name
 
         get_game_msg(game_message.SerializeToString(), do_dump_values=True, from_server=from_server)
         runtime_data_store.write_captured_content()
@@ -58,8 +64,12 @@ class TestRuntimeDataStore:
         assert captured_messages.root[spell_item_name][0].from_server is None
         captured_spells = captured_messages.root[spell_event_name][0].model_extra
         assert captured_spells is not None
-        assert captured_spells[spell_fields["human_spells"]]
-        assert captured_spells[spell_fields["mutant_spells"]] == []
+        assert captured_spells[spell_field.name]
+        assert all(
+            captured_spells[field.name] == []
+            for field in obfuscated_spells.DESCRIPTOR.fields
+            if field.message_type == spell_field.message_type and field.name != spell_field.name
+        )
 
     def test_game_message_capture_skips_root_and_payload_when_disabled(
         self,

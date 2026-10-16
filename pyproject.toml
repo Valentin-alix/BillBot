@@ -26,6 +26,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "cython==3.2.9",
+    "setuptools>=80",
     "idapro>=0.0.7",
     "scapy==2.7.0",
     "cachetools==7.2.0",
@@ -60,7 +62,7 @@ build-backend = "hatchling.build"
 [tool.poe.tasks]
 dead_code = "vulture src AnkamaLauncherEmulator/ankama_launcher_emulator DBDofusUnity/dofus_unity_reader DBDofusUnity/proto_mapper_assembly scripts --exclude \"*gen_zaap*,*proxy/login_message_pb2.py\" --min-confidence 80"
 check_type = "pyright"
-lint = "ruff check . --fix"
+lint = "ruff check . private --fix"
 format = "ruff format ."
 check = ["lint", "check_type"]
 test = "coverage run --source=src -m pytest tests"
