@@ -31,7 +31,6 @@ from src.core.engine.npcs.dialog_turn import DialogTurn
 from src.core.engine.npcs.reply_selector import ByText
 from src.core.engine.storage.unload import get_bank_npc_info
 from src.core.states.dialog_state import OpenDialogKind
-from src.protocol.protocol_game import is_usable_msg
 from src.services.human_timings import HumanTimingsService
 
 
@@ -111,9 +110,6 @@ class EnterBankChestBehavior(RecoverableBehavior):
         self.finish(EnterBankChestErrorCode.NOT_ENOUGH_KAMAS)
 
     def on_storage_inventory_content_event(self, msg: StorageInventoryContentEvent):
-        if not is_usable_msg(ExchangeMoveKamaRequest.DESCRIPTOR.full_name):
-            return self.finish()
-
         if msg.kamas > 0:
 
             def on_storage_kamas_update_event(

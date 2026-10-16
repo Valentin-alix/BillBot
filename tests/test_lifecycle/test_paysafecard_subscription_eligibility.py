@@ -1,16 +1,15 @@
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
-
-import src.core.bot.lifecycle.profile_subscription_eligibility as profile_subscription_eligibility
-from ankama_launcher_emulator.interfaces.local_storage import (
-    BotRecord,
-)
 from ankama_launcher_emulator.controller.subscription_expiration import (
     SubscribeInfo,
 )
+from ankama_launcher_emulator.interfaces.local_storage import (
+    BotRecord,
+)
 
+import src.core.bot.lifecycle.profile_subscription_eligibility as profile_subscription_eligibility
 from src.controller.bot_config import BotConfig
 from src.controller.player_info_storage import PlayerInfoSnapshot
 from src.core.bot.bot import Bot
@@ -70,9 +69,7 @@ def _profile_eligibility(
 ) -> ProfileSubscriptionEligibility:
     profile_logins = logins or ["buyer", "one", "two", "three", "four", "five"]
     bot_storage = Mock()
-    bot_storage.get_all_records.return_value = {
-        login: _record(login, "A") for login in profile_logins
-    }
+    bot_storage.get_all_records.return_value = {login: _record(login, "A") for login in profile_logins}
     player_info_storage = Mock()
     player_info_storage.get_snapshot.side_effect = snapshots.get
     monkeypatch.setattr(
@@ -91,7 +88,7 @@ def _profile_eligibility(
 def test_paysafecard_profile_requires_six_eligible_accounts(monkeypatch: pytest.MonkeyPatch) -> None:
     eligibility = _profile_eligibility(
         monkeypatch=monkeypatch,
-        snapshots={login: _snapshot() for login in ["one", "two", "three", "four", "five"]}
+        snapshots={login: _snapshot() for login in ["one", "two", "three", "four", "five"]},
     )
 
     assert eligibility.is_eligible("A", "buyer", 31, 15_000)
@@ -121,44 +118,21 @@ def test_paysafecard_profile_blocks_a_missing_or_ineligible_snapshot(
     assert not eligibility.is_eligible("A", "buyer", 31, 15_000)
 
 
-def test_paysafecard_subscription_requires_an_eligible_complete_profile(runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_paysafecard_subscription_requires_an_eligible_complete_profile(
+    runtime_bot: Bot, monkeypatch: pytest.MonkeyPatch
+) -> None:
     _set_paysafecard_requirements(runtime_bot)
     handler = runtime_bot.connection_handler
     handler.get_bot_config = Mock(return_value=BotConfig(schedule_profile="A"))
-    monkeypatch.setattr(handler.subscription_storage, "get_subscribe_info", Mock(
-        return_value=SubscribeInfo(is_subscribe=False, end_of_subscribe=None)
-    ))
+    monkeypatch.setattr(
+        handler.subscription_storage,
+        "get_subscribe_info",
+        Mock(return_value=SubscribeInfo(is_subscribe=False, end_of_subscribe=None)),
+    )
     monkeypatch.setattr(handler.paysafecard_purchase_storage, "load_purchase", Mock(return_value=None))
     monkeypatch.setattr(handler.paysafecard_pool, "load", Mock(return_value=["pin"]))
     handler.profile_subscription_eligibility.is_eligible = Mock(return_value=False)
 
     assert not handler._should_subscribe_with_paysafe_card()
 
-    handler.profile_subscription_eligibility.is_eligible.assert_called_once_with(
-        "A", "TEST", 31, 15_000
-    )
-
-
-@pytest.mark.parametrize("subscription", ["paysafecard", "ogrine"])
-def test_automatic_subscription_is_postponed_during_league_of_legends_match(
-    runtime_bot: Bot,
-    subscription: str,
-) -> None:
-    handler = runtime_bot.connection_handler
-    handler.behavior_coordinator.is_playing_event.set()
-    handler._is_eligible_for_subscription = Mock(return_value=True)
-    handler._should_subscribe_with_paysafe_card = Mock(return_value=subscription == "paysafecard")
-    handler._should_renew_subscription_with_ogrines = Mock(return_value=subscription == "ogrine")
-    handler.paysafecard_subscription_behavior.start = Mock()
-    handler.ogrine_subscription_behavior.start = Mock()
-    handler.behavior_coordinator.run_current_bot_action = Mock()
-
-    with patch(
-        "src.core.bot.lifecycle.connection_handler.is_league_of_legends_match_running",
-        return_value=True,
-    ):
-        handler._continue_after_required_behavior()
-
-    handler.paysafecard_subscription_behavior.start.assert_not_called()
-    handler.ogrine_subscription_behavior.start.assert_not_called()
-    handler.behavior_coordinator.run_current_bot_action.assert_not_called()
+    handler.profile_subscription_eligibility.is_eligible.assert_called_once_with("A", "TEST", 31, 15_000)

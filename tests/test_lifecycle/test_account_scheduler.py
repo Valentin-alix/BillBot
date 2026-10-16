@@ -9,10 +9,9 @@ from ankama_launcher_emulator.interfaces.schedule_profile import (
     ScheduleProfile,
 )
 
-from src.core.config import GlobalSettings
 from src.controller.settings import SettingsService
-
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler, _AuthOp, _RegisterOp
+from src.core.config import GlobalSettings
 
 
 def _profile(proxy_id: str) -> ScheduleProfile:
@@ -56,7 +55,6 @@ def _scheduler(
         schedule_profile_controller=profile_controller,
         proxy_controller=proxy_controller,
         bot_storage_controller=bot_storage_controller,
-        is_league_of_legends_match_running=lambda: False,
     )
     scheduler._pool = Mock()
     scheduler._pool.has_quota.return_value = True

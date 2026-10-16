@@ -30,10 +30,10 @@ from ankama_launcher_emulator.web.auth.registration import (
     is_aws_waf_marker,
     register_next_available_email,
 )
+
 from src.consts import MAX_BOTS_PER_SCHEDULE_PROFILE
 from src.controller.settings import SettingsService
 from src.core.bot.lifecycle.operation_pool import OperationPool
-from src.services.league_of_legends import is_league_of_legends_match_running
 from src.services.user_activity import UserActivityService
 from src.utils.runtime_support import RuntimeSetupError, error_message
 
@@ -65,7 +65,6 @@ class AccountScheduler:
     schedule_profile_controller: ScheduleProfileController = field(default_factory=ScheduleProfileController)
     proxy_controller: ProxyController = field(default_factory=ProxyController)
     bot_storage_controller: BotStorageController = field(default_factory=BotStorageController)
-    is_league_of_legends_match_running: Callable[[], bool] = is_league_of_legends_match_running
     _thread: threading.Thread | None = field(init=False, default=None)
     _pool: OperationPool = field(init=False, default_factory=OperationPool)
     _stop_event: threading.Event = field(init=False, default_factory=threading.Event)
@@ -111,9 +110,6 @@ class AccountScheduler:
     def _next_operation(self, now: float) -> PendingOperation | None:
         if not SettingsService().get().enable_account_automation:
             return None
-        if self.is_league_of_legends_match_running():
-            logger.info("League of Legends match in progress, postponing account automation")
-            return None
         profiles_by_letter = self.schedule_profile_controller.get_all_profiles()
         available_accounts = self.bot_storage_controller.get_accounts_needing_auth()
         bad_state_emails = MailAccountController().load_bad_state_emails()
@@ -152,7 +148,10 @@ class AccountScheduler:
                 auth_candidates,
                 key=lambda operation: self._pool.count_since_hour(operation.quota_key, now),
             )
-        if MailAccountController().peek_next_available_email() is not None or SettingsService().sonji_api_key() is not None:
+        if (
+            MailAccountController().peek_next_available_email() is not None
+            or SettingsService().sonji_api_key() is not None
+        ):
             profile_counts = self._profile_account_counts(profiles_by_letter)
             eligible_candidates = [
                 _RegisterOp(profile_id, profile.proxy_id)
@@ -264,9 +263,6 @@ class AccountScheduler:
                     self._authenticate(result.email, schedule_profile)
 
     def _authenticate(self, login: str, schedule_profile: str) -> None:
-        if self.is_league_of_legends_match_running():
-            logger.info("League of Legends match in progress, postponing authentication for %s", login)
-            return
         try:
             result = self._run_async(
                 authenticate_next_available_account(email=login, schedule_profile=schedule_profile)
