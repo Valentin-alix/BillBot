@@ -8,7 +8,17 @@ a = Analysis(
     ['__main__.py'],
     pathex=['DBDofusUnity', 'AnkamaLauncherEmulator'],
     binaries=[],
-    datas=[('resources/icons', 'resources/icons'), ('VERSION', '.'), ('DBDofusUnity/datas/bundles', 'DBDofusUnity/datas/bundles'), ('DBDofusUnity/datas/protos', 'DBDofusUnity/datas/protos'), ('AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js', 'AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3')],
+    datas=[
+        ('resources/icons', 'resources/icons'),
+        ('VERSION', '.'),
+        ('DBDofusUnity/datas/bundles/data', 'DBDofusUnity/datas/bundles/data'),
+        ('DBDofusUnity/datas/bundles/standalone', 'DBDofusUnity/datas/bundles/standalone'),
+        ('DBDofusUnity/datas/bundles/i18n.json', 'DBDofusUnity/datas/bundles'),
+        # Runtime maps are read from the archive; raw extraction outputs can be incomplete.
+        ('DBDofusUnity/datas/bundles/maps.zip', 'DBDofusUnity/datas/bundles'),
+        ('DBDofusUnity/datas/protos', 'DBDofusUnity/datas/protos'),
+        ('AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js', 'AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
