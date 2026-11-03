@@ -3,10 +3,6 @@
     {
       "obf": "jny",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapMovementConfirmRequest"
-    },
-    {
-      "obf": "jpk",
-      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapMovementConfirmResponse"
     }
   ]
 }
