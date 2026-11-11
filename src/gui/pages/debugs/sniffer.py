@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from functools import partial
 from pathlib import Path
 from typing import Any, cast
@@ -29,7 +33,6 @@ from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     upsert_pinned_field_mapping,
     upsert_pinned_pair,
 )
-from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.services.debug_recorder import DebugRecorder
 from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
@@ -44,6 +47,7 @@ from src.protocol.message_names import (
     load_non_obf_game_message_full_names,
 )
 from src.protocol.protocol_game import POOL
+from src.protocol import initialize_protocol
 
 
 def _require_message_info(value: object) -> MessageInfo:
@@ -84,6 +88,7 @@ def _extract_pinned_pair_names_for_fields(
 def _find_obf_game_message_descriptor(name: str | None) -> Descriptor | None:
     if name is None:
         return None
+    initialize_protocol()
     try:
         return POOL.FindMessageTypeByName(name)
     except KeyError:

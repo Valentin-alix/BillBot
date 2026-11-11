@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from math import floor
 
-from connection_pb2 import PongEvent
+from DBDofusUnity.datas.protos.non_obf.game.connection_pb2 import PongEvent
 from DBDofusUnity.datas.protos.non_obf.game.basic_pb2 import (
     BasicLatencyStatsEvent,
     BasicLatencyStatsRequest,

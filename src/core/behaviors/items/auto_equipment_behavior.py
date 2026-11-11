@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from inventory_pb2 import InventoryWeightEvent, ObjectSetPositionRequest
+from DBDofusUnity.datas.protos.non_obf.game.inventory_pb2 import InventoryWeightEvent, ObjectSetPositionRequest
 
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItemInventory
 from DBDofusUnity.dofus_unity_reader.game_constants.item import CategoryItemEnum

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
@@ -8,7 +12,6 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from src import consts
 from src.controller.player_info_storage import PlayerInfoSnapshot
-from src.core.bot.bot import Bot
 
 _UNKNOWN_VALUE = "—"
 

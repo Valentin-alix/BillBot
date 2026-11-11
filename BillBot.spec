@@ -3,12 +3,13 @@
 from pathlib import Path
 
 import msgspec
+from PyInstaller.utils.hooks import copy_metadata
 
 a = Analysis(
     ['__main__.py'],
     pathex=['DBDofusUnity', 'AnkamaLauncherEmulator'],
     binaries=[],
-    datas=[
+    datas=copy_metadata('playwright') + [
         ('resources/icons', 'resources/icons'),
         ('VERSION', '.'),
         ('DBDofusUnity/datas/bundles/data', 'DBDofusUnity/datas/bundles/data'),

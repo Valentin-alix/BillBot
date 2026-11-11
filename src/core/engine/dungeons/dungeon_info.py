@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
 
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
@@ -17,12 +17,14 @@ class DungeonInfo:
     entrance_turns: list[DialogTurn]
     exit_npc_info: NpcDialogInfo
     exit_turns: list[DialogTurn]
-    dungeon: DungeonsRootItem = field(init=False)
-    exit_dialog_map_id: int = field(init=False)
 
-    def __post_init__(self) -> None:
+    @cached_property
+    def dungeon(self) -> DungeonsRootItem:
+        return DataReader().dungeon_by_entrance_map_id[self.entrance_npc_info.npc_map_id]
+
+    @cached_property
+    def exit_dialog_map_id(self) -> int:
         data_reader = DataReader()
-        self.dungeon = data_reader.dungeon_by_entrance_map_id[self.entrance_npc_info.npc_map_id]
         exit_map_name = f"{self.name} - Sortie"
         dungeon_world_maps = {
             data_reader.map_info_by_map_id[map_id].worldMap for map_id in self.dungeon.mapIds
@@ -37,7 +39,7 @@ class DungeonInfo:
             and map_info.worldMap in dungeon_world_maps
         ]
         assert len(exit_maps) == 1, f"Expected one exit map named {exit_map_name!r}, got {exit_maps}"
-        self.exit_dialog_map_id = exit_maps[0].id
+        return exit_maps[0].id
 
     @cached_property
     def name(self) -> str:

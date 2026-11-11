@@ -249,6 +249,7 @@ def test_resource_validation_identifies_missing_and_lfs(tmp_path: Path) -> None:
 
 def test_json_and_map_archive_are_validated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(install_validation, "BUNDLE_ROOT", tmp_path)
+    monkeypatch.setattr(install_validation, "USER_DATA_ROOT", tmp_path)
     monkeypatch.setattr(
         install_validation,
         "FRIDA_SCRIPT_PATH",

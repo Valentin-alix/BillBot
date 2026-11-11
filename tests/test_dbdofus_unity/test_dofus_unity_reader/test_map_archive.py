@@ -4,7 +4,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
 
-from DBDofusUnity.dofus_unity_reader.data_center import map_reader
 from DBDofusUnity.dofus_unity_reader.data_center.map_reader import MapReader
 
 
@@ -26,7 +25,7 @@ def test_map_reader_loads_a_map_from_the_compressed_archive(
         archive.writestr("map/map_42.json", b'{"references":[],"mapData":{"cellsData":[]}}')
 
     with ZipFile(archive_path) as archive:
-        monkeypatch.setattr(map_reader, "zip_file", archive)
+        monkeypatch.setitem(MapReader().__dict__, "archive", archive)
         _clear_map_reader_caches()
         try:
             assert MapReader().map_by_id(42).references == []

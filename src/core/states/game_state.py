@@ -147,7 +147,6 @@ class GameState:
         enemies = self.fight.get_enemies_from_actor_snapshot(
             self.player.character_id,
             actor_by_id,
-            actor_fight_by_id,
         )
         player_fight_actor = actor_fight_by_id.get(self.player.character_id)
         own_state_ids = (

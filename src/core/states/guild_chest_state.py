@@ -1,3 +1,5 @@
+from functools import cache
+
 import dataclasses
 
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
@@ -7,26 +9,33 @@ from DBDofusUnity.dofus_unity_reader.game_constants.item import (
 )
 from src.core import config
 from src.core.config import BehaviorSettings
-from src.core.engine.items.item import GATHERER_ITEM_GIDS, PROTECTOR_DROP_ITEM_IDS
+from src.core.engine.items.item import get_gatherer_item_gids, get_protector_drop_item_ids
 from src.core.signals.player_signals import GameInfoSignals
 from src.core.states.guild_chest_storage import GuildChestStorage
 from src.core.states.player_state import PlayerState
 from src.core.states.state import State
 
-GIDS_BY_TAB = {
-    1: GATHERER_ITEM_GIDS,
-    2: DataReader().item_ids_by_type_id[ItemTypeEnum.PLANCHE]
-    | DataReader().item_ids_by_type_id[ItemTypeEnum.PREPARATION]
-    | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
-    | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE],
-    3: {
-        gid
-        for gid in PROTECTOR_DROP_ITEM_IDS
-        if DataReader().item_type_by_id[DataReader().item_by_id[gid].typeId].categoryId
-        != CategoryItemEnum.CONSUMABLES
-    },
-}
-TAB_BY_GID = {gid: tab for tab, gids in GIDS_BY_TAB.items() for gid in gids}
+
+@cache
+def get_gids_by_tab() -> dict[int, set[int]]:
+    return {
+        1: get_gatherer_item_gids(),
+        2: DataReader().item_ids_by_type_id[ItemTypeEnum.PLANCHE]
+        | DataReader().item_ids_by_type_id[ItemTypeEnum.PREPARATION]
+        | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
+        | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE],
+        3: {
+            gid
+            for gid in get_protector_drop_item_ids()
+            if DataReader().item_type_by_id[DataReader().item_by_id[gid].typeId].categoryId
+            != CategoryItemEnum.CONSUMABLES
+        },
+    }
+
+
+@cache
+def get_tab_by_gid() -> dict[int, int]:
+    return {gid: tab for tab, gids in get_gids_by_tab().items() for gid in gids}
 
 
 @dataclasses.dataclass
@@ -68,4 +77,9 @@ class GuildChestState(State):
 
     @property
     def can_access_guild_chest(self) -> bool:
-        return self.player_state.is_sub and self.has_guild and self.settings.do_use_guild_chest and self.rank_id <= 3
+        return (
+            self.player_state.is_sub
+            and self.has_guild
+            and self.settings.do_use_guild_chest
+            and self.rank_id <= 3
+        )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from character_management_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterCreationRequest,
     CharacterFirstSelectionRequest,
     CharacterListEvent,

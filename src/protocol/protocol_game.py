@@ -24,6 +24,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
 )
 from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeDataStore
 from src.protocol.message import MessageInfo
+from src.protocol import initialize_protocol
 from utils.protobuf import is_repeated_field
 
 
@@ -65,6 +66,7 @@ _cached_game_mappings_mtime_ns: int | None = None
 def _load_game_mappings() -> SimpleGameMappingsDocument:
     global _cached_game_mappings, _cached_game_mappings_mtime_ns
 
+    initialize_protocol()
     current_mtime_ns = _GAME_MAPPINGS_PATH.stat().st_mtime_ns
     if _cached_game_mappings is not None and _cached_game_mappings_mtime_ns == current_mtime_ns:
         return _cached_game_mappings
@@ -241,6 +243,7 @@ def get_msg_transformer(
     msg_full_name: str,
     msg_mappings: ProtoToRealMapping | ProtoToObfMapping,
 ) -> MessageTransformer | None:
+    initialize_protocol()
     related_mapping = msg_mappings.get(msg_full_name)
     if not related_mapping:
         return None

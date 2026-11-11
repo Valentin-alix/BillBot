@@ -15,15 +15,15 @@ from DBDofusUnity.dofus_unity_reader.game_constants.sale_hotel import (
     QuantityEnum,
     QuantityIndex,
 )
-from exchange_pb2 import ExchangeTypesItemsExchangerDescriptionForUserEvent
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import ExchangeTypesItemsExchangerDescriptionForUserEvent
 from pydantic import BaseModel
 
 from src.core.config import MAX_QUANTITY_ON_SELL
-from src.core.engine.items.item import PROTECTOR_DROP_ITEM_IDS
+from src.core.engine.items.item import get_protector_drop_item_ids
 from src.core.engine.weights.harvester.weight_collectable import (
     get_weight_collectable_for_sale_hotel,
 )
-from src.core.frames.sale_hotel_frame import SELLABLE_ITEMS
+from src.core.frames.sale_hotel_frame import get_sellable_items
 from src.services.logging_utils.loggers import BotLogger
 
 
@@ -52,7 +52,7 @@ def get_item_gids_to_sell(
             return False
         if not (is_sub or (item_data.level or 0) <= 60):
             return False
-        if not is_bank_item and gid not in SELLABLE_ITEMS:
+        if not is_bank_item and gid not in get_sellable_items():
             return False
         if not is_interesting_item_to_sell(object_item.item, avg_price_by_gid):
             return False
@@ -102,7 +102,7 @@ def choose_quantity_to_sell(
     available_quantity: int | None = None,
 ):
     qty = available_quantity if available_quantity is not None else item.quantity
-    if item.gid in PROTECTOR_DROP_ITEM_IDS:
+    if item.gid in get_protector_drop_item_ids():
         return QuantityEnum.VALUE_1, QuantityIndex.ONE
 
     avg_price = avg_price_by_gid.get(item.gid, 1)
@@ -123,7 +123,7 @@ def choose_quantity_to_sell(
 
 
 def get_max_quantity_sell(gid: int) -> int:
-    if gid in PROTECTOR_DROP_ITEM_IDS:
+    if gid in get_protector_drop_item_ids():
         return 1
     return MAX_QUANTITY_ON_SELL
 

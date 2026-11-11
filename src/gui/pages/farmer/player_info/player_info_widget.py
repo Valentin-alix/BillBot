@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from functools import partial
 
 from PyQt6.QtCore import pyqtSlot
@@ -7,7 +11,6 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
 from src.controller.player_info_storage import PlayerInfoStorage
-from src.core.bot.bot import Bot
 from src.gui.pages.farmer.player_info.property_panel_widget import PropertyPanelWidget
 
 _HARVEST_JOB_IDS = HARVESTER_JOB_IDS - {JobEnum.BASE}

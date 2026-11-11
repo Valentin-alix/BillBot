@@ -37,6 +37,7 @@ resources/datas/*.json
 resources/sessions/*.json
 resources/bot_player_infos.json
 resources/game_data.json
+resources/startup-*.json
 resources/human_sessions.json
 resources/debug/
 tools/mapping_flags/resources/

@@ -24,7 +24,7 @@ from ankama_launcher_emulator.haapi.urls import (
     ANKAMA_SHIELD_VALIDATE_OTP,
 )
 from ankama_launcher_emulator.haapi.zaap_version import (
-    ZAAP_VERSION,
+    get_zaap_version,
 )
 from ankama_launcher_emulator.interfaces.credentials import (
     DecipheredApiKey,
@@ -88,7 +88,7 @@ def refresh_api_key_from_oauth(
         session.proxies.update({"http": proxy_url, "https": proxy_url})
     headers = {
         "apikey": access_token,
-        "user-Agent": f"Zaap {ZAAP_VERSION}",
+        "user-Agent": f"Zaap {get_zaap_version()}",
         "accept": "*/*",
         "accept-encoding": "gzip,deflate",
         "sec-fetch-site": "none",
@@ -158,7 +158,7 @@ class Haapi:
         self.zaap_headers = {
             "apikey": self.api_key,
             "if-none-match": "null",
-            "user-Agent": f"Zaap {ZAAP_VERSION}",
+            "user-Agent": f"Zaap {get_zaap_version()}",
             "accept": "*/*",
             "accept-encoding": "gzip,deflate",
             "sec-fetch-site": "none",

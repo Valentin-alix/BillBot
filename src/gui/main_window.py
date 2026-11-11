@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 import logging
 from collections.abc import Callable
 from functools import partial
@@ -18,7 +22,6 @@ from src.consts import LOGO_FILE
 from src.controller.bot_config import BotConfigService
 from src.controller.player_info_storage import PlayerInfoSnapshot, PlayerInfoStorage
 from src.core import config
-from src.core.bot.bot import Bot
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.components.manual_confirmation import ManualConfirmationDialogs

@@ -1,4 +1,5 @@
 {
+    "ruff.path": ["${workspaceFolder}/.venv/Scripts/ruff.exe"],
     "python.testing.pytestArgs": [
         "-s"
     ],

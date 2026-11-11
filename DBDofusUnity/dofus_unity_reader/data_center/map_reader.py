@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -13,22 +13,25 @@ from DBDofusUnity.dofus_unity_reader.models.maps import CellData, MapDataRoot, M
 from utils.cache import cache
 from utils.singleton import Singleton
 
-zip_file = ZipFile(MAPS_ARCHIVE_PATH)
 _MAP_CACHE_SIZE = 128
 
 
 @dataclass(frozen=True)
 class MapReader(metaclass=Singleton):
+    @cached_property
+    def archive(self) -> ZipFile:
+        return ZipFile(MAPS_ARCHIVE_PATH)
+
     @lru_cache(maxsize=_MAP_CACHE_SIZE)
     def map_by_id(self, map_id: int) -> MapDataRoot:
-        return msgspec.json.decode(zip_file.read(f"map/map_{map_id}.json"), type=MapDataRoot)
+        return msgspec.json.decode(self.archive.read(f"map/map_{map_id}.json"), type=MapDataRoot)
 
     @staticmethod
     @cache
     def get_all_map_bundle_ids() -> set[int]:
         return {
             int(path.removeprefix("map/map_").removesuffix(".json"))
-            for path in zip_file.namelist()
+            for path in MapReader().archive.namelist()
             if path.startswith("map/map_") and path.endswith(".json")
         }
 

@@ -10,7 +10,7 @@ from src.core.behaviors.storage.unloads.unload_in_bank_behavior import (
 from src.core.behaviors.storage.unloads.unload_in_guild_chest_behavior import (
     UnloadInGuildChestBehavior,
 )
-from src.core.states.guild_chest_state import GIDS_BY_TAB
+from src.core.states.guild_chest_state import get_gids_by_tab
 from src.exceptions import UnhandledErrorCodeException
 
 
@@ -25,7 +25,7 @@ class UnloadBehavior(RecoverableBehavior):
 
     def start_unloading(self) -> None:
         self.unload_in_guild_chest_behavior.start(
-            unload_item_id_by_tab=GIDS_BY_TAB,
+            unload_item_id_by_tab=get_gids_by_tab(),
             parent=self,
             callback=self.on_unload_in_guild_chest_behavior_finished,
         )

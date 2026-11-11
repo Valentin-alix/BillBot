@@ -1,4 +1,4 @@
-from common_pb2 import SpellModifierType
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifierType
 
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import SpellModifier
 from DBDofusUnity.datas.protos.non_obf.game.spell_pb2 import SpellItem

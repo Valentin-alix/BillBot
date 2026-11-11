@@ -48,7 +48,7 @@ from src.core.engine.economy.sale_hotel import (
     get_price_for_sale_hotel,
     is_interesting_item_to_sell,
 )
-from src.core.states.guild_chest_state import TAB_BY_GID
+from src.core.states.guild_chest_state import get_tab_by_gid
 from src.exceptions import UnexpectedStateException
 from src.services.human_timings import HumanTimingsService
 
@@ -132,7 +132,7 @@ class SaleHotelSellBehavior(RecoverableBehavior):
             load_item_info = LoadItemInfo(
                 item_gid=item_gid,
                 remaining_quantity=remaining_qty,
-                tab=TAB_BY_GID.get(item_gid, 0),
+                tab=get_tab_by_gid().get(item_gid, 0),
             )
             self._load_items_infos.append(load_item_info)
 

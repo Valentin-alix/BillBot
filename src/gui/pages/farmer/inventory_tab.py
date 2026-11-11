@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import (
     ObjectItemInventory,
 )
@@ -15,7 +19,6 @@ from PyQt6.QtWidgets import (
 )
 from qfluentwidgets import BodyLabel, CaptionLabel, ListWidget, SmoothMode
 
-from src.core.bot.bot import Bot
 from src.gui.consts import CARD_WIDTH
 from src.gui.pages.farmer.equipment_panel_widget import (
     EquipmentPanelWidget,

@@ -248,14 +248,12 @@ class FightState(State):
         return self.get_enemies_from_actor_snapshot(
             character_id,
             self.entity_state.actor_by_id,
-            self.entity_state.actor_fight_by_id,
         )
 
     def get_enemies_from_actor_snapshot(
         self,
         character_id: int,
         actor_by_id: Mapping[int, ActorPositionInformation],
-        actor_fight_by_id: Mapping[int, FightActor],
     ) -> list[ActorPositionInformation]:
         player_actor = actor_by_id.get(character_id)
         if player_actor is None:
@@ -270,14 +268,6 @@ class FightState(State):
                 or not actor.actor_information.HasField("fighter")
                 or actor.actor_information.fighter.spawn_information.team == player_team
             ):
-                continue
-
-            actor_fight = actor_fight_by_id.get(actor.actor_id)
-            if actor_fight is not None and actor_fight.life_point <= 0:
-                self.logger.debug(
-                    "Skipping zero-HP enemy still present in actor state: "
-                    f"actor_id={actor.actor_id}, life_point={actor_fight.life_point}"
-                )
                 continue
 
             enemies.append(actor)

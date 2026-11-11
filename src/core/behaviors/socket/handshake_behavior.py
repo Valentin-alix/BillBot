@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from exchange_pb2 import ObjectAveragePricesRequest
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import ObjectAveragePricesRequest
 from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BakApiTokenRequest
 from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterForceSelectionEvent,

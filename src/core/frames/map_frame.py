@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from fight_preparation_pb2 import FightPreparationEnterRequest
+from DBDofusUnity.datas.protos.non_obf.game.fight_preparation_pb2 import FightPreparationEnterRequest
 
 from DBDofusUnity.datas.protos.non_obf.game.anomaly_pb2 import AnomalySubareaInformationRequest
 from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import (

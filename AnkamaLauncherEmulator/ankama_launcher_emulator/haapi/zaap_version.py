@@ -1,5 +1,6 @@
 import os
 import subprocess
+from functools import cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -12,6 +13,7 @@ from ankama_launcher_emulator.interfaces.ankama_release import (
 )
 
 
+@cache
 def get_zaap_version() -> str:
     filename = "package.json"
     zaap_version = "none"
@@ -54,6 +56,3 @@ def get_client_version() -> str:
         if release.version:
             return release.version
     raise FileNotFoundError(release_json_path)
-
-
-ZAAP_VERSION = get_zaap_version()

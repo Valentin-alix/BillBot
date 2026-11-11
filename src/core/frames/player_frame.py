@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from threading import Timer
 
-from bak_pb2 import BakApiKeyEvent
+from DBDofusUnity.datas.protos.non_obf.game.bak_pb2 import BakApiKeyEvent
 from DBDofusUnity.datas.protos.non_obf.game.character_management_pb2 import (
     CharacterListEvent,
     CharacterSelectionEvent,

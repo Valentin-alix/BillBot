@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
-from gamemap_pb2 import MapComplementaryInformationEvent
-from quest_pb2 import GuideModQuitRequest
+from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent
+from DBDofusUnity.datas.protos.non_obf.game.quest_pb2 import GuideModQuitRequest
 
 from src.core.behaviors.behavior import Behavior
 from src.services.human_timings import HumanTimingsService

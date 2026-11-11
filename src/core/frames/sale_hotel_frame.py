@@ -1,3 +1,5 @@
+from functools import cache
+
 import datetime
 from dataclasses import dataclass
 
@@ -27,15 +29,18 @@ from DBDofusUnity.dofus_unity_reader.game_constants.npc import (
 
 from src.controller.game_data import GameDataController
 from src.core.config import get_time_beween_sale_hotel_prices
-from src.core.engine.items.item import GATHERER_ITEM_GIDS
+from src.core.engine.items.item import get_gatherer_item_gids
 from src.core.frames.frame import Frame
 
 
-SELLABLE_ITEMS = (
-    GATHERER_ITEM_GIDS
-    | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
-    | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE]
-)
+@cache
+def get_sellable_items() -> set[int]:
+    return (
+        get_gatherer_item_gids()
+        | DataReader().item_ids_by_type_id[ItemTypeEnum.SUBSTRAT]
+        | DataReader().item_ids_by_type_id[ItemTypeEnum.ALLIAGE]
+    )
+
 
 SALE_HOTELS_BY_CATEGORY: dict[CategoryItemEnum, list[NpcInfo]] = {
     CategoryItemEnum.RESOURCES: [

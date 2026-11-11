@@ -2,7 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from context_pb2 import ContextCreationEvent
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import (
     FightMapInformationEvent,
 )

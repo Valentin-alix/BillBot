@@ -4,7 +4,7 @@ from DBDofusUnity.dofus_unity_reader.game_constants.item import CUSTOM_GATHERER_
 from DBDofusUnity.dofus_unity_reader.models.datas.monsters_root import MonsterDrop
 
 from src.controller.game_data import GameDataController
-from src.core.engine.items.item import GATHERED_ITEM_ID_BY_NAME
+from src.core.engine.items.item import get_gathered_item_id_by_name
 
 
 def get_rare_gid_with_weight_from_protector_drop(
@@ -26,7 +26,7 @@ def get_rare_gid_with_weight_from_protector_drop(
             res_object_id = CUSTOM_GATHERER_BY_SAC[drop.objectId]
         elif description.startswith("cet énorme"):
             cleaned_desc = "".join(description.replace(".", "").split(" ")[-4:])
-            for item_name, item_gid in GATHERED_ITEM_ID_BY_NAME.items():
+            for item_name, item_gid in get_gathered_item_id_by_name().items():
                 if item_name in cleaned_desc:
                     res_object_id = item_gid
                     break

@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import partial
 
-from exchange_pb2 import (
+from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeBidHouseBuyRequest,
     ExchangeBidHouseBuyResultEvent,
     ExchangeBidHouseSearchRequest,

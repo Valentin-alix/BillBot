@@ -8,8 +8,8 @@ from DBDofusUnity.dofus_unity_reader.game_constants.skill import MAP_IDS_BY_SKIL
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from src.controller.game_data import GameDataController
 from src.core.config import WEIGHT_BY_JOB
-from src.core.engine.items.item import GATHERER_ITEM_GIDS
-from src.core.states.guild_chest_state import GIDS_BY_TAB
+from src.core.engine.items.item import get_gatherer_item_gids
+from src.core.states.guild_chest_state import get_gids_by_tab
 from src.services.logging_utils.loggers import BotLogger
 
 
@@ -43,12 +43,12 @@ def is_not_valid_recipe_for_lvl_up_job_or_benefice(
         return True
     benefit_percent = get_benefice_on_craft_recipe(recipe)[1]
     if current_job_lvl - recipe.resultLevel >= 20 and not (
-        benefit_percent > 0.3 and recipe.resultId in GIDS_BY_TAB[2]
+        benefit_percent > 0.3 and recipe.resultId in get_gids_by_tab()[2]
     ):
         return True
     if any(
         (
-            ingredient_id not in GATHERER_ITEM_GIDS
+            ingredient_id not in get_gatherer_item_gids()
             and DataReader().item_by_id[ingredient_id].typeId != ItemTypeEnum.VIANDE
         )
         for ingredient_id in recipe.ingredientIds

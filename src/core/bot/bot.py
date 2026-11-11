@@ -1,48 +1,50 @@
+from __future__ import annotations
+
 import datetime
 from dataclasses import dataclass, field
 from threading import Event
 
-from ankama_launcher_emulator.interfaces.credentials import (
+lazy from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 
-from src.controller.bot_config import BotConfigService
-from src.core.behaviors.account.character_creation_behavior import (
+lazy from src.controller.bot_config import BotConfigService
+lazy from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
 )
-from src.core.behaviors.account.ogrine_subscription import OgrineSubscriptionBehavior
-from src.core.behaviors.account.paysafecard_subscription import (
+lazy from src.core.behaviors.account.ogrine_subscription import OgrineSubscriptionBehavior
+lazy from src.core.behaviors.account.paysafecard_subscription import (
     PaysafecardSubscriptionBehavior,
 )
-from src.core.behaviors.behavior import Behavior
-from src.core.behaviors.craft.craft_behavior import CraftBehavior
-from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
-from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
-from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
-from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
-from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
-from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
-from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
-from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
-from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
-from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
-from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
-from src.core.bot.execution.process_manager import ProcessManager
-from src.core.bot.execution.watchdog import StuckWatchdog
-from src.core.bot.lifecycle.connection_handler import ConnectionHandler
-from src.core.bot.lifecycle.scheduler import BotScheduler
-from src.core.events_manager.event_manager import EventManager
-from src.core.frames.frame import Frame
-from src.core.signals.bot_signals import BotSignals
-from src.core.signals.grid_signals import GridSignals
-from src.core.signals.log_signals import LogSignals
-from src.core.signals.message_signals import MessageInfoSignals
-from src.core.signals.player_signals import GameInfoSignals, InventorySignals
-from src.core.signals.shared_farm_signals import SharedSignals
-from src.core.signals.world_signals import WorldSignals
-from src.core.states.game_state import GameState
-from src.services.background import run_in_background
-from src.services.debug_recorder import DebugRecorder
+lazy from src.core.behaviors.behavior import Behavior
+lazy from src.core.behaviors.craft.craft_behavior import CraftBehavior
+lazy from src.core.behaviors.farms.auto_bot_behavior import AutoBotBehavior
+lazy from src.core.behaviors.farms.fight.fight_behavior import FightBehavior
+lazy from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
+lazy from src.core.behaviors.farms.harvest.harvester_behavior import HarvesterBehavior
+lazy from src.core.behaviors.quests.dungeon_behavior import DungeonBehavior
+lazy from src.core.behaviors.quests.tutorial_behavior import TutorialBehavior
+lazy from src.core.behaviors.socket.connection_behavior import ConnectionBehavior
+lazy from src.core.behaviors.socket.game_session_behavior import GameSessionBehavior
+lazy from src.core.behaviors.socket.handshake_behavior import HandshakeBehavior
+lazy from src.core.behaviors.socket.heartbeat_behavior import HearthBeatBehavior
+lazy from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
+lazy from src.core.bot.execution.process_manager import ProcessManager
+lazy from src.core.bot.execution.watchdog import StuckWatchdog
+lazy from src.core.bot.lifecycle.connection_handler import ConnectionHandler
+lazy from src.core.bot.lifecycle.scheduler import BotScheduler
+lazy from src.core.events_manager.event_manager import EventManager
+lazy from src.core.frames.frame import Frame
+lazy from src.core.signals.bot_signals import BotSignals
+lazy from src.core.signals.grid_signals import GridSignals
+lazy from src.core.signals.log_signals import LogSignals
+lazy from src.core.signals.message_signals import MessageInfoSignals
+lazy from src.core.signals.player_signals import GameInfoSignals, InventorySignals
+lazy from src.core.signals.shared_farm_signals import SharedSignals
+lazy from src.core.signals.world_signals import WorldSignals
+lazy from src.core.states.game_state import GameState
+lazy from src.services.background import run_in_background
+lazy from src.services.debug_recorder import DebugRecorder
 from src.services.logging_utils.contextual_logger import ContextualLogger
 
 

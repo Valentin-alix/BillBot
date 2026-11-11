@@ -20,7 +20,7 @@ from src.core.behaviors.storage.loads.recipe_loader_behavior import (
     RecipeLoaderBehavior,
 )
 from src.services.human_timings import HumanTimingsService
-from src.core.states.guild_chest_state import GIDS_BY_TAB
+from src.core.states.guild_chest_state import get_gids_by_tab
 
 
 @dataclass
@@ -70,7 +70,7 @@ class LoadRecipeFromGuildChestBehavior(RecipeLoaderBehavior):
         storage = self.game_state.guild_chest.storage
         tabs_to_discover = tuple(
             tab
-            for tab, item_gids in GIDS_BY_TAB.items()
+            for tab, item_gids in get_gids_by_tab().items()
             if any(
                 ingredient_id in item_gids and not storage.tab_exists(tab)
                 for ingredient_id in all_ingredient_ids

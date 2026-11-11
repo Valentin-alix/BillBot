@@ -442,22 +442,34 @@ class TestFightState:
         assert "monster_gid=0" in message
         assert "fighter_kind=unknown" in message
 
-    def test_zero_life_enemy_is_excluded_from_attack_context(
+    def test_zero_life_enemy_remains_in_attack_context_until_death(
         self,
         runtime_bot: Bot,
     ) -> None:
-        runtime_bot.game_state.player.character_id = 123
-        runtime_bot.game_state.entity.set_actor(make_fighter(123, 100, team=Team.TEAM_CHALLENGER))
-        runtime_bot.game_state.entity.set_actor(make_fighter(-1, 200, team=Team.TEAM_DEFENDER))
-        runtime_bot.game_state.entity.actor_fight_by_id[-1] = FightActor(
-            life_point=0,
-            is_summoned=False,
+        set_game_state(
+            runtime_bot.game_state, player_cell_id=100, enemy_cell_ids=[200], include_spell_ids=[]
+        )
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(
+                life_points_lost=GameActionFightEvent.LifePointsLost(target_id=0, loss=1000)
+            )
         )
 
         attack_context = runtime_bot.game_state.get_attack_context()
 
-        assert attack_context.enemy_actors == []
-        assert attack_context.enemies_data == []
+        assert [enemy.actor_id for enemy in attack_context.enemy_actors] == [0]
+        assert len(attack_context.enemies_data) == 1
+        assert attack_context.enemies_data[0].life_point == 0
+        assert runtime_bot.game_state.fight.get_enemies(-1) == attack_context.enemy_actors
+
+        runtime_bot.event_manager.process_msg(
+            GameActionFightEvent(death=GameActionFightEvent.Death(target_id=0))
+        )
+
+        context_after_death = runtime_bot.game_state.get_attack_context()
+        assert context_after_death.enemy_actors == []
+        assert context_after_death.enemies_data == []
+        assert 0 not in runtime_bot.game_state.entity.actor_fight_by_id
 
     def test_attack_context_counts_own_active_summons(
         self,

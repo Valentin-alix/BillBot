@@ -1,9 +1,12 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, TransparentToolButton
 
-from src.core.bot.bot import Bot
 from src.gui.pages.craft.recipe_group import RecipeGroup
 from src.gui.pages.craft.recipe_table import RecipeTable
 
@@ -36,6 +39,8 @@ class CraftPage(QWidget):
 
         self.main_layout.addWidget(self.craft_table)
         self.main_layout.addWidget(self.craft_group)
+        if self.bot.is_playing_event.is_set():
+            self.on_play(False)
 
     @pyqtSlot(object)
     def on_removed_recipe_queue(self, recipe: RecipeItem):

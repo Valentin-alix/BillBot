@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+lazy from src.core.bot.bot import Bot
+
 from collections.abc import Callable
 from enum import StrEnum
 
@@ -14,7 +18,6 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from src.core import config
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
-from src.core.bot.bot import Bot
 from src.gui.pages.farmer.bank_tab import BankTab
 from src.gui.pages.farmer.inventory_tab import InventoryTab
 from src.gui.pages.farmer.map_tab import MapTab

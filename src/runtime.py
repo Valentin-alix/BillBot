@@ -6,8 +6,8 @@ from PyQt6.QtWidgets import QMessageBox
 from qfluentwidgets import Theme, setTheme, setThemeColor
 
 from src.gui.application import Application
-from src.gui.main_window import MainWindow
-from src.core.bot.bot_manager import BotManager
+lazy from src.gui.main_window import MainWindow
+lazy from src.core.bot.bot_manager import BotManager
 from src.core.bot.lifecycle.scheduler import run_continuously
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.services.user_activity import UserActivityService

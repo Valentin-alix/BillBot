@@ -2,7 +2,7 @@ from abc import ABC
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from context_pb2 import ContextCreationEvent
+from DBDofusUnity.datas.protos.non_obf.game.context_pb2 import ContextCreationEvent
 from DBDofusUnity.datas.protos.non_obf.game.gamemap_pb2 import MapComplementaryInformationEvent
 from DBDofusUnity.datas.protos.non_obf.game.haven_bag_pb2 import HavenBagEnterRequest
 from DBDofusUnity.dofus_unity_reader.game_constants.map_id import MapIdEnum
