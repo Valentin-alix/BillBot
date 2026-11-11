@@ -1,6 +1,6 @@
 {
     "typeCheckingMode": "standard",
-    "pythonVersion": "3.12",
+    "pythonVersion": "3.15",
     "useLibraryCodeForTypes": true,
     "stubPath": ".stubs",
     "reportMissingTypeStubs": "none",

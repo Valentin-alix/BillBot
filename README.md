@@ -38,7 +38,7 @@ Downloads or disable antivirus protection.
 
 ### From source
 
-Requirements: **Windows**, **Python 3.12**, **Git LFS**, and **uv**.
+Requirements: **Windows x64**, **CPython 3.15.2** (standard build with the GIL), **Git LFS**, and **uv**.
 Clone the repository and run these commands from its root in PowerShell:
 
 ```powershell
@@ -51,6 +51,8 @@ uv run python __main__.py
 ```
 
 Copy `.env.example` only on first installation; keep any existing `.env`.
+The `.python-version` file selects Python 3.15.2. On an existing checkout, `uv sync --frozen`
+recreates an older virtual environment with that interpreter and the locked dependencies.
 MITM mode requires Dofus Unity installed through the Ankama launcher.
 Cytrus is optional and handles automatic updates.
 

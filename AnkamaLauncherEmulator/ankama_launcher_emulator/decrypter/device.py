@@ -55,6 +55,7 @@ class Device:
                 "MachineGuid",
             ],
             text=True,
+            encoding="locale",
             timeout=10,
         )
         return "".join(output.split("REG_SZ")[1].split()).lower()

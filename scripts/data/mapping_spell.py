@@ -10,7 +10,7 @@ _MIN_THRESHOLD: int = 15
 
 def map_spell_level() -> None:
     resources = PROJECT_ROOT / "dofus_unity_reader/tools/mapping_flags/resources/SpellLevels.json"
-    with resources.open() as file:
+    with resources.open(encoding="utf-8") as file:
         old_datas = json.load(file)
     old_value_by_spell_lvl_id = {data["id"]: data["castTestLos"] for data in old_datas}
 

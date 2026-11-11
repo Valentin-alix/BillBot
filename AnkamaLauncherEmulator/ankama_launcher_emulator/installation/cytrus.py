@@ -31,6 +31,7 @@ def cytrus_get_latest_version(game: Game, release: Release) -> str:
         ],
         capture_output=True,
         text=True,
+        encoding="locale",
         check=True,
         shell=True,
     )
@@ -62,6 +63,7 @@ def cytrus_download(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="locale",
     )
     if process.stdout:
         for line in process.stdout:

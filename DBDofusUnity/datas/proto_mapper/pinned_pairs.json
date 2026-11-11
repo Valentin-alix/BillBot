@@ -3,6 +3,31 @@
     {
       "obf": "jny",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Gamemap.MapMovementConfirmRequest"
+    },
+    {
+      "obf": "jsq.jrh",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.TeleportOnSameMap"
+    },
+    {
+      "obf": "kzo",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Common.EntityDisposition",
+      "field_mapping_by_obf": {
+        "gblc": "cell_id"
+      }
+    },
+    {
+      "obf": "jsq.jrn",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.PointsVariation",
+      "field_mapping_by_obf": {
+        "fwpj": "target_id"
+      }
+    },
+    {
+      "obf": "jsq",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent",
+      "field_mapping_by_obf": {
+        "fwvp": "teleport_on_same_map"
+      }
     }
   ]
 }

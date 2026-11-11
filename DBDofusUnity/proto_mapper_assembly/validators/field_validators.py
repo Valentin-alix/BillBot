@@ -2,6 +2,8 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any, TypeVar
 
+from google.protobuf.message import Message
+
 from DBDofusUnity.datas.protos.non_obf.game.account_pb2 import (
     AccountCapabilitiesEvent,
     AccountInformationUpdateEvent,
@@ -269,7 +271,6 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.directions import DirectionsEnum
 from DBDofusUnity.dofus_unity_reader.grid.map_point import MAP_POINT_BY_CELL_ID
-from google.protobuf.message import Message
 from DBDofusUnity.proto_mapper_assembly.helpers.utils import strict_validate_call
 
 T = TypeVar("T")
@@ -315,7 +316,7 @@ def is_valid_tab_number(value: int) -> bool:
 
 @strict_validate_call
 def is_valid_cell_id(value: int) -> bool:
-    return value in MAP_POINT_BY_CELL_ID
+    return value in MAP_POINT_BY_CELL_ID or value == -1
 
 
 @strict_validate_call
@@ -677,7 +678,7 @@ def is_valid_langage_code(value: str) -> bool:
 def is_valid_timestamp(value: int) -> bool:
     try:
         datetime.fromtimestamp(value / 1000, tz=UTC)
-    except (ValueError, OSError):
+    except ValueError, OSError:
         return False
     return value > 0
 

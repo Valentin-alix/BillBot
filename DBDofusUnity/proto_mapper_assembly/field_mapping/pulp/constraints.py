@@ -43,7 +43,7 @@ _MAX_CONSTRAINT_TUPLES: int = 50_000
 
 
 class LpConstrainable(Protocol):
-    def addConstraint(self, _constraint: pulp.LpAffineExpression, /, name: str | None = None) -> None: ...  # noqa: N802
+    def addConstraint(self, _constraint: pulp.LpAffineExpression, /, name: str | None = None) -> object: ...  # noqa: N802
 
 
 @dataclass(frozen=True)

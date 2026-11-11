@@ -231,6 +231,8 @@ def _build_rejected_info(pair_metadata: FieldPairMetadata, score: float) -> Fiel
         return ValidationFailureRejectedInfo(
             reason=reason, value=_to_json_debug_value(pair_metadata.failed_validation_value)
         )
+    if reason == "pinned_field_exclusion":
+        return ReasonRejectedInfo(reason=reason)
     return ScoreRejectedInfo(reason="not_selected", score=score)
 
 

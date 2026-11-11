@@ -99,19 +99,13 @@ def score_field_pair(
         ):
             return 0.0, FieldPairMetadata(zero_score_reason="pinned_field_exclusion")
         if obf_field.clean_field_name in pinned_pair.field_mapping_by_obf:
-            score = (
-                0
-                if non_obf_field.clean_field_name
-                != pinned_pair.field_mapping_by_obf[obf_field.clean_field_name]
-                else 1
-            )
+            if non_obf_field.clean_field_name != pinned_pair.field_mapping_by_obf[obf_field.clean_field_name]:
+                return 0.0, FieldPairMetadata(zero_score_reason="pinned_field_exclusion")
+            score = 1.0
         if non_obf_field.clean_field_name in pinned_pair.field_mapping_by_non_obf:
-            score = (
-                0
-                if obf_field.clean_field_name
-                != pinned_pair.field_mapping_by_non_obf[non_obf_field.clean_field_name]
-                else 1
-            )
+            if obf_field.clean_field_name != pinned_pair.field_mapping_by_non_obf[non_obf_field.clean_field_name]:
+                return 0.0, FieldPairMetadata(zero_score_reason="pinned_field_exclusion")
+            score = 1.0
 
     if score is None:
         declared_score = declared_field_similarity(non_obf_field, obf_field)

@@ -69,7 +69,7 @@ def _load_game_mappings() -> SimpleGameMappingsDocument:
     if _cached_game_mappings is not None and _cached_game_mappings_mtime_ns == current_mtime_ns:
         return _cached_game_mappings
 
-    with open(_GAME_MAPPINGS_PATH) as file:
+    with open(_GAME_MAPPINGS_PATH, encoding="utf-8") as file:
         game_mappings = SimpleGameMappingsDocument.model_validate(json.load(file))
 
     _cached_game_mappings = game_mappings

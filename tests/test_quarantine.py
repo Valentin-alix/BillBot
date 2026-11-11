@@ -69,6 +69,3 @@ def test_unknown_mailbox_is_not_created_by_quarantine(monkeypatch: MonkeyPatch, 
 
     assert MailAccountController().quarantine("unknown@example.com", "Error") is False
     assert MailAccountController().get_all_entries() == {}
-from pathlib import Path
-
-from pytest import MonkeyPatch

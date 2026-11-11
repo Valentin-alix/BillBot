@@ -74,6 +74,7 @@ def run_ida_script(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="locale",
             env=environment,
         )
         if process.stdout:

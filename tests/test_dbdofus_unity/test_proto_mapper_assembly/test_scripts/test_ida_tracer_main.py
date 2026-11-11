@@ -58,9 +58,10 @@ class TestIdaTracerMain:
             stdout: int,
             stderr: int,
             text: bool,
+            encoding: str,
             env: dict[str, str],
         ) -> _FakeProcess:
-            del stdout, stderr, text
+            del stdout, stderr, text, encoding
             captured_env.update(env)
             return _FakeProcess()
 
@@ -97,9 +98,10 @@ class TestIdaTracerMain:
             stdout: int,
             stderr: int,
             text: bool,
+            encoding: str,
             env: dict[str, str],
         ) -> _FakeProcess:
-            del stdout, stderr, text
+            del stdout, stderr, text, encoding
             captured_command.extend(command)
             captured_env.update(env)
             return _FakeProcess()
@@ -132,9 +134,10 @@ class TestIdaTracerMain:
             stdout: int,
             stderr: int,
             text: bool,
+            encoding: str,
             env: dict[str, str],
         ) -> _FakeProcess:
-            del stdout, stderr, text
+            del stdout, stderr, text, encoding
             captured_env.update(env)
             return _FakeProcess(return_code=7)
 
