@@ -240,7 +240,7 @@ def calculate_damage_weight(
                 else AttackWeights.ENEMY_KILL_BONUS
             )
 
-        enemy_health_percentage = enemy_data.life_point / enemy_data.max_life_point
+        enemy_health_percentage = max(enemy_data.life_point / enemy_data.max_life_point, 0.1)
         damage_efficiency = effective_damage / enemy_health_percentage
         if enemy_data.is_summoned:
             damage_efficiency /= AttackWeights.SUMMONED_DAMAGE_DIVISOR

@@ -130,6 +130,10 @@ class SidebarItem(NavigationWidget):
         else:
             self._right_icon.hide()
 
+    def set_controls_enabled(self, enabled: bool) -> None:
+        for widget in (self._mode_combo, self._play_btn, self._stop_btn, self._disconnect_btn):
+            widget.setEnabled(enabled)
+
     def set_subscribed(self, is_subscribed: bool) -> None:
         color = QColor(0, 230, 118) if is_subscribed else QColor(244, 67, 54)
         subscription_icon = FluentIcon("Certificate")

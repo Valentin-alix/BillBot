@@ -1,46 +1,49 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
-
 import logging
 from collections.abc import Callable
+from datetime import datetime
 from functools import partial
-from typing import Literal, cast
+from typing import Literal
 
-from ankama_launcher_emulator.controller.bot_storage import (
-    BotStorageController,
-)
-from PyQt6.QtCore import QSize, QTimer, QUrl
+from PyQt6.QtCore import QTimer, QUrl, pyqtSignal
 from PyQt6.QtGui import QCloseEvent, QColor, QIcon, QPixmap
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
+    BodyLabel,
     FluentIcon,
     NavigationItemPosition,
+    PushButton,
 )
+from qfluentwidgets.components.widgets.progress_ring import IndeterminateProgressRing
+lazy from ankama_launcher_emulator.controller.bot_storage import BotStorageController
 
-from src.consts import LOGO_FILE
-from src.controller.bot_config import BotConfigService
+from src.consts import LOGO_FILE, MIN_DATE
+from src.controller.bot_config import BotConfig, BotConfigService
 from src.controller.player_info_storage import PlayerInfoSnapshot, PlayerInfoStorage
 from src.core import config
 from src.core.signals.log_signals import LogSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.gui.components.manual_confirmation import ManualConfirmationDialogs
 from src.gui.consts import BASE_HEIGHT, BASE_WIDTH
-from src.gui.startup_splash_screen import StartupSplashScreen
-from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
-from src.gui.fragments.account_stacked_widget import AccountStackedWidget
 from src.gui.fragments.app_fluent_window import AppFluentWindow
 from src.gui.fragments.sidebar_item import SidebarItem
 from src.gui.pages.activity import ActivityPage
 from src.gui.pages.settings.settings_page import SettingsPage
 from src.services.background import run_in_background
 from src.services.logging_utils.loggers import init_root_gui_logging
+lazy from src.core.bot.bot import Bot
+lazy from src.core.bot.bot_manager import BotManager
+lazy from src.gui.fragments.account_stacked_widget import AccountStackedWidget
+lazy from src.services.startup import subscription_end_dates
 
 logger = logging.getLogger()
 _BREED_ICON_URL_TEMPLATE = "https://api.dofusdb.fr/img/breeds/symbol_{breed_id}.png"
 
 
 class MainWindow(AppFluentWindow):
+    retry_requested = pyqtSignal()
     account_widgets: list[AccountStackedWidget]
     bots_by_login: dict[str, Bot]
     sidebar_items_by_login: dict[str, SidebarItem]
@@ -57,8 +60,19 @@ class MainWindow(AppFluentWindow):
         self.setWindowTitle(self.title)
         self.resize(BASE_WIDTH, BASE_HEIGHT)
         self.setWindowIcon(QIcon(LOGO_FILE))
-        self.splashScreen = StartupSplashScreen(self.windowIcon(), self)
-        self.splashScreen.setIconSize(QSize(102, 102))
+        self.startup_status = QWidget(self)
+        status_layout = QHBoxLayout(self.startup_status)
+        self.status_label = BodyLabel("Starting?", self.startup_status)
+        self.status_progress = IndeterminateProgressRing(self.startup_status)
+        self.status_progress.setFixedSize(20, 20)
+        self.status_progress.start()
+        self.retry_button = PushButton("Retry", self.startup_status)
+        self.retry_button.clicked.connect(self.retry_requested.emit)
+        self.retry_button.hide()
+        status_layout.addWidget(self.status_label, 1)
+        status_layout.addWidget(self.status_progress)
+        status_layout.addWidget(self.retry_button)
+        self.widgetLayout.insertWidget(0, self.startup_status)
 
         self.disconnected_icon = FluentIcon.PEOPLE.icon(color=QColor(255, 0, 0))
         self.connected_icon = FluentIcon.PEOPLE.icon(color=QColor(0, 255, 0))
@@ -66,18 +80,21 @@ class MainWindow(AppFluentWindow):
         self._breed_icon_by_id: dict[int, QIcon] = {}
 
         self.account_widgets: list[AccountStackedWidget] = []
+        self._account_pages: dict[str, QWidget] = {}
+        self._account_details: dict[str, tuple[PlayerInfoSnapshot | None, str | None, datetime]] = {}
+        self._runtime_ready = False
         self.bots_by_login: dict[str, Bot] = {}
         self.sidebar_items_by_login: dict[str, SidebarItem] = {}
         self._subscription_refresh_timer = QTimer(self)
         self._subscription_refresh_timer.setInterval(60_000)
         self._subscription_refresh_timer.timeout.connect(self._refresh_subscription_statuses)
-        self._subscription_refresh_timer.start()
+
         self._close_requested = False
         self._shutdown_finished = False
         self.shared_signals.new_bot_added.connect(self.add_account)
         self.shared_signals.bot_removed.connect(self.remove_account)
-        self.shared_signals.shutdown_finished.connect(self.complete_shutdown)
         self.activity_page = ActivityPage(parent=self)
+        self.activity_page.set_actions_enabled(False)
         self.stackedWidget.addWidget(self.activity_page)
         self.navigationInterface.addItem(
             routeKey=self.activity_page.objectName(),
@@ -88,6 +105,7 @@ class MainWindow(AppFluentWindow):
         )
         self.navigationInterface.setCurrentItem(self.activity_page.objectName())
         self.settings_page = SettingsPage(self)
+        self.settings_page.setEnabled(False)
         self.stackedWidget.addWidget(self.settings_page)
         self.navigationInterface.addItem(
             routeKey="settings",
@@ -111,48 +129,96 @@ class MainWindow(AppFluentWindow):
         run_in_background(refresh)
 
     def set_startup_status(self, status: str) -> None:
-        self.setWindowTitle(f"{self.title} — {status}")
-        self.splashScreen.set_status(status)
+        self.status_label.setText(status)
+        self.startup_status.show()
+        self.status_progress.show()
+        self.status_progress.start()
+        self.retry_button.hide()
 
-    def init_accounts(self, account_by_id: dict[int, Bot]) -> None:
-        snapshots = PlayerInfoStorage().get_all_snapshots()
-        records = BotStorageController().get_all_records()
-        for account in account_by_id.values():
-            login = account.account.apikey.login
-            record = records.get(login)
-            self.add_account(
-                account,
-                snapshot=snapshots.get(login),
-                quarantine_reason=record.quarantine_reason if record is not None else None,
+    def show_startup_error(self, message: str) -> None:
+        self.status_label.setText(message)
+        self.status_progress.stop()
+        self.status_progress.hide()
+        self.retry_button.show()
+        self.startup_status.show()
+
+    def set_runtime_ready(self) -> None:
+        self.status_progress.stop()
+        self.startup_status.hide()
+        if self._runtime_ready:
+            return
+        self._runtime_ready = True
+        self.settings_page.enable_editing()
+        self.activity_page.set_actions_enabled(True)
+        for sidebar in self.sidebar_items_by_login.values():
+            sidebar.set_controls_enabled(True)
+        for view in self.account_widgets:
+            view.setEnabled(True)
+        self._subscription_refresh_timer.start()
+
+    def bind_runtime(self, manager: BotManager) -> None:
+        self.activity_page.restore_account_requested.connect(manager.restore_account_from_quarantine)
+        self.activity_page.delete_account_requested.connect(manager.delete_account)
+        self.activity_page.restore_mailbox_requested.connect(manager.restore_mailbox_from_quarantine)
+        self.activity_page.delete_mailbox_requested.connect(manager.delete_mailbox)
+        self.settings_page.bind_account_actions(
+            manager.delete_account, manager.delete_mailbox, self.activity_page.refresh
+        )
+
+    def unbind_runtime(self, manager: BotManager) -> None:
+        self.activity_page.restore_account_requested.disconnect(manager.restore_account_from_quarantine)
+        self.activity_page.delete_account_requested.disconnect(manager.delete_account)
+        self.activity_page.restore_mailbox_requested.disconnect(manager.restore_mailbox_from_quarantine)
+        self.activity_page.delete_mailbox_requested.disconnect(manager.delete_mailbox)
+        manager.disconnect_signals()
+
+    def clear_accounts(self) -> None:
+        for account in list(self.bots_by_login.values()):
+            self.remove_account(account)
+        self._runtime_ready = False
+        self.settings_page.setEnabled(False)
+        self.activity_page.set_actions_enabled(False)
+        self._subscription_refresh_timer.stop()
+
+    def switchTo(self, widget: QWidget) -> None:
+        login = widget.objectName()
+        if login in self.bots_by_login and widget.layout() is None:
+            snapshot, reason, subscription_end = self._account_details[login]
+            view = AccountStackedWidget(
+                self.global_log_signals,
+                login,
+                self.bots_by_login[login],
+                snapshot,
+                reason,
+                parent=widget,
+                subscription_end=subscription_end,
             )
-        if config.DEBUG:
-            run_in_background(
-                lambda _: AccountQuickInfoWidget.resolve_snapshot_sub_area_names(snapshots),
-                on_success=self._set_snapshot_sub_area_names,
-                parent=self,
-            )
+            layout = QVBoxLayout(widget)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.addWidget(view)
+            view.setEnabled(self._runtime_ready)
+            self.account_widgets.append(view)
+        super().switchTo(widget)
 
     def add_account(
         self,
         account: Bot,
         snapshot: PlayerInfoSnapshot | None = None,
         quarantine_reason: str | None = None,
+        bot_config: BotConfig | None = None,
+        subscription_end: datetime = MIN_DATE,
     ) -> None:
         login = account.account.apikey.login
         self.bots_by_login[login] = account
 
-        account_widget = AccountStackedWidget(
-            self.global_log_signals,
-            login,
-            account,
-            snapshot,
-            quarantine_reason,
-        )
-        self.account_widgets.append(account_widget)
+        account_widget = QWidget(self.stackedWidget)
+        self._account_pages[login] = account_widget
+        self._account_details[login] = (snapshot, quarantine_reason, subscription_end)
         navigation_widget = SidebarItem(account.bot_signals, self.disconnected_icon, login, True, parent=self)
         self._set_sidebar_title(navigation_widget, login, snapshot)
         self.sidebar_items_by_login[login] = navigation_widget
-        navigation_widget.set_subscribed(account.game_state.player.is_sub)
+        navigation_widget.set_controls_enabled(self._runtime_ready)
+        navigation_widget.set_subscribed(subscription_end > datetime.now(tz=subscription_end.tzinfo))
         navigation_widget.set_playing(account.is_playing_event.is_set())
         is_connected = account.is_connected_event.is_set()
         navigation_widget.set_connected(is_connected)
@@ -164,13 +230,15 @@ class MainWindow(AppFluentWindow):
             navigation_widget,
             position=NavigationItemPosition.SCROLL,
         )
-        self.navigationInterface.panel.expand()
+        if len(self.bots_by_login) == 1:
+            self.navigationInterface.panel.expand(useAni=False)
 
-        bot_config_controller = BotConfigService()
-        config = bot_config_controller.get_bot_config(login)
-
-        selected_mode = config.connection_mode
+        selected_mode = (
+            bot_config if bot_config is not None else BotConfigService().get_bot_config(login)
+        ).connection_mode
         navigation_widget.populate_connection_mode(selected_mode)
+        if bot_config is None:
+            self._refresh_subscription_statuses()
 
         def on_connection_mode_changed(mode: str) -> None:
             assert mode in ("mitm", "socket"), f"Unknown connection mode {mode}"
@@ -218,11 +286,6 @@ class MainWindow(AppFluentWindow):
 
     def _set_sidebar_title_from_storage(self, navigation_widget: SidebarItem, login: str) -> None:
         self._set_sidebar_title(navigation_widget, login, PlayerInfoStorage().get_snapshot(login))
-
-    def _set_snapshot_sub_area_names(self, result: object) -> None:
-        sub_area_name_by_login = cast(dict[str, str], result)
-        for account_widget in self.account_widgets:
-            account_widget.set_snapshot_sub_area_name(sub_area_name_by_login.get(account_widget.login))
 
     def _show_breed_icon(self, navigation_widget: SidebarItem, account: Bot) -> None:
         navigation_widget.set_left_icon(self.connected_icon)
@@ -296,24 +359,25 @@ class MainWindow(AppFluentWindow):
         self.sidebar_items_by_login.pop(login)
         self._disconnect_game_info_signals(account)
 
-        account_widget = next(
-            (widget for widget in self.account_widgets if widget.objectName() == login),
-            None,
-        )
-        if account_widget is None:
-            return
-
-        self.account_widgets.remove(account_widget)
-        self.removeWidget(login, account_widget)
-        account_widget.deleteLater()
-
-        if self.account_widgets:
-            self.switchTo(self.account_widgets[0])
-            self.navigationInterface.setCurrentItem(self.account_widgets[0].objectName())
+        page = self._account_pages.pop(login)
+        self._account_details.pop(login)
+        self.account_widgets = [widget for widget in self.account_widgets if widget.login != login]
+        self.removeWidget(login, page)
+        page.deleteLater()
 
     def _refresh_subscription_statuses(self) -> None:
+        run_in_background(
+            lambda _: subscription_end_dates(BotStorageController().get_all_records()),
+            on_success=self._set_subscription_statuses,
+        )
+
+    def _set_subscription_statuses(self, dates: dict[str, datetime | None]) -> None:
         for login, account in self.bots_by_login.items():
-            self.sidebar_items_by_login[login].set_subscribed(account.game_state.player.is_sub)
+            end = dates.get(login) or MIN_DATE
+            self.sidebar_items_by_login[login].set_subscribed(end > datetime.now(tz=end.tzinfo))
+            snapshot, reason, _ = self._account_details[login]
+            self._account_details[login] = snapshot, reason, end
+            account.game_info_signals.subscription_end_date.emit(end)
 
     def _disconnect_game_info_signals(self, account: Bot) -> None:
         for signal in (
@@ -348,6 +412,7 @@ class MainWindow(AppFluentWindow):
             return
 
         self._close_requested = True
+        self._subscription_refresh_timer.stop()
         self.confirmation_dialogs.shutdown()
         self.setEnabled(False)
         self.shared_signals.closed.emit()

@@ -14,6 +14,7 @@ from src.utils.runtime_support import RuntimeSetupError, error_message
 class SettingsPanel(QWidget):
     def __init__(self, description: str) -> None:
         super().__init__()
+        self._deletion_handlers: dict[SettingsOverview, Callable[[str], None]] = {}
         layout = QVBoxLayout(self)
         layout.setSpacing(0)
         label = BodyLabel(description, self)
@@ -87,6 +88,10 @@ class SettingsPanel(QWidget):
 
             self.perform(lambda: action(identifier), done, background=background)
 
+        previous = self._deletion_handlers.get(overview)
+        if previous is not None:
+            overview.delete_requested.disconnect(previous)
+        self._deletion_handlers[overview] = request
         overview.delete_requested.connect(request)
 
     def perform[ResultT](

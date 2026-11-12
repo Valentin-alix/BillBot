@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import os
+from collections.abc import Mapping
 
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
@@ -47,9 +48,10 @@ class CryptoHelper:
         storage.update_record(login, clear_auth)
 
     @staticmethod
-    def getStoredApiKeys() -> list[StoredApiKey]:
+    def getStoredApiKeys(records: Mapping[str, BotRecord] | None = None) -> list[StoredApiKey]:
         stored_api_keys: list[StoredApiKey] = []
-        for record in BotStorageController().get_all_records().values():
+        records = BotStorageController().get_all_records() if records is None else records
+        for record in records.values():
             if record.encrypted_api_key is None:
                 continue
             raw = CryptoHelper.decrypt(

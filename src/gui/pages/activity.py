@@ -45,6 +45,7 @@ class ActivityPage(QWidget):
         self._activity_logins: frozenset[str] = frozenset()
         self._quarantined: list[QuarantineRow] | None = None
         self._selected_target: tuple[str, str] | None = None
+        self._actions_enabled = True
         self._quarantine_refresh_pending = False
         self.setObjectName("activity")
 
@@ -284,9 +285,13 @@ class ActivityPage(QWidget):
         self._set_action_enabled()
 
     def _set_action_enabled(self) -> None:
-        enabled = self._selected_target is not None
+        enabled = self._actions_enabled and self._selected_target is not None
         self.restore_button.setEnabled(enabled)
         self.delete_button.setEnabled(enabled)
+
+    def set_actions_enabled(self, enabled: bool) -> None:
+        self._actions_enabled = enabled
+        self._set_action_enabled()
 
     def _restore_selected(self) -> None:
         if self._selected_target is None:

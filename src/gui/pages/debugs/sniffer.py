@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
-
-from functools import partial
+from functools import cached_property, partial
 from pathlib import Path
 from typing import Any, cast
 
@@ -29,17 +27,11 @@ from qfluentwidgets import (
 )
 
 from DBDofusUnity.consts import PINNED_PAIRS_FILE
-from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
-    upsert_pinned_field_mapping,
-    upsert_pinned_pair,
-)
 from src.core.signals.log_signals import LogSignals
-from src.services.debug_recorder import DebugRecorder
-from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
 from src.gui.pages.debugs.logs import LogsWidget
-from src.gui.pages.debugs.message_detail import MessageDetailWidget, SelectedPinnedField
 from src.gui.pages.debugs.message_table import MessageTable
 from src.gui.utils.profiling import profiled_slot
+from src.protocol import initialize_protocol
 from src.protocol.message import MessageInfo
 from src.protocol.message_names import (
     build_non_obf_game_message_pinned_name,
@@ -47,7 +39,14 @@ from src.protocol.message_names import (
     load_non_obf_game_message_full_names,
 )
 from src.protocol.protocol_game import POOL
-from src.protocol import initialize_protocol
+from src.services.debug_recorder import DebugRecorder
+lazy from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
+    upsert_pinned_field_mapping,
+    upsert_pinned_pair,
+)
+lazy from src.core.bot.bot import Bot
+lazy from src.gui.pages.debugs.listeners_stats import ListenersStatsWidget
+lazy from src.gui.pages.debugs.message_detail import MessageDetailWidget, SelectedPinnedField
 
 
 def _require_message_info(value: object) -> MessageInfo:
@@ -190,7 +189,6 @@ class PinnedPairMessageBox(MessageBoxBase):
 
 class SnifferWidget(QWidget):
     msg_table: MessageTable
-    msg_detail: MessageDetailWidget
     play_btn: PrimaryPushButton
     stop_btn: PrimaryPushButton
 
@@ -283,10 +281,7 @@ class SnifferWidget(QWidget):
         self.detail_stack = QStackedWidget(self)
         self.detail_empty_state = self._create_detail_empty_state(self.detail_stack)
         self.detail_stack.addWidget(self.detail_empty_state)
-        self.msg_detail = MessageDetailWidget(parent=self.detail_stack)
-        self.detail_stack.addWidget(self.msg_detail)
-        self.msg_detail.quit_btn.clicked.connect(self.on_close_detail)
-        self.msg_detail.lock_pinned_fields_btn.clicked.connect(self.on_lock_pinned_fields)
+        self.listeners_widget: ListenersStatsWidget | None = None
 
         self.right_splitter = QSplitter(Qt.Orientation.Vertical, self)
         self.right_splitter.addWidget(self.detail_stack)
@@ -311,11 +306,6 @@ class SnifferWidget(QWidget):
             )
             debug_stacked.addWidget(logs_widget)
 
-            listeners_widget = ListenersStatsWidget(
-                event_manager=self.bot.event_manager, parent=debug_stacked
-            )
-            debug_stacked.addWidget(listeners_widget)
-
             debug_pivot.addItem(
                 routeKey="logs",
                 text="Journaux",
@@ -324,17 +314,15 @@ class SnifferWidget(QWidget):
             debug_pivot.addItem(
                 routeKey="listeners",
                 text="Listeners",
-                onClick=lambda: self._show_listeners_tab(debug_stacked, listeners_widget),
+                onClick=lambda: self._show_listeners_tab(debug_stacked),
             )
             debug_pivot.setCurrentItem("logs")
 
             self.right_splitter.addWidget(debug_tabs_widget)
 
             self.logs_widget = logs_widget
-            self.listeners_widget = listeners_widget
         else:
             self.logs_widget = None
-            self.listeners_widget = None
 
         splitter = QSplitter(Qt.Orientation.Horizontal, self)
         splitter.addWidget(left_widget)
@@ -429,6 +417,14 @@ class SnifferWidget(QWidget):
         assert recorder is not None, "The recorder feed requires DEBUG=1"
         return recorder
 
+    @cached_property
+    def msg_detail(self) -> MessageDetailWidget:
+        detail = MessageDetailWidget(parent=self.detail_stack)
+        self.detail_stack.addWidget(detail)
+        detail.quit_btn.clicked.connect(self.on_close_detail)
+        detail.lock_pinned_fields_btn.clicked.connect(self.on_lock_pinned_fields)
+        return detail
+
     @pyqtSlot(QModelIndex)
     def on_click_msg(self, model_index: QModelIndex) -> None:
         source_index = self.msg_table.table.proxy_model.mapToSource(model_index)
@@ -516,7 +512,11 @@ class SnifferWidget(QWidget):
     def _show_listeners_tab(
         self,
         debug_stacked: QStackedWidget,
-        listeners_widget: ListenersStatsWidget,
     ) -> None:
-        debug_stacked.setCurrentWidget(listeners_widget)
-        listeners_widget.init()
+        if self.listeners_widget is None:
+            self.listeners_widget = ListenersStatsWidget(
+                event_manager=self.bot.event_manager, parent=debug_stacked
+            )
+            debug_stacked.addWidget(self.listeners_widget)
+        debug_stacked.setCurrentWidget(self.listeners_widget)
+        self.listeners_widget.init()

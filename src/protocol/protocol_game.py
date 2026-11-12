@@ -28,7 +28,7 @@ from src.protocol import initialize_protocol
 from utils.protobuf import is_repeated_field
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 TYPE_URL_PREFIX = "type.ankama.com/"
 _GAME_MAPPINGS_PATH = Path(GAME_MAPPINGS_JSON_FILE)
@@ -46,10 +46,14 @@ def _on_except_hook(exc_type: type[BaseException], value: BaseException, tb: Tra
     _default_excepthook(exc_type, value, tb)
 
 
-sys.excepthook = _on_except_hook
-signal.signal(signal.SIGTERM, _on_exit)
-signal.signal(signal.SIGINT, _on_exit)
-atexit.register(_on_exit)
+def install_capture_hooks() -> None:
+    if sys.excepthook is _on_except_hook:
+        return
+    sys.excepthook = _on_except_hook
+    signal.signal(signal.SIGTERM, _on_exit)
+    signal.signal(signal.SIGINT, _on_exit)
+    atexit.register(_on_exit)
+
 
 POOL: descriptor_pool.DescriptorPool = descriptor_pool.Default()
 
@@ -270,7 +274,7 @@ def get_msg_transformer(
                     output_msg_field_name,
                     msg_mappings,
                 )
-            except (AttributeError, ValueError, OverflowError, TypeError):
+            except AttributeError, ValueError, OverflowError, TypeError:
                 logger.debug(
                     "Failed to translate field %s -> %s", msg_field.name, output_msg_field_name, exc_info=True
                 )

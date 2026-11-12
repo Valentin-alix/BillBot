@@ -119,6 +119,10 @@ def get_account_info_by_login(login: str) -> UserAccount | None:
 
 def get_game_sub_info_by_login(login: str) -> GameSubscription:
     account_info = get_account_info_by_login(login)
+    return get_game_sub_info(account_info)
+
+
+def get_game_sub_info(account_info: UserAccount | None) -> GameSubscription:
     dofus_game = (
         next(
             (game for game in account_info.game_list if game.id == GameIdEnum.DOFUS),

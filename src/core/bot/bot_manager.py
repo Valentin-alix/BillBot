@@ -1,7 +1,6 @@
 import logging
 import threading
 from collections import defaultdict
-from contextlib import ExitStack
 from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic, sleep
@@ -22,15 +21,10 @@ from ankama_launcher_emulator.controller.proxy import ProxyController
 from ankama_launcher_emulator.controller.schedule_profile import (
     ScheduleProfileController,
 )
-from ankama_launcher_emulator.controller.zaap_import import (
-    import_zaap_accounts,
-)
 from ankama_launcher_emulator.decrypter.crypto_helper import (
     CryptoHelper,
 )
-from src.services.background import run_in_background
-from src.services.user_activity import UserActivityService
-from src.utils.runtime_support import error_message
+from ankama_launcher_emulator.interfaces.credentials import StoredApiKey
 from ankama_launcher_emulator.server.handler import (
     AnkamaLauncherHandler,
 )
@@ -46,6 +40,9 @@ from src.core.bot.lifecycle.account_scheduler import AccountScheduler
 from src.core.mitm.proxy_listener import ProxyListener
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.socket_network.socket_client import SocketClient
+from src.services.background import run_in_background
+from src.services.user_activity import UserActivityService
+from src.utils.runtime_support import error_message
 
 logger = logging.getLogger()
 
@@ -72,8 +69,7 @@ class BotManager:
 
     def __post_init__(self):
         self.ankama_launcher = AnkamaLauncherServer(self.ankama_launcher_handler)
-        import_zaap_accounts()
-        self.bot_by_account_id = self.get_bot_by_account_id()
+        self.bot_by_account_id: dict[int, Bot] = {}
         self.shared_signals.launch_account.connect(self.on_launch_account)
         self.shared_signals.synchronize_bots.connect(self.on_synchronize_bots)
         self.proxy_listener = ProxyListener(
@@ -90,6 +86,11 @@ class BotManager:
             return
         self.account_scheduler.start()
         self._account_scheduler_started = True
+
+    def add_prepared_account(self, account: StoredApiKey) -> Bot:
+        bot = BotFactory.create_bot(self.shared_signals, account)
+        self.bot_by_account_id[account.apikey.accountId] = bot
+        return bot
 
     def on_launch_account(self, login: str):
         self._running_task_count += 1
@@ -326,11 +327,7 @@ class BotManager:
                 )
         BotStorageController().quarantine(login, "Banned account")
         related_bot = next(
-            (
-                bot
-                for bot in self.bot_by_account_id.values()
-                if bot.account.apikey.login == login
-            ),
+            (bot for bot in self.bot_by_account_id.values() if bot.account.apikey.login == login),
             None,
         )
         if related_bot is not None:
@@ -343,11 +340,7 @@ class BotManager:
     def on_invalid_auth_callback(self, login: str) -> None:
         BotStorageController().quarantine(login, "Invalid authentication")
         related_bot = next(
-            (
-                bot
-                for bot in self.bot_by_account_id.values()
-                if bot.account.apikey.login == login
-            ),
+            (bot for bot in self.bot_by_account_id.values() if bot.account.apikey.login == login),
             None,
         )
         if related_bot is not None:
@@ -371,9 +364,7 @@ class BotManager:
         BotStorageController().remove_record(login)
         PlayerInfoStorage().remove_snapshot(login)
         self.on_synchronize_bots()
-        UserActivityService().record(
-            "warning", "Account permanently deleted by the user.", login=login
-        )
+        UserActivityService().record("warning", "Account permanently deleted by the user.", login=login)
 
     def restore_mailbox_from_quarantine(self, email: str) -> None:
         MailAccountController().restore_from_quarantine(email)
@@ -381,28 +372,13 @@ class BotManager:
 
     def delete_mailbox(self, email: str) -> None:
         MailAccountController().remove_email(email)
-        UserActivityService().record(
-            "warning", "Mailbox permanently deleted by the user.", login=email
-        )
+        UserActivityService().record("warning", "Mailbox permanently deleted by the user.", login=email)
 
     def safe_stop_bots(self, bots: list[Bot]):
         for bot in bots:
             bot.behavior_coordinator.stop_behaviors()
 
-    def get_bot_by_account_id(self) -> dict[int, Bot]:
-        bot_by_account_id: dict[int, Bot] = {}
-        with ExitStack() as cleanup:
-            for account in CryptoHelper.getStoredApiKeys():
-                account_id = account.apikey.accountId
-                bot_by_account_id[account_id] = BotFactory.create_bot(
-                    shared_signals=self.shared_signals,
-                    account=account,
-                )
-                cleanup.callback(self._cleanup_removed_bot, bot_by_account_id[account_id])
-            cleanup.pop_all()
-        return bot_by_account_id
-
-    def shutdown(self) -> None:
+    def shutdown(self, *, close_activity: bool = True) -> None:
         activity = UserActivityService()
         activity.record("info", "Application shutdown requested.")
         try:
@@ -413,9 +389,17 @@ class BotManager:
             for bot in bots:
                 bot.connection_handler.cleanup()
                 bot.process_manager.kill_process()
+                bot.watchdog.stop()
+                if bot.debug_recorder is not None:
+                    bot.debug_recorder.stop()
             self.proxy_listener.shutdown()
         finally:
-            activity.close()
+            if close_activity:
+                activity.close()
+
+    def disconnect_signals(self) -> None:
+        self.shared_signals.launch_account.disconnect(self.on_launch_account)
+        self.shared_signals.synchronize_bots.disconnect(self.on_synchronize_bots)
 
     def _cleanup_removed_bot(self, bot: Bot) -> None:
         login = bot.account.apikey.login

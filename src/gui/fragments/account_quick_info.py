@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
-
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from src import consts
 from src.controller.player_info_storage import PlayerInfoSnapshot
+from src.services.display_catalog import load_display_catalog
+lazy from src.core.bot.bot import Bot
 
 _UNKNOWN_VALUE = "—"
 
@@ -23,9 +21,11 @@ class AccountQuickInfoWidget(QWidget):
         snapshot: PlayerInfoSnapshot | None,
         quarantine_reason: str | None,
         parent: QWidget | None = None,
+        subscription_end: datetime = consts.MIN_DATE,
     ) -> None:
         super().__init__(parent=parent)
         self.bot = bot
+        self._catalog = load_display_catalog()
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -45,7 +45,7 @@ class AccountQuickInfoWidget(QWidget):
         self.bot.grid_signals.new_map_id.connect(self._set_sub_area)
         self.bot.game_info_signals.is_ready_to_play.connect(self._sync_from_state)
 
-        self._set_subscription_end_date(self.bot.game_state.player.subscription_end_date)
+        self._set_subscription_end_date(subscription_end)
         if self.bot.is_ready_to_play_event.is_set():
             self._sync_game_values_from_state()
         else:
@@ -86,15 +86,13 @@ class AccountQuickInfoWidget(QWidget):
             return
         self._set_kamas(snapshot.kamas)
         self._set_level(snapshot.level)
-
-    def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
-        if not self.bot.is_ready_to_play_event.is_set():
-            self.sub_area_label.setText(sub_area_name or _UNKNOWN_VALUE)
+        self._set_sub_area(snapshot.map_id)
 
     def _set_subscription_end_date(self, subscription_end_date: datetime) -> None:
-        is_subscribed = subscription_end_date != consts.MIN_DATE and datetime.now(
-            tz=subscription_end_date.tzinfo
-        ) < subscription_end_date
+        is_subscribed = (
+            subscription_end_date != consts.MIN_DATE
+            and datetime.now(tz=subscription_end_date.tzinfo) < subscription_end_date
+        )
         self.subscription_end_column.setVisible(is_subscribed)
         if not is_subscribed:
             return
@@ -110,18 +108,4 @@ class AccountQuickInfoWidget(QWidget):
         if map_id == 0:
             self.sub_area_label.setText(_UNKNOWN_VALUE)
             return
-        map_position = DataReader().map_info_by_map_id[map_id]
-        sub_area = DataReader().sub_area_by_id[map_position.subAreaId]
-        self.sub_area_label.setText(I18N().name_by_id[sub_area.nameId])
-
-    @staticmethod
-    def resolve_snapshot_sub_area_names(
-        snapshots: dict[str, PlayerInfoSnapshot],
-    ) -> dict[str, str]:
-        reader = DataReader()
-        names = I18N().name_by_id
-        return {
-            login: names[reader.sub_area_by_id[reader.map_info_by_map_id[snapshot.map_id].subAreaId].nameId]
-            for login, snapshot in snapshots.items()
-            if snapshot.map_id != 0
-        }
+        self.sub_area_label.setText(self._catalog.map_names.get(map_id, _UNKNOWN_VALUE))

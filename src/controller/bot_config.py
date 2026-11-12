@@ -37,13 +37,27 @@ class BotConfigService(metaclass=Singleton):
     _all_configs: dict[str, BotConfig] = {}
 
     def _read_bot_config_json(self) -> dict[str, BotConfig]:
+        return self._configs_from_records(BotStorageController().get_all_records())
+
+    def prepare_configs(self, records: dict[str, BotRecord]) -> dict[str, BotConfig]:
+        if not self.use_bot_config_json:
+            with self._BOT_CONFIG_LOCK:
+                for login, record in records.items():
+                    self._all_configs.setdefault(
+                        login, BotConfig(schedule_profile=record.schedule_profile, connection_mode="mitm")
+                    )
+                return dict(self._all_configs)
+        return self._configs_from_records(records)
+
+    @staticmethod
+    def _configs_from_records(records: dict[str, BotRecord]) -> dict[str, BotConfig]:
         return {
             login: BotConfig(
                 schedule_profile=record.schedule_profile,
                 connection_mode=record.connection_mode,
                 hardware_id=record.hardware_id,
             )
-            for login, record in BotStorageController().get_all_records().items()
+            for login, record in records.items()
         }
 
     def get_bot_config_by_login(self) -> dict[str, BotConfig]:

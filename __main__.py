@@ -18,9 +18,7 @@ if (
 
 from src.utils.project_paths import BUNDLE_ROOT
 
-lazy from src.gui.application import Application
 lazy from src.runtime import run_gui as start_gui
-lazy from src.gui.update_dialog import check_release_update, run_startup_task
 lazy from src.controller.bot_config import BotConfigService
 lazy import src.services.game_version as game_version
 lazy import src.services.install_validation as install_validation
@@ -52,14 +50,6 @@ configure_browser_path()
 from dotenv import load_dotenv
 
 load_dotenv(ENV_PATH)
-
-
-def run_gui(
-    application_argv: list[str],
-    enable_automatic_schedules: bool,
-    application: Application | None = None,
-) -> int:
-    return start_gui(application_argv, enable_automatic_schedules, application)
 
 
 @dataclass(frozen=True)
@@ -97,30 +87,16 @@ def validate_startup(progress: Callable[[str], None]) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv if argv is None else argv
-    application = None
-    startup_error: RuntimeSetupError | OSError | None = None
     try:
         check_platform()
         runtime_args = parse_runtime_args(argv)
-        if getattr(sys, "frozen", False):
-            application = Application(runtime_args.application_argv)
-            application.show_startup_status("Checking for updates...")
-            if check_release_update(application):
-                return 0
-            run_startup_task(application, validate_startup)
-            application.show_startup_status("Loading interface...")
-        else:
-            validate_startup(lambda status: None)
         BotConfigService.use_bot_config_json = runtime_args.use_bot_config_json
-        return run_gui(runtime_args.application_argv, runtime_args.enable_automatic_schedules, application)
+        return start_gui(
+            runtime_args.application_argv, runtime_args.enable_automatic_schedules, validate_startup
+        )
     except (RuntimeSetupError, OSError) as error:
-        startup_error = error
-    finally:
-        if application is not None:
-            application.startup_window.close()
-    if startup_error is not None:
-        report_fatal(startup_error)
-    return 1
+        report_fatal(error)
+        return 1
 
 
 if __name__ == "__main__":

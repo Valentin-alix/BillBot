@@ -51,6 +51,14 @@ class BehaviorCoordinator(ContextualLogger):
     get_bot_config: Callable[[], BotConfig | None]
 
     _current_bot_action_func: Callable[[Callable[[str], None]], None] | None = field(init=False, default=None)
+    action_name: str = field(init=False, default="auto")
+    area_id: int | None = field(init=False, default=None)
+    sub_area_id: int | None = field(init=False, default=None)
+
+    def _select_action(self, name: str, area_id: int | None = None, sub_area_id: int | None = None) -> None:
+        self.action_name = name
+        self.area_id = area_id
+        self.sub_area_id = sub_area_id
 
     def on_play(self, from_manual_play: bool):
         if from_manual_play:
@@ -68,10 +76,13 @@ class BehaviorCoordinator(ContextualLogger):
     def on_stop(self):
         self.is_playing_event.clear()
         self._current_bot_action_func = None
+        if self.action_name == "craft":
+            self._select_action("auto")
         self.bot_signals.automation_status_changed.emit("")
         run_in_background(lambda _progress_callback: self.stop_behaviors())
 
     def on_play_usable_behavior(self, behavior_class_name: str):
+        self._select_action(behavior_class_name)
         related_behavior = next(
             behavior
             for behavior in self.usable_behaviors
@@ -85,6 +96,7 @@ class BehaviorCoordinator(ContextualLogger):
         )
 
     def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
+        self._select_action("harvest", area_id, sub_area_id)
         self.play_action(
             lambda _progress_callback: self.harvester_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
@@ -99,6 +111,7 @@ class BehaviorCoordinator(ContextualLogger):
         area_id: int | None,
         sub_area_id: int | None,
     ):
+        self._select_action("fight", area_id, sub_area_id)
         self.play_action(
             lambda _progress_callback: self.fighter_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
@@ -109,6 +122,7 @@ class BehaviorCoordinator(ContextualLogger):
         )
 
     def on_play_auto_bot(self):
+        self._select_action("auto")
         self.bot_signals.automation_status_changed.emit("Preparing automatic mode…")
         self.play_action(
             lambda _progress_callback: self.auto_bot_behavior.start(
@@ -120,6 +134,7 @@ class BehaviorCoordinator(ContextualLogger):
         )
 
     def on_play_crafter(self, recipes: list[RecipeItem]):
+        self._select_action("craft")
         self.play_action(
             lambda _progress_callback: self.craft_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),

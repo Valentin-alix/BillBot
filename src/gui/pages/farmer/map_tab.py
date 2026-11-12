@@ -1,6 +1,5 @@
 from functools import partial
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import SingleDirectionScrollArea, SmoothMode
@@ -13,6 +12,7 @@ from src.gui.components.qfluent_widget.scrollable_message_box import (
     ScrollableMessageBox,
 )
 from src.gui.pages.farmer.player_info.property_panel_widget import PropertyPanelWidget
+from src.services.display_catalog import load_display_catalog
 
 
 class MapTab(QWidget):
@@ -27,6 +27,7 @@ class MapTab(QWidget):
         self.grid_signals = grid_signals
         self.game_info_signals = game_info_signals
         self.game_state = game_state
+        self._catalog = load_display_catalog()
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -91,9 +92,9 @@ class MapTab(QWidget):
 
     @pyqtSlot(int)
     def on_map_id_changed(self, map_id: int) -> None:
-        map_position = DataReader().map_info_by_map_id[map_id]
         self.info_panel.on_received_property("", "Map id", map_id)
-        self.info_panel.on_received_property("", "Coordinates", f"({map_position.posX}, {map_position.posY})")
+        position = self._catalog.map_positions[map_id]
+        self.info_panel.on_received_property("", "Coordinates", str(position))
 
     @pyqtSlot(int)
     def on_cell_id_clicked(self, cell_id: int) -> None:

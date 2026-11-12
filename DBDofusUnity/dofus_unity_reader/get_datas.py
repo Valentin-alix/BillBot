@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
@@ -12,23 +13,24 @@ from DBDofusUnity.consts import (
     DATA_BUNDLES_ROOT,
     I18N_OUTPUT_PATH,
     I18N_PATH,
-    MAPS_ARCHIVE_PATH,
     MAP_BUNDLES_ROOT,
+    MAPS_ARCHIVE_PATH,
     PATH_DATAS,
     PATH_MAPS,
     PATH_STANDALONE_BUNDLES,
     STANDALONE_BUNDLES_ROOT,
     UABEA_PATH_EXE,
 )
-from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import (
     FILEPATH_BY_MODEL,
     REQUIRED_DATA_FILENAMES,
 )
+from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
 from DBDofusUnity.dofus_unity_reader.generator.data_cleaning import clean_data_to_output
 from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
 from DBDofusUnity.dofus_unity_reader.generator.maps import decode_map_export
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
+from src.utils.project_paths import BUNDLE_ROOT
 
 MANIFEST_PATH = BUNDLES_ROOT / ".extraction_manifest.json"
 DATA_MODEL_BY_FILENAME = {filename: model for model, filename in FILEPATH_BY_MODEL.items()}
@@ -269,3 +271,4 @@ def update_all_datas() -> None:
     manifest.save()
 
     _clean_stale_outputs(manifest, [DATA_BUNDLES_ROOT, MAP_BUNDLES_ROOT, STANDALONE_BUNDLES_ROOT])
+    subprocess.run([sys.executable, "-m", "scripts.data.display_catalog"], cwd=BUNDLE_ROOT, check=True)

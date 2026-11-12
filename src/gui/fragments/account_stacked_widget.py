@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
+from datetime import datetime
 
 from PyQt6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import PivotItem, SegmentedWidget
 
+from src.consts import MIN_DATE
 from src.controller.player_info_storage import PlayerInfoSnapshot
 from src.core import config
 from src.core.signals.log_signals import LogSignals
 from src.gui.fragments.account_quick_info import AccountQuickInfoWidget
+from src.gui.pages.farmer.farmer import FarmerWidget
+lazy from src.core.bot.bot import Bot
 lazy from src.gui.pages.craft.craft_page import CraftPage
 lazy from src.gui.pages.debugs.sniffer import SnifferWidget
-from src.gui.pages.farmer.farmer import FarmerWidget
 
 
 class AccountStackedWidget(QWidget):
@@ -29,6 +31,7 @@ class AccountStackedWidget(QWidget):
         snapshot: PlayerInfoSnapshot | None,
         quarantine_reason: str | None,
         parent: QWidget | None = None,
+        subscription_end: datetime = MIN_DATE,
     ) -> None:
         super().__init__(parent=parent)
         self.login = login
@@ -48,13 +51,16 @@ class AccountStackedWidget(QWidget):
                 snapshot,
                 quarantine_reason,
                 parent=self,
+                subscription_end=subscription_end,
             )
             layout.addWidget(self.quick_info_widget)
 
         self.stacked_widget = QStackedWidget(self)
         layout.addWidget(self.stacked_widget)
 
-        self.harvester_interface = FarmerWidget(login, self.bot, parent=self.stacked_widget)
+        self.harvester_interface = FarmerWidget(
+            login, self.bot, parent=self.stacked_widget, snapshot=snapshot
+        )
         self.stacked_widget.addWidget(self.harvester_interface)
         self.harvester_route = f"{login}_harvester"
         self.farmer_pivot_item = self._require_pivot_item(
@@ -110,7 +116,3 @@ class AccountStackedWidget(QWidget):
             )
             self.stacked_widget.addWidget(self.sniffer_interface)
         self.stacked_widget.setCurrentWidget(self.sniffer_interface)
-
-    def set_snapshot_sub_area_name(self, sub_area_name: str | None) -> None:
-        if self.quick_info_widget is not None:
-            self.quick_info_widget.set_snapshot_sub_area_name(sub_area_name)

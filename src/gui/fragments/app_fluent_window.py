@@ -1,5 +1,5 @@
 from PyQt6.QtGui import QResizeEvent
-from PyQt6.QtWidgets import QHBoxLayout, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     FluentStyleSheet,
     FluentTitleBar,
@@ -25,7 +25,7 @@ class AppFluentWindow(FluentWindowBase):
         self.setTitleBar(FluentTitleBar(self))
 
         self.navigationInterface = Sidebar(self)
-        self.widgetLayout = QHBoxLayout()
+        self.widgetLayout = QVBoxLayout()
 
         self.hBoxLayout.addWidget(self.navigationInterface)
         self.hBoxLayout.addLayout(self.widgetLayout)
@@ -68,7 +68,8 @@ class AppFluentWindow(FluentWindowBase):
             self.navigationInterface.setCurrentItem(routeKey)
             qrouter.setDefaultRouteKey(self.stackedWidget, routeKey)
 
-        self._updateStackedBackground()
+        if self.stackedWidget.currentWidget() is interface:
+            self._updateStackedBackground()
 
     def removeWidget(self, routeKey: str, interface: QWidget) -> None:
         self.navigationInterface.panel.removeWidget(routeKey)

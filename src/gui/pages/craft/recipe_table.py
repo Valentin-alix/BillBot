@@ -1,16 +1,15 @@
 from collections.abc import KeysView
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
-from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QModelIndex, QObject, Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QStandardItem
 from PyQt6.QtWidgets import QHeaderView, QWidget
 
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from src.core.engine.crafts.recipes import get_benefice_on_craft_recipe
 from src.gui.components.table.column_info import ColumnInfo
 from src.gui.components.table.table import BaseTableWidget
+from src.services.display_catalog import load_display_catalog
 
 
 def _require_recipe_item(value: object) -> RecipeItem:
@@ -52,14 +51,14 @@ class RecipeTable(BaseTableWidget):
         return self.widget_item_by_recipe.keys()
 
     def add_recipe(self, recipe: RecipeItem) -> None:
-        name_id = DataReader().item_by_id[recipe.resultId].nameId
-        recipe_widget_item = QStandardItem(I18N().name_by_id[name_id] if name_id else "")
+        entry = load_display_catalog().recipe_by_id[recipe.resultId]
+        recipe_widget_item = QStandardItem(entry.name)
         recipe_widget_item.setData(recipe, role=Qt.ItemDataRole.UserRole)
         self.widget_item_by_recipe[recipe] = recipe_widget_item
 
-        job_name_widget = QStandardItem(I18N().name_by_id[DataReader().job_by_id[recipe.jobId].nameId])
+        job_name_widget = QStandardItem(entry.job_name)
 
-        recipe_lvl = QStandardItem(str(DataReader().item_by_id[recipe.resultId].level))
+        recipe_lvl = QStandardItem(str(entry.level))
 
         profit_in_kamas = get_benefice_on_craft_recipe(recipe)[0]
         benefice = QStandardItem(f"{profit_in_kamas:,.0f}".replace(",", " ") + " kamas")

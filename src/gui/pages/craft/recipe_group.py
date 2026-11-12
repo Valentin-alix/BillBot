@@ -1,7 +1,5 @@
 from functools import cache
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from PyQt6.QtCore import (
     QAbstractListModel,
@@ -14,7 +12,7 @@ from PyQt6.QtCore import (
 from PyQt6.QtWidgets import QListView, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel, LineEdit
 
-from src.core.engine.crafts.recipes import is_supported_craft_recipe
+from src.services.display_catalog import load_display_catalog
 
 
 class RecipeGroupSignals(QObject):
@@ -24,26 +22,19 @@ class RecipeGroupSignals(QObject):
 class RecipeCatalogModel(QAbstractListModel):
     def __init__(self) -> None:
         super().__init__()
-        reader = DataReader()
-        self.recipes = [recipe for recipe in reader.recipes if is_supported_craft_recipe(recipe)]
-        self.names = [
-            I18N().name_by_id.get(reader.item_by_id[recipe.resultId].nameId, "")
-            if reader.item_by_id[recipe.resultId].nameId
-            else ""
-            for recipe in self.recipes
-        ]
-        self.normalized_names = [name.casefold() for name in self.names]
+        self.entries = list(load_display_catalog().recipe_by_id.values())
+        self.normalized_names = [entry.name.casefold() for entry in self.entries]
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:
-        return len(self.recipes)
+        return len(self.entries)
 
     def data(self, index: QModelIndex, role: int | None = None) -> object | None:
         if not index.isValid():
             return None
         if role in (None, Qt.ItemDataRole.DisplayRole):
-            return self.names[index.row()]
+            return self.entries[index.row()].name
         if role == Qt.ItemDataRole.UserRole:
-            return self.recipes[index.row()]
+            return self.entries[index.row()].recipe
         return None
 
 
@@ -75,7 +66,7 @@ class RecipeFilterProxyModel(QSortFilterProxyModel):
         if len(self.query) <= 2:
             return False
         return (
-            self.catalog.recipes[source_row] not in self.excluded_recipes
+            self.catalog.entries[source_row].recipe not in self.excluded_recipes
             and self.query in self.catalog.normalized_names[source_row]
         )
 

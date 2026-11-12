@@ -1,9 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import subprocess
+import sys
 from pathlib import Path
 
 import msgspec
 from PyInstaller.utils.hooks import copy_metadata
+
+subprocess.run([sys.executable, "-m", "scripts.data.display_catalog"], cwd=SPECPATH, check=True)
 
 a = Analysis(
     ['__main__.py'],
@@ -15,6 +19,7 @@ a = Analysis(
         ('DBDofusUnity/datas/bundles/data', 'DBDofusUnity/datas/bundles/data'),
         ('DBDofusUnity/datas/bundles/standalone', 'DBDofusUnity/datas/bundles/standalone'),
         ('DBDofusUnity/datas/bundles/i18n.json', 'DBDofusUnity/datas/bundles'),
+        ('DBDofusUnity/datas/bundles/display_catalog.json', 'DBDofusUnity/datas/bundles'),
         # Runtime maps are read from the archive; raw extraction outputs can be incomplete.
         ('DBDofusUnity/datas/bundles/maps.zip', 'DBDofusUnity/datas/bundles'),
         ('DBDofusUnity/datas/protos', 'DBDofusUnity/datas/protos'),

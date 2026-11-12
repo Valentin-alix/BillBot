@@ -1,32 +1,35 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
-
 from functools import partial
 
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QWidget
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from DBDofusUnity.dofus_unity_reader.game_constants.job import HARVESTER_JOB_IDS, JobEnum
-from src.controller.player_info_storage import PlayerInfoStorage
 from src.gui.pages.farmer.player_info.property_panel_widget import PropertyPanelWidget
+from src.services.display_catalog import load_display_catalog
+lazy from src.controller.player_info_storage import PlayerInfoSnapshot
+lazy from src.core.bot.bot import Bot
 
 _HARVEST_JOB_IDS = HARVESTER_JOB_IDS - {JobEnum.BASE}
 
 
 class PlayerInfoWidget(PropertyPanelWidget):
-    def __init__(self, bot: Bot, parent: QWidget | None = None) -> None:
+    def __init__(
+        self, bot: Bot, parent: QWidget | None = None, *, snapshot: PlayerInfoSnapshot | None = None
+    ) -> None:
         super().__init__(parent=parent)
 
         self.bot = bot
-        self.snapshot = PlayerInfoStorage().get_snapshot(bot.account.apikey.login)
+        self._catalog = load_display_catalog()
+        self.snapshot = snapshot
 
         self.bot.game_info_signals.character_id.connect(
             partial(self.on_received_property, "Joueur", "Player id")
         )
-        self.bot.game_info_signals.character_name.connect(partial(self.on_received_property, "Player", "Name"))
+        self.bot.game_info_signals.character_name.connect(
+            partial(self.on_received_property, "Player", "Name")
+        )
         self.bot.game_info_signals.level.connect(partial(self.on_received_property, "Joueur", "Niveau"))
         self.bot.game_info_signals.breed_id.connect(self.on_breed_id_changed)
         self.bot.game_info_signals.server_id.connect(self.on_server_id_changed)
@@ -41,16 +44,14 @@ class PlayerInfoWidget(PropertyPanelWidget):
 
     @pyqtSlot(int)
     def on_server_id_changed(self, server_id: int) -> None:
-        server = DataReader().server_by_id[server_id]
-        server_name = I18N().name_by_id[server.nameId]
+        server_name = self._catalog.server_names.get(server_id, "—")
         self.on_received_property("Player", "Server", server_name)
 
     @pyqtSlot(int)
     def on_breed_id_changed(self, breed_id: int) -> None:
         if breed_id == 0:
             return
-        breed = DataReader().breed_by_id[breed_id]
-        breed_name = I18N().name_by_id[int(breed.shortNameId)]
+        breed_name = self._catalog.breed_names.get(breed_id, "—")
         self.on_received_property("Joueur", "Classe", breed_name)
 
     @pyqtSlot(int)
@@ -123,7 +124,5 @@ class PlayerInfoWidget(PropertyPanelWidget):
         self.on_server_id_changed(server_id)
         self.on_kamas_changed(kamas)
 
-    @staticmethod
-    def _get_job_name(job_id: int) -> str:
-        job = DataReader().job_by_id[job_id]
-        return I18N().name_by_id[job.nameId]
+    def _get_job_name(self, job_id: int) -> str:
+        return self._catalog.job_names.get(job_id, "—")

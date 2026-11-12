@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-lazy from src.core.bot.bot import Bot
-
 from collections.abc import Callable
 from enum import StrEnum
+from typing import cast
 
 from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtGui import QShowEvent
 from PyQt6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
     ComboBox,
@@ -14,15 +14,16 @@ from qfluentwidgets import (
     TransparentToolButton,
 )
 
-from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
-from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
 from src.core import config
 from src.core.behaviors.behavior_factory import USABLE_BEHAVIORS
-from src.gui.pages.farmer.bank_tab import BankTab
-from src.gui.pages.farmer.inventory_tab import InventoryTab
-from src.gui.pages.farmer.map_tab import MapTab
-from src.gui.pages.farmer.player_tab import PlayerTab
-from src.gui.pages.farmer.world_tab import WorldTab
+from src.services.display_catalog import load_display_catalog
+lazy from src.controller.player_info_storage import PlayerInfoSnapshot
+lazy from src.core.bot.bot import Bot
+lazy from src.gui.pages.farmer.bank_tab import BankTab
+lazy from src.gui.pages.farmer.inventory_tab import InventoryTab
+lazy from src.gui.pages.farmer.map_tab import MapTab
+lazy from src.gui.pages.farmer.player_tab import PlayerTab
+lazy from src.gui.pages.farmer.world_tab import WorldTab
 
 
 class FarmActionEnum(StrEnum):
@@ -47,20 +48,19 @@ class FarmerWidget(QWidget):
         login: str,
         bot: Bot,
         parent: QWidget | None = None,
+        snapshot: PlayerInfoSnapshot | None = None,
     ) -> None:
         super().__init__(parent)
         self.login = login
         self.bot = bot
+        self._snapshot = snapshot
         self._v_layout = QVBoxLayout()
         self._v_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self._v_layout)
 
-        self.map_tab: MapTab | None = None
-        self.player_tab: PlayerTab | None = None
-        self.world_tab: WorldTab | None = None
-        self.inventory_tab: InventoryTab | None = None
-        self.bank_tab: BankTab | None = None
+        self._storage_tab: InventoryTab | BankTab | None = None
 
+        self._catalog = load_display_catalog()
         self.init_top_content()
 
         if config.DEBUG:
@@ -103,20 +103,15 @@ class FarmerWidget(QWidget):
 
         self.area_farm_combo = ComboBox(top_widget)
         self.area_farm_combo.addItem("")
+        for area in self._catalog.areas:
+            self.area_farm_combo.addItem(area.name, userData=area.id)
         self.area_farm_combo.currentIndexChanged.connect(self.on_area_selected)
-
-        for area in sorted(
-            DataReader().area_by_id.values(),
-            key=lambda area: I18N().name_by_id.get(area.nameId, "Unknown"),
-        ):
-            self.area_farm_combo.addItem(I18N().name_by_id.get(area.nameId, "Unknown"), userData=area.id)
 
         top_widget_layout.addWidget(self.area_farm_combo)
 
         top_widget_layout.addWidget(self.sub_area_farm_combo)
 
         self._v_layout.addWidget(top_widget)
-
         self.on_type_action_changed()
 
     def init_content(self) -> None:
@@ -128,20 +123,10 @@ class FarmerWidget(QWidget):
     @pyqtSlot()
     def on_type_action_changed(self) -> None:
         current_action = self.type_action_combo.currentText()
-        if current_action not in FarmActionEnum or current_action in [
-            CraftActionEnum.CRAFTER,
-            FarmActionEnum.AUTO,
-        ]:
-            self.area_farm_combo.setHidden(True)
-            self.sub_area_farm_combo.setHidden(True)
-        else:
-            self.area_farm_combo.setHidden(False)
-            self.sub_area_farm_combo.setHidden(False)
-
-        if current_action in [CraftActionEnum.CRAFTER]:
-            self.play_btn.setDisabled(True)
-        else:
-            self.play_btn.setDisabled(False)
+        show_zones = current_action in (FarmActionEnum.HARVESTER, FarmActionEnum.FIGHTER)
+        self.area_farm_combo.setVisible(show_zones)
+        self.sub_area_farm_combo.setVisible(show_zones)
+        self.play_btn.setDisabled(current_action == CraftActionEnum.CRAFTER)
 
     @pyqtSlot()
     def on_area_selected(self) -> None:
@@ -150,13 +135,8 @@ class FarmerWidget(QWidget):
         if current_area_id is None:
             return
         self.sub_area_farm_combo.addItem("")
-        for sub_area in sorted(
-            DataReader().sub_area_by_id.values(),
-            key=lambda subarea: I18N().name_by_id.get(subarea.nameId, ""),
-        ):
-            if sub_area.areaId != current_area_id:
-                continue
-            self.sub_area_farm_combo.addItem(I18N().name_by_id[sub_area.nameId], userData=sub_area.id)
+        for sub_area in self._catalog.sub_areas.get(current_area_id, []):
+            self.sub_area_farm_combo.addItem(sub_area.name, userData=sub_area.id)
 
     @pyqtSlot()
     def on_click_play(self) -> None:
@@ -197,7 +177,8 @@ class FarmerWidget(QWidget):
 
     @pyqtSlot(object)
     def on_play_craft(self, _: object) -> None:
-        self.type_action_combo.addItem(CraftActionEnum.CRAFTER)
+        if self.type_action_combo.findText(CraftActionEnum.CRAFTER) < 0:
+            self.type_action_combo.addItem(CraftActionEnum.CRAFTER)
         self.type_action_combo.setCurrentText(CraftActionEnum.CRAFTER)
 
     def on_played_zone(self, area_id: int | None, sub_area_id: int | None) -> None:
@@ -221,87 +202,63 @@ class FarmerWidget(QWidget):
         self.type_action_combo.setDisabled(False)
         self.area_farm_combo.setDisabled(False)
         self.sub_area_farm_combo.setDisabled(False)
+        self.on_type_action_changed()
 
     @pyqtSlot()
     def on_click_stop(self) -> None:
         self.bot.bot_signals.stop.emit()
 
-    def _add_debug_tab(
-        self,
-        route_key: str,
-        text: str,
-        widget: QWidget,
-        on_click: Callable[[], None] | None = None,
-    ) -> None:
-        pivot_item = self.pivot.addItem(
-            routeKey=route_key,
-            text=text,
-            onClick=on_click or (lambda: self._show_debug_widget(widget)),
-        )
-        if pivot_item is None:
-            raise ValueError(f"Debug tab route `{route_key}` is already registered")
-
     def _create_debug_tabs(self) -> None:
-        self.map_tab = MapTab(
-            grid_signals=self.bot.grid_signals,
-            game_info_signals=self.bot.game_info_signals,
-            game_state=self.bot.game_state,
-            parent=self.stacked_widget,
-        )
-        self.stacked_widget.addWidget(self.map_tab)
-        self.map_route = f"{self.objectName()}_map_tab"
-        self._add_debug_tab(self.map_route, "Map", self.map_tab)
+        self._debug_factories: dict[str, Callable[[], QWidget]] = {
+            "Map": lambda: MapTab(
+                self.bot.grid_signals, self.bot.game_info_signals, self.bot.game_state, self.stacked_widget
+            ),
+            "Joueur": lambda: PlayerTab(self.bot, self.stacked_widget, snapshot=self._snapshot),
+            "Monde": lambda: WorldTab(self.bot.world_signals, self.stacked_widget),
+            "Inventaire": lambda: InventoryTab(self.bot, self.stacked_widget),
+            "Banque": lambda: BankTab(self.bot, self.stacked_widget),
+        }
+        self._debug_widgets: dict[str, QWidget] = {}
+        for label in self._debug_factories:
+            self.pivot.addItem(
+                routeKey=label,
+                text=label,
+                onClick=lambda _checked=False, label=label: self._select_debug_tab(label),
+            )
+            self.pivot.widget(label).setFixedHeight(40)
+        self.pivot.setCurrentItem("Map")
 
-        self.player_tab = PlayerTab(bot=self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(self.player_tab)
-        player_route = f"{self.objectName()}_player_tab"
-        self._add_debug_tab(player_route, "Joueur", self.player_tab)
-
-        self.world_tab = WorldTab(world_signals=self.bot.world_signals, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(self.world_tab)
-        world_route = f"{self.objectName()}_world_tab"
-        self._add_debug_tab(world_route, "Monde", self.world_tab)
-
-        self.inventory_tab = InventoryTab(self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(self.inventory_tab)
-        inventory_route = f"{self.objectName()}_inventory_tab"
-        self._add_debug_tab(
-            inventory_route,
-            "Inventaire",
-            self.inventory_tab,
-            self._show_inventory_tab,
-        )
-
-        self.bank_tab = BankTab(self.bot, parent=self.stacked_widget)
-        self.stacked_widget.addWidget(self.bank_tab)
-        bank_route = f"{self.objectName()}_bank_tab"
-        self._add_debug_tab(bank_route, "Banque", self.bank_tab, self._show_bank_tab)
-
-        for pivot_item in self.pivot.items.values():
-            pivot_item.setFixedHeight(40)
-        self.pivot.setCurrentItem(self.map_route)
-        self.stacked_widget.setCurrentWidget(self.map_tab)
-
-    def _show_debug_widget(self, widget: QWidget) -> None:
-        self._disconnect_hidden_storage_tabs()
+    def _select_debug_tab(self, label: str) -> None:
+        if self._storage_tab is not None:
+            self._storage_tab.disconnect_signals()
+            self._storage_tab = None
+        if label not in self._debug_widgets:
+            widget = self._debug_factories[label]()
+            self._debug_widgets[label] = widget
+            self.stacked_widget.addWidget(widget)
+        widget = self._debug_widgets[label]
         self.stacked_widget.setCurrentWidget(widget)
+        if label == "Inventaire":
+            self._storage_tab = cast(InventoryTab, widget)
+        elif label == "Banque":
+            self._storage_tab = cast(BankTab, widget)
+        if self._storage_tab is not None:
+            self._storage_tab.connect_signals()
 
-    def _show_inventory_tab(self) -> None:
-        assert self.inventory_tab is not None
-        assert self.bank_tab is not None
-        self.bank_tab.disconnect_signals()
-        self.stacked_widget.setCurrentWidget(self.inventory_tab)
-        self.inventory_tab.connect_signals()
-
-    def _show_bank_tab(self) -> None:
-        assert self.inventory_tab is not None
-        assert self.bank_tab is not None
-        self.inventory_tab.disconnect_signals()
-        self.stacked_widget.setCurrentWidget(self.bank_tab)
-        self.bank_tab.connect_signals()
-
-    def _disconnect_hidden_storage_tabs(self) -> None:
-        if self.inventory_tab is not None:
-            self.inventory_tab.disconnect_signals()
-        if self.bank_tab is not None:
-            self.bank_tab.disconnect_signals()
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        super().showEvent(a0)
+        if config.DEBUG and not self._debug_widgets:
+            self._select_debug_tab("Map")
+        activity = self.bot.behavior_coordinator
+        labels = {
+            "auto": FarmActionEnum.AUTO,
+            "harvest": FarmActionEnum.HARVESTER,
+            "fight": FarmActionEnum.FIGHTER,
+        }
+        if activity.action_name == "craft":
+            self.on_play_craft(None)
+        else:
+            self.type_action_combo.setCurrentText(labels.get(activity.action_name, activity.action_name))
+            self.on_played_zone(activity.area_id, activity.sub_area_id)
+        if self.bot.is_playing_event.is_set():
+            self.on_play(False)

@@ -105,7 +105,7 @@ def test_worker_logs_failure_and_finishes_without_error_subscriber(caplog: pytes
     worker.finished.connect(finished)
     worker.run()
     finished.assert_called_once()
-    record = next(record for record in caplog.records if record.name == "src.services.background")
+    record = next(record for record in caplog.records if record.msg == "Task interrupted: %s")
     rendered = runtime_support.DiagnosticFormatter().format(record)
     assert "Task interrupted" in rendered
     assert "private-secret" not in rendered

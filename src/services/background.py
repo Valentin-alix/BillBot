@@ -1,13 +1,20 @@
+import logging
 from collections.abc import Callable
 from typing import TypeVar
-import logging
-from src.utils.runtime_support import RuntimeSetupError, error_message
-from src.services.user_activity import UserActivityService
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
+from src.services.user_activity import UserActivityService
+from src.utils.runtime_support import RuntimeSetupError, error_message
+
+logger = logging.getLogger()
+
 _running: set[object] = set()
 BackgroundResultT = TypeVar("BackgroundResultT")
+
+
+def has_pending_tasks() -> bool:
+    return bool(_running)
 
 
 def _report_task_error(error: object) -> None:
@@ -29,7 +36,7 @@ class Worker(QObject):
         try:
             self.success.emit(self.func(self.progress.emit))
         except (RuntimeSetupError, OSError) as error:
-            logging.getLogger(__name__).error("Task interrupted: %s", error_message(error), exc_info=True)
+            logger.error("Task interrupted: %s", error_message(error), exc_info=True)
             self.error.emit(error)
         finally:
             self.finished.emit()
