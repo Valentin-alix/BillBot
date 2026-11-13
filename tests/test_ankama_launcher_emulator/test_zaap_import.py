@@ -110,16 +110,18 @@ def test_invalid_account_entry_does_not_block_valid_account(
         "invalid|hex",
         "00|00",
         "00" * 16 + "|" + "00" * 16,
-        CryptoHelper.encrypt("invalid api key schema", _UUID),
+        pytest.param(None, id="invalid-api-key-schema"),
     ],
 )
 def test_invalid_keydata_is_skipped(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
-    keydata: str,
+    keydata: str | None,
 ) -> None:
     zaap_path = tmp_path / "zaap"
     _write_zaap_files(zaap_path, "user@example.com", 42)
+    if keydata is None:
+        keydata = CryptoHelper.encrypt("invalid api key schema", _UUID)
     (zaap_path / "keydata" / ".keydata42").write_text(keydata, encoding="utf-8")
 
     with (

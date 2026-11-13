@@ -1,6 +1,15 @@
 {
     "typeCheckingMode": "standard",
     "pythonVersion": "3.15",
+    "include": [
+        "__main__.py",
+        "utils",
+        "src",
+        "AnkamaLauncherEmulator",
+        "DBDofusUnity",
+        "scripts",
+        "tests"
+    ],
     "useLibraryCodeForTypes": true,
     "stubPath": ".stubs",
     "reportMissingTypeStubs": "none",
@@ -32,11 +41,15 @@
     ],
     "exclude": [
         "private",
+        "DBDofusUnity/datas/protos",
         "DBDofusUnity/datas/bundles",
         "DBDofusUnity/datas/proto_mapper",
+        "DBDofusUnity/dofus_unity_reader/models/datas",
         "DBDofusUnity/Il2CppInspectorRedux",
         "DBDofusUnity/protodec",
         "DBDofusUnity/UABEA",
+        "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
+        "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/login_message_pb2.py*",
         "**/.venv",
         "**/node_modules",
         "**/__pycache__",

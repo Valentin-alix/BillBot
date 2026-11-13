@@ -42,7 +42,6 @@ dev = [
     "PyQt6-stubs>=6.6.0",
     "types-cachetools>=5.5.0.20240820",
     "tqdm>=4.66.5,<5",
-    "coverage>=7.17.2",
     "pytest>=9.0.3",
     "types-psutil>=7.1.3.20251211",
     "types-protobuf>=6.32.1.20251210",
@@ -61,11 +60,11 @@ build-backend = "hatchling.build"
 
 [tool.poe.tasks]
 dead_code = "vulture src AnkamaLauncherEmulator/ankama_launcher_emulator DBDofusUnity/dofus_unity_reader DBDofusUnity/proto_mapper_assembly scripts --exclude \"*gen_zaap*,*proxy/login_message_pb2.py\" --min-confidence 80"
-check_type = "pyright"
-lint = "ruff check . --fix"
+check_type = "pyright --threads 8"
+lint = "ruff check src AnkamaLauncherEmulator DBDofusUnity scripts tests utils __main__.py --fix"
 format = "ruff format ."
 check = ["lint", "check_type"]
-test = "coverage run --source=src -m pytest tests"
+test = "pytest"
 test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
 package-browser = { cmd = "playwright install chromium --no-shell", env = { PLAYWRIGHT_BROWSERS_PATH = "0" } }

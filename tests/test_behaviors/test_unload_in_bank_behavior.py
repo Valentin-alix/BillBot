@@ -2,6 +2,9 @@ from collections.abc import Callable
 from typing import cast
 from unittest.mock import MagicMock
 
+import pytest
+from pytest import MonkeyPatch
+
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import ObjectItem, ObjectItemInventory
 from DBDofusUnity.datas.protos.non_obf.game.exchange_pb2 import (
     ExchangeObjectTransferAllFromInventoryRequest,
@@ -22,6 +25,11 @@ from tests.fixtures.game_state import GameStateContext
 
 GRAISSE_GELATINEUSE_GID = int(ItemEnum.GRAISSE_GELATINEUSE)
 POILS_DE_KERUBIM_GID = int(ItemEnum.POILS_DE_KERUBIM)
+
+
+@pytest.fixture(autouse=True)
+def _disable_listener_timers(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr("src.core.events_manager.listener.Timer", MagicMock())
 
 
 def _make_behavior(

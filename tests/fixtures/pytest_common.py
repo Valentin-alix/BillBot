@@ -1,7 +1,6 @@
-import os
-import tempfile
 from collections.abc import Callable, Iterator
 from pathlib import Path
+from threading import Timer
 from typing import Any, Protocol, cast
 from unittest.mock import MagicMock
 
@@ -18,6 +17,7 @@ from src.controller.settings import SettingsService
 from src.core.bot.bot import Bot
 from src.core.bot.execution.behavior_coordinator import BehaviorCoordinator
 from src.core.bot.lifecycle.scheduler import BotScheduler
+from src.core.events_manager import listener as event_listener
 from src.core.states.guild_chest_storage import GuildChestStorage
 from src.services.debug_recorder import DebugRecorder
 from tests.fixtures.accounts import make_account, make_runtime_bot
@@ -79,6 +79,18 @@ def _block_smailpro_network(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture(autouse=True)
+def _daemonize_event_listener_timers(monkeypatch: pytest.MonkeyPatch) -> None:
+    timer_type = event_listener.Timer
+
+    def create_timer(interval: float, function: Callable[[], None]) -> Timer:
+        timer = timer_type(interval=interval, function=function)
+        timer.daemon = True
+        return timer
+
+    monkeypatch.setattr(event_listener, "Timer", create_timer)
+
+
+@pytest.fixture(autouse=True)
 def game_sub_info_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get_game_sub_info(login: str) -> GameSubscription:
         return GameSubscription(
@@ -104,8 +116,9 @@ def game_state_ctx(_shared_game_state_debug_recorder: DebugRecorder) -> GameStat
 
 
 @pytest.fixture(scope="session")
-def _shared_game_state_debug_recorder() -> Iterator[DebugRecorder]:
-    recorder = DebugRecorder(file_path=os.path.join(tempfile.gettempdir(), "gamestatefixture.debug.jsonl"))
+def _shared_game_state_debug_recorder(tmp_path_factory: pytest.TempPathFactory) -> Iterator[DebugRecorder]:
+    recorder_path = tmp_path_factory.mktemp("game_state_debug") / "gamestatefixture.debug.jsonl"
+    recorder = DebugRecorder(file_path=str(recorder_path))
     yield recorder
     recorder.stop()
 

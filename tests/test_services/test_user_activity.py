@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pytest import MonkeyPatch
 
-from src.services.user_activity import UserActivityFile, UserActivityService
+from src.services.user_activity import UserActivityEntry, UserActivityFile, UserActivityService
 from utils.singleton import Singleton
 
 
@@ -18,10 +19,18 @@ def test_activity_history_is_bounded_and_keeps_newest_entries(
     monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     activity_path = tmp_path / "activity.json"
+    initial_entries = tuple(
+        UserActivityEntry(
+            happened_at=datetime.now(timezone.utc),
+            severity="info",
+            message=f"event-{index}",
+            login="bot@example.com",
+        )
+        for index in range(500)
+    )
+    activity_path.write_text(UserActivityFile(entries=initial_entries).model_dump_json(), encoding="utf-8")
     service = _create_service(monkeypatch, activity_path)
-
-    for index in range(501):
-        service.record("info", f"event-{index}", login="bot@example.com")
+    service.record("info", "event-500", login="bot@example.com")
 
     service.close()
     entries = service.recent()
