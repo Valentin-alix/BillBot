@@ -385,10 +385,12 @@ class BotManager:
             if self._account_scheduler_started:
                 self.account_scheduler.stop()
             bots = list(self.bot_by_account_id.values())
+            for bot in bots:
+                bot.connection_handler.begin_shutdown()
             self.safe_stop_bots(bots)
             for bot in bots:
-                bot.connection_handler.cleanup()
                 bot.process_manager.kill_process()
+                bot.connection_handler.cleanup()
                 bot.watchdog.stop()
                 if bot.debug_recorder is not None:
                     bot.debug_recorder.stop()

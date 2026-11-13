@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from threading import Event, Timer
+from threading import Event, RLock, Timer
 
 from ankama_launcher_emulator.controller.paysafecard_pool import (
     PaysafecardPoolController,
@@ -76,11 +76,23 @@ class ConnectionHandler(ContextualLogger):
     _timer: Timer | None = field(init=False, default=None)
     _reconnect_attempts: int = field(init=False, default=0)
     _planned_disconnect_event: Event = field(init=False, default_factory=Event)
+    _lifecycle_lock: RLock = field(init=False, default_factory=RLock)
+    _shutting_down: bool = field(init=False, default=False)
 
     def record_planned_disconnect(self) -> None:
         self._planned_disconnect_event.set()
 
     def cleanup(self):
+        with self._lifecycle_lock:
+            self._cancel_relaunch_timer()
+
+    def begin_shutdown(self) -> None:
+        with self._lifecycle_lock:
+            self._shutting_down = True
+            self.is_playing_event.clear()
+            self._cancel_relaunch_timer()
+
+    def _cancel_relaunch_timer(self) -> None:
         if self._timer is not None:
             self._timer.cancel()
             self._timer = None
@@ -97,50 +109,53 @@ class ConnectionHandler(ContextualLogger):
             raise UnhandledErrorCodeException(error_code)
 
     def on_disconnected(self) -> None:
-        planned_disconnect = self._planned_disconnect_event.is_set()
-        self._planned_disconnect_event.clear()
         self.is_connected_event.clear()
         self.is_ready_to_play_event.clear()
         self.game_state.clear_connection_scoped_state()
-        if not self.is_playing_event.is_set():
-            self._reconnect_attempts = 0
-            return
+        with self._lifecycle_lock:
+            planned_disconnect = self._planned_disconnect_event.is_set()
+            self._planned_disconnect_event.clear()
+            if self._shutting_down or not self.is_playing_event.is_set():
+                self._reconnect_attempts = 0
+                return
 
-        if planned_disconnect:
-            self.logger.info("Planned disconnect completed without reconnect scheduling")
-            self._reconnect_attempts = 0
+            if planned_disconnect:
+                self.logger.info("Planned disconnect completed without reconnect scheduling")
+                self._reconnect_attempts = 0
+                self.behavior_coordinator.stop_behaviors()
+                self._cancel_relaunch_timer()
+                return
+
+            self.logger.info(f"Bot unexpected disconnect, reconnect attemp : {self._reconnect_attempts}")
+
+            self._reconnect_attempts += 1
+
+            if self._reconnect_attempts > 3:
+                self.logger.warning("Max reconnected attempt reached, stopping bot.")
+                self.bot_signals.disconnect_runtime.emit()
+                self._reconnect_attempts = 0
+                return
+
             self.behavior_coordinator.stop_behaviors()
-            self.cleanup()
-            return
+            self._cancel_relaunch_timer()
 
-        self.logger.info(f"Bot unexpected disconnect, reconnect attemp : {self._reconnect_attempts}")
-
-        self._reconnect_attempts += 1
-
-        if self._reconnect_attempts > 3:
-            self.logger.warning("Max reconnected attempt reached, stopping bot.")
-            self.bot_signals.disconnect_runtime.emit()
-            self._reconnect_attempts = 0
-            return
-
-        self.behavior_coordinator.stop_behaviors()
-        self.cleanup()
-
-        delay = 10 + (self._reconnect_attempts * 10)
-        UserActivityService().record(
-            "warning",
-            f"Unexpected disconnection; retry {self._reconnect_attempts}/3 in {delay}s.",
-            login=self.account.apikey.login,
-        )
-        self._timer = Timer(delay, self._emit_relaunch)
-        self._timer.start()
+            delay = 10 + (self._reconnect_attempts * 10)
+            UserActivityService().record(
+                "warning",
+                f"Unexpected disconnection; retry {self._reconnect_attempts}/3 in {delay}s.",
+                login=self.account.apikey.login,
+            )
+            self._timer = Timer(delay, self._emit_relaunch)
+            self._timer.start()
 
     def _emit_relaunch(self):
-        self.logger.info("Relaunching bot")
-        UserActivityService().record(
-            "info", "Automatic restart in progress.", login=self.account.apikey.login
-        )
-        if self.is_playing_event.is_set():
+        with self._lifecycle_lock:
+            if self._shutting_down or not self.is_playing_event.is_set():
+                return
+            self.logger.info("Relaunching bot")
+            UserActivityService().record(
+                "info", "Automatic restart in progress.", login=self.account.apikey.login
+            )
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
     def on_ready_to_play(self):
