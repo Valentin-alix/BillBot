@@ -1,4 +1,5 @@
-from PyQt6.QtGui import QResizeEvent
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QPalette, QResizeEvent
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     FluentStyleSheet,
@@ -7,6 +8,7 @@ from qfluentwidgets import (
     NavigationWidget,
     qrouter,
 )
+from qfluentwidgets.common.style_sheet import setCustomStyleSheet  # type: ignore
 from qfluentwidgets.window.fluent_window import FluentWindowBase
 
 from src.gui.components.qfluent_widget.no_animated_stacked_widget import (
@@ -23,8 +25,22 @@ class AppFluentWindow(FluentWindowBase):
         FluentStyleSheet.FLUENT_WINDOW.apply(self.stackedWidget)
 
         self.setTitleBar(FluentTitleBar(self))
+        self.titleBar.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        self._set_dark_background(self.titleBar)
+        setCustomStyleSheet(
+            self.titleBar,
+            "FluentTitleBar { background-color: #202020; }",
+            "FluentTitleBar { background-color: #202020; }",
+        )
 
         self.navigationInterface = Sidebar(self)
+        self._set_dark_background(self.navigationInterface)
+        self._set_dark_background(self.navigationInterface.panel)
+        setCustomStyleSheet(
+            self.navigationInterface.panel,
+            "SidebarPanel[menu=false] { background-color: #202020; }",
+            "SidebarPanel[menu=false] { background-color: #202020; }",
+        )
         self.widgetLayout = QVBoxLayout()
 
         self.hBoxLayout.addWidget(self.navigationInterface)
@@ -36,6 +52,15 @@ class AppFluentWindow(FluentWindowBase):
 
         self.navigationInterface.displayModeChanged.connect(self.titleBar.raise_)
         self.titleBar.raise_()
+
+    @staticmethod
+    def _set_dark_background(widget: QWidget) -> None:
+        palette = widget.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(32, 32, 32))
+        widget.setPalette(palette)
+        widget.setBackgroundRole(QPalette.ColorRole.Window)
+        widget.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, False)
+        widget.setAutoFillBackground(True)
 
     def addWidget(
         self,

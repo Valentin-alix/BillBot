@@ -148,8 +148,8 @@ class SidebarItem(NavigationWidget):
 
         self.isCompacted = isCompacted
         if isCompacted:
-            self.header_layout.setContentsMargins(4, 0, 0, 0)
-            self.setFixedSize(32, 48)
+            self.header_layout.setContentsMargins(8, 0, 0, 0)
+            self.setFixedSize(40, 44)
             self._title.hide()
             self._status_label.hide()
             self._right_icon.hide()

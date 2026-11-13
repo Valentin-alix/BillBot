@@ -13,7 +13,7 @@ from PyQt6.QtCore import (
     Qt,
     pyqtSignal,
 )
-from PyQt6.QtGui import QColor, QIcon, QMouseEvent, QPainterPath, QResizeEvent
+from PyQt6.QtGui import QColor, QEnterEvent, QIcon, QMouseEvent, QPainterPath, QResizeEvent
 from PyQt6.QtWidgets import QApplication, QFrame, QHBoxLayout, QWidget
 from qfluentwidgets import FluentIconBase, isDarkTheme
 from qfluentwidgets.common.icon import FluentIcon as FIF
@@ -51,6 +51,12 @@ from src.gui.components.qfluent_widget.no_animated_scroll_area import (
 )
 
 
+class _TopBarToolButton(NavigationToolButton):
+    def enterEvent(self, event: QEnterEvent | None) -> None:
+        self.isEnter = False
+        self.update()
+
+
 class SidebarPanel(QFrame):
     displayModeChanged = pyqtSignal(NavigationDisplayMode)
 
@@ -67,8 +73,8 @@ class SidebarPanel(QFrame):
         self.scrollArea = NoAnimatedScrollArea(self)
         self.scrollWidget = QWidget(self)
 
-        self.menuButton = NavigationToolButton(FIF.MENU, self)
-        self.returnButton = NavigationToolButton(FIF.RETURN, self)
+        self.menuButton = _TopBarToolButton(FIF.MENU, self)
+        self.returnButton = _TopBarToolButton(FIF.RETURN, self)
 
         self.vBoxLayout = NavigationItemLayout(self)
         self.topLayout = NavigationItemLayout()
