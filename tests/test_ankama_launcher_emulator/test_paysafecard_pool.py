@@ -1,5 +1,6 @@
 import asyncio
 import re
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import cast
 
@@ -7,20 +8,8 @@ import pytest
 from playwright.async_api import Page
 
 from ankama_launcher_emulator.controller import paysafecard_pool
-from ankama_launcher_emulator.controller.paysafecard_pool import (
-    PaysafecardPoolController,
-)
-from ankama_launcher_emulator.web.subscription.paysafecard_purchase import (
-    PaysafecardPaymentOutcome,
-    _wait_for_payment_outcome,
-)
-
-
-@pytest.fixture
-def paysafecard_pool_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    path = tmp_path / "paysafecards.txt"
-    monkeypatch.setattr(paysafecard_pool, "PAYSAFECARDS_PATH", path)
-    return path
+from ankama_launcher_emulator.controller.paysafecard_pool import PaysafecardPoolController
+from ankama_launcher_emulator.web.subscription.paysafecard_purchase import PaysafecardPaymentOutcome, _wait_for_payment_outcome
 
 
 class _FakeLocator:
@@ -43,6 +32,13 @@ class _FakePaymentPage:
 
     async def wait_for_timeout(self, timeout: float) -> None:
         raise AssertionError(f"Unexpected payment wait: {timeout}")
+
+
+@pytest.fixture
+def paysafecard_pool_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    path = tmp_path / "paysafecards.txt"
+    monkeypatch.setattr(paysafecard_pool, "PAYSAFECARDS_PATH", path)
+    return path
 
 
 def test_selecting_a_pin_does_not_remove_it_from_the_pool(paysafecard_pool_path: Path) -> None:
@@ -78,3 +74,14 @@ def test_payment_outcome_distinguishes_removable_cards(
     outcome = asyncio.run(_wait_for_payment_outcome(page))
 
     assert outcome is expected_outcome
+
+
+def test_pin_additions_preserve_existing_codes_and_reject_invalid_batch() -> None:
+    pool = PaysafecardPoolController()
+    pool.add_pins(["1111 2222 3333 4444"])
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        list(executor.map(pool.add_pins, [["1111222233334444"], ["5555666677778888"]]))
+    assert pool.load() == ["1111222233334444", "5555666677778888"]
+    with pytest.raises(ValueError):
+        pool.add_pins(["9999000011112222", "invalid"])
+    assert pool.load() == ["1111222233334444", "5555666677778888"]

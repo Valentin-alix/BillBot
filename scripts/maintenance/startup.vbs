@@ -1,5 +1,7 @@
 Set shell = CreateObject("WScript.Shell")
 Set filesystem = CreateObject("Scripting.FileSystemObject")
-watcher = filesystem.BuildPath(filesystem.GetParentFolderName(WScript.ScriptFullName), "watch-maj.sh")
+maintenance = filesystem.GetParentFolderName(WScript.ScriptFullName)
+root = filesystem.GetParentFolderName(filesystem.GetParentFolderName(maintenance))
 
-shell.Run """C:\Program Files\Git\bin\bash.exe"" """ & watcher & """", 0, False
+shell.CurrentDirectory = root
+shell.Run "uv run python -m scripts.maintenance.watch_maj", 0, False
