@@ -13,7 +13,7 @@ class Singleton(type):
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
         instance = Singleton._instances.get(cls)
         if instance is None:
-            instance = super().__call__(*args, **kwargs)
+            instance = type.__call__(cls, *args, **kwargs)
             Singleton._instances[cls] = instance
         if not isinstance(instance, cls):
             raise SingletonTypeError

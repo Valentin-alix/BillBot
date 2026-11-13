@@ -114,7 +114,7 @@ class Behavior(ContextualLogger):
                 behavior.parent.children.append(behavior)
             behavior.callback = callback
             behavior._run_args = args
-            behavior._run_kwargs = kwargs
+            behavior._run_kwargs = cast(dict[str, object], kwargs)
 
             behavior._transition(
                 {BehaviorState.STARTING},

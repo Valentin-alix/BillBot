@@ -47,6 +47,7 @@ dev = [
     "types-protobuf>=6.32.1.20251210",
     "types-requests>=2.32.4.20250913,<3",
     "scipy-stubs>=1.18,<2",
+    "ty>=0.0.103",
 ]
 
 [tool.uv]
@@ -60,7 +61,7 @@ build-backend = "hatchling.build"
 
 [tool.poe.tasks]
 dead_code = "vulture src AnkamaLauncherEmulator/ankama_launcher_emulator DBDofusUnity/dofus_unity_reader DBDofusUnity/proto_mapper_assembly scripts --exclude \"*gen_zaap*,*proxy/login_message_pb2.py\" --min-confidence 80"
-check_type = "pyright --threads 8"
+check_type = "ty check"
 lint = "ruff check src AnkamaLauncherEmulator DBDofusUnity scripts tests utils __main__.py --fix"
 format = "ruff format ."
 check = ["lint", "check_type"]
@@ -84,6 +85,57 @@ addopts = [
     "--strict-config",
     "--import-mode=importlib",
     "-p", "no:langsmith_plugin"
+]
+
+[tool.ty.environment]
+python-version = "3.15"
+python-platform = "win32"
+extra-paths = [
+    ".stubs",
+    "DBDofusUnity/datas/protos/non_obf/game",
+    "DBDofusUnity/datas/protos/non_obf/connection",
+    "scripts/mapping/ida_tracer_lib/typings",
+    "AnkamaLauncherEmulator",
+    "DBDofusUnity",
+]
+
+[tool.ty.src]
+include = [
+    "__main__.py",
+    "utils",
+    "src",
+    "AnkamaLauncherEmulator",
+    "DBDofusUnity",
+    "scripts",
+    "tests",
+]
+exclude = [
+    "private",
+    "DBDofusUnity/datas/protos",
+    "DBDofusUnity/datas/bundles",
+    "DBDofusUnity/datas/proto_mapper",
+    "DBDofusUnity/dofus_unity_reader/models/datas",
+    "DBDofusUnity/Il2CppInspectorRedux",
+    "DBDofusUnity/protodec",
+    "DBDofusUnity/UABEA",
+    "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
+    "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/login_message_pb2.py*",
+    "**/.venv",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+]
+
+[[tool.ty.overrides]]
+include = ["src/gui/**"]
+
+[tool.ty.overrides.analysis]
+allowed-unresolved-imports = [
+    "qfluentwidgets.common.config",
+    "qfluentwidgets.components.widgets.progress_ring",
+    "qfluentwidgets.components.dialog_box.dialog",
+    "qfluentwidgets.components.widgets.label",
+    "qfluentwidgets.components.widgets.check_box",
 ]
 
 [tool.ruff]

@@ -71,9 +71,12 @@ class CraftBehavior(RecoverableBehavior):
         }
         valid_requests = [req for req in craft_requests if req.recipe.resultId in valid_recipe_ids]
 
-        condition_by_result_id = {
-            req.recipe.resultId: req.stop_condition for req in valid_requests if callable(req.stop_condition)
-        }
+        condition_by_result_id: dict[int, Callable[[RecipeItem], bool]] = {}
+        for request in valid_requests:
+            stop_condition = request.stop_condition
+            if stop_condition is None or isinstance(stop_condition, int):
+                continue
+            condition_by_result_id[request.recipe.resultId] = stop_condition
         self._stop_craft_recipe_condition = lambda recipe: condition_by_result_id.get(
             recipe.resultId, lambda _: False
         )(recipe)

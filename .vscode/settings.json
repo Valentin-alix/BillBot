@@ -1,8 +1,14 @@
 {
-    "ruff.path": ["${workspaceFolder}/.venv/Scripts/ruff.exe"],
+    "ruff.path": [
+        "${workspaceFolder}/.venv/Scripts/ruff.exe"
+    ],
     "python.testing.pytestArgs": [
         "-s"
     ],
+    "python.languageServer": "None",
+    "ty.diagnosticMode": "workspace",
+    "ty.inlayHints.variableTypes": true,
+    "ty.inlayHints.callArgumentNames": true,
     "files.watcherExclude": {
         "**/DBDofusUnity/datas/**": true,
         "**/DBDofusUnity/Il2CppInspectorRedux/**": true,
@@ -10,16 +16,6 @@
         "**/DBDofusUnity/UABEA/**": true,
         "**/.venv/**": true,
         "**/__pycache__/**": true
-    },
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/.jj": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "build": true,
-        "dist": true,
     },
     "search.exclude": {
         "**/DBDofusUnity/datas": true,

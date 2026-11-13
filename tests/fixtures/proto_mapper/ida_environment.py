@@ -112,37 +112,37 @@ def _install_idaapi_mock() -> None:
 
 
 def _install_ida_gdl_mock() -> None:
-    ida_gdl.FlowChart = _empty_flow_chart
+    setattr(ida_gdl, "FlowChart", _empty_flow_chart)
 
 
 def _install_idc_mock() -> None:
-    idc.get_name = _get_name
+    setattr(idc, "get_name", _get_name)
 
 
 def _install_ida_typeinf_mock() -> None:
-    ida_typeinf.tinfo_t = MockTInfo
+    setattr(ida_typeinf, "tinfo_t", MockTInfo)
 
 
 def _install_ida_nalt_mock() -> None:
-    ida_nalt.get_switch_info = _get_switch_info
-    ida_nalt.get_tinfo = _get_tinfo
+    setattr(ida_nalt, "get_switch_info", _get_switch_info)
+    setattr(ida_nalt, "get_tinfo", _get_tinfo)
 
 
 def _install_ida_ua_mock() -> None:
-    ida_ua.print_insn_mnem = _print_insn_mnem
+    setattr(ida_ua, "print_insn_mnem", _print_insn_mnem)
 
 
 def _install_idautils_mock() -> None:
-    idautils.Heads = _heads
-    idautils.FuncItems = _func_items
+    setattr(idautils, "Heads", _heads)
+    setattr(idautils, "FuncItems", _func_items)
 
 
 def _install_ida_auto_mock() -> None:
-    ida_auto.auto_wait = _auto_wait
+    setattr(ida_auto, "auto_wait", _auto_wait)
 
 
 def _install_ida_pro_mock() -> None:
-    ida_pro.qexit = _qexit
+    setattr(ida_pro, "qexit", _qexit)
 
 
 class _MockCtreeVisitorBase:
@@ -166,7 +166,7 @@ def _install_ida_hexrays_mock() -> None:
     }
     for name, value in constants.items():
         setattr(ida_hexrays, name, value)
-    ida_hexrays.ctree_visitor_t = _MockCtreeVisitorBase
+    setattr(ida_hexrays, "ctree_visitor_t", _MockCtreeVisitorBase)
 
 
 def install_mock_ida_environment() -> None:

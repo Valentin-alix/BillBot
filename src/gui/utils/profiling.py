@@ -24,6 +24,7 @@ def profiled_slot(func: Callable[P, R], threshold_ms: int = 1) -> Callable[P, R]
         finally:
             dt = (perf_counter() - start) * 1000
             if dt >= threshold_ms:
-                print(f"[SLOT] {func.__qualname__} | {dt:.2f} ms | {threading.current_thread().name}")
+                function_name = getattr(func, "__qualname__", type(func).__qualname__)
+                print(f"[SLOT] {function_name} | {dt:.2f} ms | {threading.current_thread().name}")
 
     return wrapper

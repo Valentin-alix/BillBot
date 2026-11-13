@@ -215,6 +215,7 @@ dev = [
     { name = "scipy" },
     { name = "scipy-stubs" },
     { name = "tqdm" },
+    { name = "ty" },
     { name = "types-cachetools" },
     { name = "types-protobuf" },
     { name = "types-psutil" },
@@ -259,6 +260,7 @@ dev = [
     { name = "scipy", specifier = "==1.18.1" },
     { name = "scipy-stubs", specifier = ">=1.18,<2" },
     { name = "tqdm", specifier = ">=4.66.5,<5" },
+    { name = "ty", specifier = ">=0.0.103" },
     { name = "types-cachetools", specifier = ">=5.5.0.20240820" },
     { name = "types-protobuf", specifier = ">=6.32.1.20251210" },
     { name = "types-psutil", specifier = ">=7.1.3.20251211" },
@@ -788,6 +790,17 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/cf/79/2321629fc8838b07ca0b2851a8e4ebf99d4a36c2d3fecd3dc391c9dba9a9/tuna-0.5.15.tar.gz", hash = "sha256:0109ab102374ecf5d47f950267b516b6009c3cf48e8caba3b2c859ed3f6fb996", size = 162409, upload-time = "2026-05-19T09:31:42.049Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/c7/622f828d2d6e73826f46d7589f1d3be9812cef5827076040c9fa06b80f7e/tuna-0.5.15-py3-none-any.whl", hash = "sha256:889a62552067133e86851cebb1042bfc28242141ea80d4ae9c64142d86e060a3", size = 160492, upload-time = "2026-05-19T09:31:40.665Z" },
+]
+
+[[package]]
+name = "ty"
+version = "0.0.103"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/06/fce7ef8edb9af069cbd17accbc81804e9638f70f4ebf674d0b7847a2023e/ty-0.0.103.tar.gz", hash = "sha256:bf4dc5160a482d24b16e3b5057d638a02b06406d54faecb600a2c109cb023c45", size = 8290616, upload-time = "2026-11-13T12:10:20.634Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/26/6065524bfa1095b6a33a3d96ff30cf6459351eea3793baff1d58676269fa/ty-0.0.103-py3-none-win32.whl", hash = "sha256:3c1cf92f0919915114554ce028f28d8465b7ba2ecd7b45aad7565e4b7f4e5824", size = 13878647, upload-time = "2026-11-13T12:10:14.337Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/a9/001df4c9e43d12b5d23ffce730815974ab78d59e772dbde6c5623ac81680/ty-0.0.103-py3-none-win_amd64.whl", hash = "sha256:4454ac2e72542289d734df16a723a351c25f8d83a5d478589111a5d345ddc9c9", size = 14756811, upload-time = "2026-11-13T12:10:16.467Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/14/24528a2360f1fff1420524b4c8e50b01404a247d111b7fdcd06bb5726ad6/ty-0.0.103-py3-none-win_arm64.whl", hash = "sha256:909046656bb6b186a7d3732a9d31f0ccf6e0954e20fd756061769893a4ffcac7", size = 13961525, upload-time = "2026-11-13T12:10:18.66Z" },
 ]
 
 [[package]]

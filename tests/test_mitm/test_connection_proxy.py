@@ -19,7 +19,7 @@ def test_identification_reason_14_removes_mitm_bot(
     on_banned_callback = MagicMock()
     kill_process = MagicMock()
     monkeypatch.setattr(runtime_bot.process_manager, "kill_process", kill_process)
-    connection_proxy = cast(ConnectionProxy, object.__new__(ConnectionProxy))
+    connection_proxy = object.__new__(ConnectionProxy)
     connection_proxy.bot = runtime_bot
     connection_proxy.bot_by_id = {}
     connection_proxy.on_banned_callback = on_banned_callback
@@ -47,7 +47,7 @@ def test_non_ban_identification_error_keeps_mitm_bot(
     on_banned_callback = MagicMock()
     kill_process = MagicMock()
     monkeypatch.setattr(runtime_bot.process_manager, "kill_process", kill_process)
-    connection_proxy = cast(ConnectionProxy, object.__new__(ConnectionProxy))
+    connection_proxy = object.__new__(ConnectionProxy)
     connection_proxy.bot = runtime_bot
     connection_proxy.bot_by_id = {}
     connection_proxy.on_banned_callback = on_banned_callback

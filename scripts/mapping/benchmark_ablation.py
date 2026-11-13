@@ -1,6 +1,6 @@
 """Process-local experiments; never expose ablation switches in the production matcher."""
 
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import ExitStack, contextmanager
 from unittest.mock import patch
 
@@ -37,7 +37,7 @@ ABLATION_SIGNALS = (
 
 
 @contextmanager
-def ablate_signals(disabled: frozenset[str]) -> Iterator[None]:
+def ablate_signals(disabled: frozenset[str]) -> Generator[None, None, None]:
     """Run one variant per process so memoized scores cannot leak between experiments."""
     unknown = disabled.difference(ABLATION_SIGNALS)
     if unknown:

@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from threading import Event
+from typing import Any, cast
 
 from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
@@ -87,9 +88,13 @@ class BehaviorCoordinator(ContextualLogger):
             for behavior in self.usable_behaviors
             if behavior.__class__.__name__ == behavior_class_name
         )
+
+        def on_behavior_finished(*_args: object) -> None:
+            self.bot_signals.stop.emit()
+
         self.play_action(
-            lambda _: related_behavior.start(  # type: ignore
-                callback=lambda *_args: self.bot_signals.stop.emit(),  # type: ignore
+            lambda _: cast(Any, related_behavior).start(
+                callback=on_behavior_finished,
                 parent=None,
             )
         )

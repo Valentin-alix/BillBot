@@ -109,7 +109,7 @@ class MainWindow(AppFluentWindow):
         self.stackedWidget.addWidget(self.settings_page)
         self.navigationInterface.addItem(
             routeKey="settings",
-            icon=FluentIcon.SETTING,  # type: ignore
+            icon=FluentIcon.SETTING,
             text="Settings",
             onClick=lambda: self.switchTo(self.settings_page),
             position=NavigationItemPosition.BOTTOM,
@@ -252,10 +252,14 @@ class MainWindow(AppFluentWindow):
             navigation_widget.set_connected(True)
 
         account.game_info_signals.connected.connect(on_connected)
-        account.game_info_signals.character_name.connect(
-            lambda name: navigation_widget.set_title(  # type: ignore
+
+        def on_character_name(name: str) -> None:
+            navigation_widget.set_title(
                 f"{account.account.apikey.login.split('@')[0]} : {name}"
-            )  # type: ignore
+            )
+
+        account.game_info_signals.character_name.connect(
+            on_character_name
         )
 
         account.game_info_signals.in_fight.connect(navigation_widget.show_battle_icon)

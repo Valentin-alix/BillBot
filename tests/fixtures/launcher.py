@@ -51,5 +51,7 @@ class FakeLocator:
         return self._count
 
 class FakeMailProvider:
+    wait_for_code: AsyncMock
+
     def __init__(self, code: str | None = None) -> None:
         self.wait_for_code = AsyncMock(return_value=code)

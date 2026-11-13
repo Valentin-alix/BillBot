@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import cast
 
 from PyQt6.QtCore import QTimer, pyqtSignal
@@ -140,7 +141,7 @@ class ActivityPage(QWidget):
         return table
 
     @staticmethod
-    def _set_table_rows(table: TableWidget, rows: list[tuple[str, ...]]) -> None:
+    def _set_table_rows(table: TableWidget, rows: Sequence[Sequence[str]]) -> None:
         table.setRowCount(len(rows))
         for row, values in enumerate(rows):
             for column, value in enumerate(values):

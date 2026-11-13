@@ -368,7 +368,7 @@ def _collect_field_offsets_by_cls(
     offsets_by_cls: dict[str, list[int]] = {}
     for function in functions:
         for access in function.access_infos:
-            if access.type != "field" or access.field_offset is None:
+            if not isinstance(access, FieldAccessEntry) or access.field_offset is None:
                 continue
             offsets_by_cls.setdefault(access.cls, []).append(access.field_offset)
     return offsets_by_cls
@@ -380,7 +380,7 @@ def _collect_property_names_by_cls(
     names_by_cls: dict[str, list[str]] = {}
     for function in functions:
         for access in function.access_infos:
-            if access.type != "field" or access.property_name is None:
+            if not isinstance(access, FieldAccessEntry) or access.property_name is None:
                 continue
             names_by_cls.setdefault(access.cls, []).append(access.property_name)
     return names_by_cls

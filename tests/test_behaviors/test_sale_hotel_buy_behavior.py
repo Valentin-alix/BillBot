@@ -43,7 +43,9 @@ def _mock_of(child_behavior: object) -> MagicMock:
     return cast(MagicMock, child_behavior)
 
 
-def _start_and_search(behavior: SaleHotelBuyBehavior) -> None:
+def _start_and_search(
+    behavior: SaleHotelBuyBehavior,
+) -> list[tuple[str | None, list[ObjectItemInventory]]]:
     finished: list[tuple[str | None, list[ObjectItemInventory]]] = []
 
     def on_finished(error_code: str | None, bought_item: list[ObjectItemInventory]) -> None:
@@ -55,8 +57,6 @@ def _start_and_search(behavior: SaleHotelBuyBehavior) -> None:
         callback=on_finished,
         parent=None,
     )
-    behavior._finished = finished  # type: ignore[attr-defined]
-
     enter_callback = _mock_of(behavior.enter_sale_hotel_behavior).start.call_args.kwargs["callback"]
     enter_callback(None, npc_info=MagicMock())
 
@@ -80,10 +80,7 @@ def _start_and_search(behavior: SaleHotelBuyBehavior) -> None:
             ],
         )
     )
-
-
-def _finished(behavior: SaleHotelBuyBehavior) -> list[tuple[str | None, list[ObjectItemInventory]]]:
-    return cast(list[tuple[str | None, list[ObjectItemInventory]]], behavior._finished)  # type: ignore[attr-defined]
+    return finished
 
 
 def test_a_buy_result_with_no_matching_inventory_item_does_not_hang_the_behavior(
@@ -91,13 +88,12 @@ def test_a_buy_result_with_no_matching_inventory_item_does_not_hang_the_behavior
 ) -> None:
     del monkeypatch
     behavior = _make_behavior(game_state_ctx)
-    _start_and_search(behavior)
+    finished = _start_and_search(behavior)
 
     behavior.event_manager.process_msg(
         ExchangeBidHouseBuyResultEvent(bid_item_uid=LISTING_UID, bought=True)
     )
 
-    finished = _finished(behavior)
     assert finished
     error_code, bought_item = finished[0]
     assert error_code is None
@@ -109,7 +105,7 @@ def test_a_buy_result_with_the_item_already_in_inventory_reports_it_bought(
 ) -> None:
     del monkeypatch
     behavior = _make_behavior(game_state_ctx)
-    _start_and_search(behavior)
+    finished = _start_and_search(behavior)
 
     behavior.game_state.inventory.add_object(
         ObjectItemInventory(item=ObjectItem(uid=BOUGHT_OBJECT_UID, gid=AMULETTE_AKWADALA_GID, quantity=1))
@@ -118,7 +114,6 @@ def test_a_buy_result_with_the_item_already_in_inventory_reports_it_bought(
         ExchangeBidHouseBuyResultEvent(bid_item_uid=LISTING_UID, bought=True)
     )
 
-    finished = _finished(behavior)
     assert finished
     error_code, bought_item = finished[0]
     assert error_code is None

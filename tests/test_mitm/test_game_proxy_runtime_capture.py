@@ -13,7 +13,7 @@ def test_alter_message_decoding_does_not_capture_runtime(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     clear_message = SpellsEvent()
-    proxy = cast(GameProxy, object.__new__(GameProxy))
+    proxy = object.__new__(GameProxy)
     proxy.uid = 1
     proxy.bot = MagicMock()
     proxy.bot.event_manager.alter_msg.return_value = (clear_message, False)
@@ -43,7 +43,7 @@ def test_proxy_captures_only_messages_not_injected_by_framework(
     from_server: bool,
 ) -> None:
     clear_message = SpellsEvent()
-    proxy = cast(GameProxy, object.__new__(GameProxy))
+    proxy = object.__new__(GameProxy)
     proxy.uid = 1
     proxy.bot = MagicMock()
     proxy.bot.debug_recorder = None

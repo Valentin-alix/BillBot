@@ -192,7 +192,7 @@ def _make_equip_behavior(
     behavior._positions_by_uid = {pending_uid: position}
     behavior._pending_position = None
     pending_item = SimpleNamespace(position=CharacterInventoryPositionEnum.InventoryPositionNotEquiped)
-    behavior.game_state.inventory = _FakeInventory({pending_uid: pending_item})  # type: ignore[attr-defined]
+    cast(Any, behavior.game_state).inventory = _FakeInventory({pending_uid: pending_item})
     fake_event_manager = _FakeEventManager()
     behavior.event_manager = cast(Any, fake_event_manager)
     behavior.send_message_delayed = lambda *_args, **_kwargs: None  # type: ignore[method-assign]

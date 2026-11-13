@@ -12,6 +12,7 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import DataReader
 from DBDofusUnity.dofus_unity_reader.game_constants.inventory_position import (
     CharacterInventoryPositionEnum,
 )
+from google.protobuf.message import Message
 from src.core.behaviors.behavior import Behavior
 from src.core.engine.items.equipment import equipment_score, get_equipment_positions, roll_score
 from src.core.engine.items.item import get_equipment_on_position
@@ -168,7 +169,7 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
         self._pending_position = position
         self.event_manager.on(
             [ObjectMovementEvent, ObjectAddedEvent],
-            self._on_equip_confirmed,
+            self._on_equip_message,
             originator=self,
             override_on_self=True,
             timeout=15,
@@ -178,6 +179,10 @@ class AutoEquipmentFromInventoryBehavior(Behavior):
             ObjectSetPositionRequest(object_uid=uid, quantity=1, position=position),
             HumanTimingsService().get_timing_equipment_choice(),
         )
+
+    def _on_equip_message(self, msg: Message) -> None:
+        if isinstance(msg, (ObjectMovementEvent, ObjectAddedEvent)):
+            self._on_equip_confirmed(msg)
 
     def on_timeout_inventory_weight_on_equipped(self, uid: int, position: int):
         self.event_manager.clear_listener_by_origin_and_type(ObjectMovementEvent, self)
