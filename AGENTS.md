@@ -1,4 +1,4 @@
-# BillBot
+# AstraBot
 
 Python 3.15.2, Windows only. Bot: `src/`; launcher: `AnkamaLauncherEmulator/`; protocol tools: `DBDofusUnity/`.
 

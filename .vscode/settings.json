@@ -28,7 +28,7 @@
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.expand": false,
     "explorer.fileNesting.patterns": {
-        "pyproject.toml": "uv.lock,BillBot.spec, pyrightconfig.json",
+        "pyproject.toml": "uv.lock,AstraBot.spec, pyrightconfig.json",
         ".env": ".env.*"
     },
     "workbench.editor.limit.enabled": true,

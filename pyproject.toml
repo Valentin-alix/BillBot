@@ -1,5 +1,5 @@
 [project]
-name = "itsbillbot"
+name = "astrabot"
 version = "0.1.0"
 description = "Python framework for Dofus Unity protocol research and bot orchestration."
 authors = [{ name = "Valentin Alix" }]
@@ -71,7 +71,7 @@ test_verbose = "pytest tests -s"
 verify = ["lint", "check_type", "test"]
 package-browser = { cmd = "playwright install chromium --no-shell", env = { PLAYWRIGHT_BROWSERS_PATH = "0" } }
 package = ["package-browser", "package-build"]
-package-build = "pyinstaller --noconfirm --clean BillBot.spec"
+package-build = "pyinstaller --noconfirm --clean AstraBot.spec"
 
 
 [tool.pytest.ini_options]

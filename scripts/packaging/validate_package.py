@@ -53,7 +53,7 @@ def validate_package(folder: Path) -> None:
             DEBUG="1",
             PYTHON_DOTENV_DISABLED="1",
             PLAYWRIGHT_BROWSERS_PATH=str(root / "absent-browser-cache"),
-            THISISBILLBOT_SKIP_UPDATE_ONCE="1",
+            THISISASTRABOT_SKIP_UPDATE_ONCE="1",
         )
         for name in (
             "OBF_GAME_DIR",
@@ -79,12 +79,12 @@ def validate_package(folder: Path) -> None:
             check=True,
             timeout=60,
         )
-        log_path = profile / "AppData/Local/BillBot/resources/diagnostics.log"
+        log_path = profile / "AppData/Local/AstraBot/resources/diagnostics.log"
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
         process = subprocess.Popen(
-            [str(package / "BillBot.exe"), "--no-auto"],
+            [str(package / "AstraBot.exe"), "--no-auto"],
             cwd=root,
             env=environment,
             startupinfo=startup,

@@ -36,12 +36,12 @@ jobs:
       - name: Build Windows package
         run: uv run poe package
       - name: Validate packaged startup and shutdown
-        run: uv run python -m scripts.packaging.validate_package dist/BillBot
+        run: uv run python -m scripts.packaging.validate_package dist/AstraBot
       - name: Create release archive
         shell: pwsh
         run: |
-          Compress-Archive -Path dist/BillBot -DestinationPath dist/BillBot-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
-          $asset = Get-Item dist/BillBot-${{ steps.version.outputs.version }}.zip
+          Compress-Archive -Path dist/AstraBot -DestinationPath dist/AstraBot-${{ steps.version.outputs.version }}.zip -CompressionLevel Optimal
+          $asset = Get-Item dist/AstraBot-${{ steps.version.outputs.version }}.zip
           if ($asset.Length -gt 2GB) {
             throw "Release asset exceeds the 2 GiB GitHub limit: $($asset.Length) bytes"
           }
@@ -57,5 +57,5 @@ jobs:
             gh release delete latest --cleanup-tag --yes
             if ($LASTEXITCODE -ne 0) { throw "Failed to delete the previous latest release" }
           }
-          gh release create latest "dist/BillBot-$env:RELEASE_VERSION.zip" --target $env:GITHUB_SHA --title $env:RELEASE_VERSION --notes "Version $env:RELEASE_VERSION" --latest
+          gh release create latest "dist/AstraBot-$env:RELEASE_VERSION.zip" --target $env:GITHUB_SHA --title $env:RELEASE_VERSION --notes "Version $env:RELEASE_VERSION" --latest
           if ($LASTEXITCODE -ne 0) { throw "Failed to publish the latest release" }

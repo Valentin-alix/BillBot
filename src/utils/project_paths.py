@@ -5,7 +5,7 @@ IS_PACKAGED = getattr(sys, "frozen", False)
 PROJECT_ROOT = Path(sys.executable).resolve().parent if IS_PACKAGED else Path(__file__).resolve().parents[2]
 BUNDLE_ROOT = Path(getattr(sys, "_MEIPASS", PROJECT_ROOT))
 FRIDA_SCRIPT_PATH = BUNDLE_ROOT / "AnkamaLauncherEmulator/ankama_launcher_emulator/server/dofus3/script.js"
-USER_DATA_ROOT = Path.home() / "AppData" / "Local" / "BillBot" if IS_PACKAGED else PROJECT_ROOT
+USER_DATA_ROOT = Path.home() / "AppData" / "Local" / "AstraBot" if IS_PACKAGED else PROJECT_ROOT
 ENV_PATH = PROJECT_ROOT / ".env"
 
 

@@ -3,9 +3,9 @@
 Windows bot for Dofus Unity with harvesting, combat, crafting, multiple accounts,
 and session scheduling. Built with Python, PyQt6, and FluentWidgets.
 
-[Download for Windows](https://github.com/Valentin-alix/BillBot/releases/latest)
+[Download for Windows](https://github.com/Valentin-alix/AstraBot/releases/latest)
 
-![Bill running alongside Dofus Unity](./resources/screenshots/bot.gif)
+![AstraBot running alongside Dofus Unity](./resources/screenshots/bot.gif)
 
 ## Features
 
@@ -20,19 +20,19 @@ and session scheduling. Built with Python, PyQt6, and FluentWidgets.
 
 ### Download
 
-Extract the Windows archive from the [latest release](https://github.com/Valentin-alix/BillBot/releases/latest)
-and run `BillBot.exe`.
+Extract the Windows archive from the [latest release](https://github.com/Valentin-alix/AstraBot/releases/latest)
+and run `AstraBot.exe`.
 
-If Microsoft Defender quarantines `BillBot.exe`, add an exclusion for a dedicated
-BillBot installation folder before extracting the archive again:
+If Microsoft Defender quarantines `AstraBot.exe`, add an exclusion for a dedicated
+AstraBot installation folder before extracting the archive again:
 
-1. Create the installation folder, for example `C:\BillBot`.
+1. Create the installation folder, for example `C:\AstraBot`.
 2. Open **Windows Security → Virus & threat protection → Manage settings →
    Exclusions → Add or remove exclusions → Add an exclusion → Folder** and select it.
-3. Extract the release ZIP into that folder and run `BillBot.exe`.
+3. Extract the release ZIP into that folder and run `AstraBot.exe`.
 
 Only do this for a release you trust: Defender's real-time scanning will exclude
-that folder. Keep the exclusion limited to BillBot's folder; do not exclude all
+that folder. Keep the exclusion limited to AstraBot's folder; do not exclude all
 Downloads or disable antivirus protection.
 [Microsoft's exclusion instructions](https://support.microsoft.com/en-gb/windows/security/threat-malware-protection/virus-and-threat-protection-in-the-windows-security-app).
 

@@ -11,11 +11,10 @@ from ankama_launcher_emulator.server.dofus3 import launch
 from ankama_launcher_emulator.utils import environment
 from pydantic import BaseModel
 
-from src.utils import project_paths
-from src.utils import runtime_support
 from src.core.bot.lifecycle.account_scheduler import AccountScheduler
 from src.services import install_validation
 from src.services.background import Worker
+from src.utils import project_paths, runtime_support
 from utils.env_config import get_bool_from_env
 from utils.local_json import read_local_model
 

@@ -9,23 +9,23 @@ from filelock import FileLock
 
 def install_update() -> None:
     temporary = Path(sys.executable).resolve().parent
-    if temporary.name != ".billbot-update":
-        raise ValueError("The updater must run from the bundle's .billbot-update directory.")
+    if temporary.name != ".astrabot-update":
+        raise ValueError("The updater must run from the bundle's .astrabot-update directory.")
     target = temporary.parent
-    source = temporary / "extracted" / "BillBot"
-    status = Path.home() / "AppData/Local/BillBot/update-error.txt"
+    source = temporary / "extracted" / "AstraBot"
+    status = Path.home() / "AppData/Local/AstraBot/update-error.txt"
     backup = temporary / "backup"
-    names = ("BillBot.exe", "_internal")
+    names = ("AstraBot.exe", "_internal")
     saved: list[str] = []
     installed: list[str] = []
     environment = os.environ | {
         "PYINSTALLER_RESET_ENVIRONMENT": "1",
-        "THISISBILLBOT_UPDATER_PID": str(os.getpid()),
-        "THISISBILLBOT_SKIP_UPDATE_ONCE": "1",
+        "THISISASTRABOT_UPDATER_PID": str(os.getpid()),
+        "THISISASTRABOT_SKIP_UPDATE_ONCE": "1",
     }
     try:
         owner = psutil.Process().parent()
-        if owner and Path(owner.exe()).resolve() == target / "BillBot.exe":
+        if owner and Path(owner.exe()).resolve() == target / "AstraBot.exe":
             owner.wait(timeout=120)
     except psutil.NoSuchProcess:
         pass
@@ -60,7 +60,7 @@ def install_update() -> None:
             if recovery_errors:
                 return
     subprocess.Popen(
-        [str(target / "BillBot.exe")],
+        [str(target / "AstraBot.exe")],
         cwd=target,
         env=environment,
         creationflags=subprocess.CREATE_NO_WINDOW,
@@ -71,7 +71,7 @@ def main() -> None:
     try:
         install_update()
     except (OSError, ValueError, psutil.Error) as error:
-        status = Path.home() / "AppData/Local/BillBot/update-error.txt"
+        status = Path.home() / "AppData/Local/AstraBot/update-error.txt"
         status.parent.mkdir(parents=True, exist_ok=True)
         status.write_text(f"Unable to complete the update: {error}", encoding="utf-8")
 

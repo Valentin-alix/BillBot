@@ -9,7 +9,7 @@ from src.utils.project_paths import BUNDLE_ROOT
 
 
 class Application(QApplication):
-    TITLE = "Bill"
+    TITLE = "AstraBot"
 
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)

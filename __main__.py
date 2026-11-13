@@ -3,13 +3,13 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 
 if (
     __name__ == "__main__"
     and getattr(sys, "frozen", False)
-    and os.environ.pop("THISISBILLBOT_INSTALL_UPDATE", None)
+    and os.environ.pop("THISISASTRABOT_INSTALL_UPDATE", None)
 ):
     from scripts.packaging.install_update import main as install_update
 
@@ -17,11 +17,10 @@ if (
     raise SystemExit(0)
 
 from src.utils.project_paths import BUNDLE_ROOT
-
-lazy from src.runtime import run_gui as start_gui
-lazy from src.controller.bot_config import BotConfigService
 lazy import src.services.game_version as game_version
 lazy import src.services.install_validation as install_validation
+lazy from src.controller.bot_config import BotConfigService
+lazy from src.runtime import run_gui as start_gui
 
 if not getattr(sys, "frozen", False):
     for import_root in (BUNDLE_ROOT, BUNDLE_ROOT / "DBDofusUnity", BUNDLE_ROOT / "AnkamaLauncherEmulator"):

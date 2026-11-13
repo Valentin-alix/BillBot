@@ -20,7 +20,7 @@ build/
 !scripts/build
 dist/
 *.spec
-!BillBot.spec
+!AstraBot.spec
 *.egg-info/
 private
 

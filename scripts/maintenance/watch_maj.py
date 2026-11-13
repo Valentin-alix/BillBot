@@ -32,7 +32,7 @@ def notify_update_completed(version: str) -> None:
         ctypes.windll.user32.MessageBoxW(
             None,
             f"update-maj terminé pour la version {version}.\n\nVeuillez vérifier manuellement le résultat.",
-            "BillBot — Mise à jour terminée",
+            "AstraBot — Mise à jour terminée",
             0x40 | 0x10000 | 0x40000,
         )
     except OSError:
@@ -88,7 +88,7 @@ def main() -> None:
         while True:
             try:
                 check_for_update()
-            except (requests.RequestException, ValidationError, OSError, subprocess.CalledProcessError):
+            except requests.RequestException, ValidationError, OSError, subprocess.CalledProcessError:
                 logger.exception("Update failed; retrying in 60s.")
             time.sleep(60)
     except (ConfigurationError, ValueError) as error:
