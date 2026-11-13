@@ -8,6 +8,7 @@ lazy from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
 
+from src.services.logging_utils.contextual_logger import ContextualLogger
 lazy from src.controller.bot_config import BotConfigService
 lazy from src.core.behaviors.account.character_creation_behavior import (
     CharacterCreationBehavior,
@@ -45,7 +46,6 @@ lazy from src.core.signals.world_signals import WorldSignals
 lazy from src.core.states.game_state import GameState
 lazy from src.services.background import run_in_background
 lazy from src.services.debug_recorder import DebugRecorder
-from src.services.logging_utils.contextual_logger import ContextualLogger
 
 
 @dataclass
@@ -151,7 +151,7 @@ class Bot(ContextualLogger):
             event_manager=self.event_manager,
             game_state=self.game_state,
             is_playing_event=self.is_playing_event,
-            get_running_top_level_behaviors=(self.behavior_coordinator.running_top_level_behaviors),
+            get_running_top_level_behaviors=(self.behavior_coordinator.get_running_top_level_behaviors),
         )
 
         self.process_manager = ProcessManager(_logger=self.logger)

@@ -15,6 +15,7 @@ from ankama_launcher_emulator.controller.subscription_expiration import (
 from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
+
 from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import Character
 from src.controller.bot_config import BotConfig
 from src.core.behaviors.account.character_creation_behavior import (
@@ -42,7 +43,6 @@ from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.game_state import GameState
 from src.exceptions import UnhandledErrorCodeException
 from src.services.logging_utils.contextual_logger import ContextualLogger
-from src.services.league_of_legends import is_league_of_legends_match_running
 from src.services.user_activity import UserActivityService
 
 _OGRINE_SUBSCRIPTION_MIN_KAMAS = 2_500_000
@@ -137,7 +137,9 @@ class ConnectionHandler(ContextualLogger):
 
     def _emit_relaunch(self):
         self.logger.info("Relaunching bot")
-        UserActivityService().record("info", "Automatic restart in progress.", login=self.account.apikey.login)
+        UserActivityService().record(
+            "info", "Automatic restart in progress.", login=self.account.apikey.login
+        )
         if self.is_playing_event.is_set():
             self.shared_signals.launch_account.emit(self.account.apikey.login)
 
@@ -161,9 +163,6 @@ class ConnectionHandler(ContextualLogger):
     def _continue_after_required_behavior(self) -> None:
         if not self.behavior_coordinator.is_playing_event.is_set():
             return
-        if is_league_of_legends_match_running():
-            self.logger.info("League of Legends match in progress, postponing automatic subscription")
-            return
         if not self._is_eligible_for_subscription():
             self.behavior_coordinator.run_current_bot_action()
             return
@@ -171,13 +170,17 @@ class ConnectionHandler(ContextualLogger):
             if not self.game_state.settings.enable_auto_paysafecard_subscriptions:
                 self.logger.info("Automatic Paysafecard subscription is disabled")
                 UserActivityService().record(
-                    "info", "Automatic Paysafecard subscription skipped: permission disabled.", login=self.game_state.player.login
+                    "info",
+                    "Automatic Paysafecard subscription skipped: permission disabled.",
+                    login=self.game_state.player.login,
                 )
                 self.behavior_coordinator.run_current_bot_action()
                 return
             self.logger.info("Starting automatic in-game Paysafecard subscription")
             UserActivityService().record(
-                "warning", "Starting an automatic Paysafecard subscription.", login=self.game_state.player.login
+                "warning",
+                "Starting an automatic Paysafecard subscription.",
+                login=self.game_state.player.login,
             )
             self.paysafecard_subscription_behavior.start(
                 callback=self._on_paysafecard_subscription_finished,
@@ -237,11 +240,7 @@ class ConnectionHandler(ContextualLogger):
         self.logger.info(f"Has Paysafecard PIN available : {has_available_pin}")
         self.logger.info(f"Has pending Paysafecard purchase : {has_pending_purchase}")
         self.logger.info(f"Is schedule profile eligible for Paysafecard : {is_profile_eligible}")
-        return (
-            is_never_subscribed
-            and (has_available_pin or has_pending_purchase)
-            and is_profile_eligible
-        )
+        return is_never_subscribed and (has_available_pin or has_pending_purchase) and is_profile_eligible
 
     def _on_paysafecard_subscription_finished(
         self,

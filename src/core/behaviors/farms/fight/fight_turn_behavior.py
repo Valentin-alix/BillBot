@@ -15,7 +15,6 @@ from src.core.behaviors.movements.map_move_behavior import MapMoveError
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.attacker import Attacker
 from src.core.engine.fights.attack.breed_abilities import BreedAbilitySelector
-from src.core.engine.fights.attack.heal import EMERGENCY_HEAL_HP_THRESHOLD
 from src.services.human_timings import HumanTimingsService
 
 
@@ -62,11 +61,6 @@ class FightTurnBehavior(FightListenerBehavior):
             stage = 1
 
         if stage <= 1:
-            if context.life_percentage < EMERGENCY_HEAL_HP_THRESHOLD:
-                emergency_heal_spell = self.attack_selector.find_best_self_heal(attack_context)
-                if emergency_heal_spell is not None:
-                    return self._cast_self_spell(context, emergency_heal_spell, lambda: self._advance_turn(1))
-
             attack_info = self.attack_selector.find_best_attack_from_mp(attack_context)
             if attack_info is not None:
                 return self._do_move_then_spell(attack_info, lambda: self._advance_turn(1))

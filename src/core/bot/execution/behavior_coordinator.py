@@ -2,15 +2,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from threading import Event
 
-from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import PlayerStatusUpdateRequest
-from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
-
-from src.services.background import run_in_background
 from ankama_launcher_emulator.interfaces.credentials import (
     StoredApiKey,
 )
-from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 
+from DBDofusUnity.datas.protos.non_obf.game.character_pb2 import PlayerStatusUpdateRequest
+from DBDofusUnity.datas.protos.non_obf.game.common_pb2 import CharacterStatus
+from DBDofusUnity.dofus_unity_reader.models.datas.recipe_root import RecipeItem
 from src.controller.bot_config import BotConfig
 from src.controller.settings import SettingsService
 from src.core.behaviors.behavior import Behavior, BehaviorState
@@ -23,8 +21,9 @@ from src.core.events_manager.event_manager import EventManager
 from src.core.signals.bot_signals import BotSignals
 from src.core.signals.shared_farm_signals import SharedSignals
 from src.core.states.player_state import PlayerState
-from src.services.user_activity import UserActivityService
+from src.services.background import run_in_background
 from src.services.logging_utils.contextual_logger import ContextualLogger
+from src.services.user_activity import UserActivityService
 
 
 @dataclass
@@ -89,7 +88,7 @@ class BehaviorCoordinator(ContextualLogger):
             if behavior.__class__.__name__ == behavior_class_name
         )
         self.play_action(
-            lambda _progress_callback: related_behavior.start(  # type: ignore
+            lambda _: related_behavior.start(  # type: ignore
                 callback=lambda *_args: self.bot_signals.stop.emit(),  # type: ignore
                 parent=None,
             )
@@ -98,7 +97,7 @@ class BehaviorCoordinator(ContextualLogger):
     def on_play_harvester(self, area_id: int | None, sub_area_id: int | None):
         self._select_action("harvest", area_id, sub_area_id)
         self.play_action(
-            lambda _progress_callback: self.harvester_behavior.start(
+            lambda _: self.harvester_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
                 parent=None,
                 area_id=area_id,
@@ -113,7 +112,7 @@ class BehaviorCoordinator(ContextualLogger):
     ):
         self._select_action("fight", area_id, sub_area_id)
         self.play_action(
-            lambda _progress_callback: self.fighter_behavior.start(
+            lambda _: self.fighter_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
                 parent=None,
                 area_id=area_id,
@@ -125,7 +124,7 @@ class BehaviorCoordinator(ContextualLogger):
         self._select_action("auto")
         self.bot_signals.automation_status_changed.emit("Preparing automatic mode…")
         self.play_action(
-            lambda _progress_callback: self.auto_bot_behavior.start(
+            lambda _: self.auto_bot_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
                 parent=None,
                 area_id=None,
@@ -136,7 +135,7 @@ class BehaviorCoordinator(ContextualLogger):
     def on_play_crafter(self, recipes: list[RecipeItem]):
         self._select_action("craft")
         self.play_action(
-            lambda _progress_callback: self.craft_behavior.start(
+            lambda _: self.craft_behavior.start(
                 callback=lambda *_args: self.bot_signals.stop.emit(),
                 parent=None,
                 craft_requests=[CraftRequest(recipe=recipe) for recipe in recipes],
@@ -166,10 +165,10 @@ class BehaviorCoordinator(ContextualLogger):
 
     def stop_behaviors(self) -> None:
         with self.event_manager.lock:
-            for behavior in self.running_top_level_behaviors():
+            for behavior in self.get_running_top_level_behaviors():
                 behavior.stop()
 
-    def running_top_level_behaviors(self) -> list[Behavior]:
+    def get_running_top_level_behaviors(self) -> list[Behavior]:
         running: list[Behavior] = []
         for field_info in fields(self):
             field_value = getattr(self, field_info.name)

@@ -92,7 +92,6 @@ def launch_installer() -> None:
     shutil.copyfile(PROJECT_ROOT / "BillBot.exe", installer)
     runtime = UPDATE_ROOT / "_internal"
     runtime.mkdir()
-    # Only copy Python's runtime; game data, Qt and Chromium are unnecessary here.
     for path in BUNDLE_ROOT.iterdir():
         if path.is_file():
             shutil.copy2(path, runtime / path.name)
@@ -155,7 +154,6 @@ def recover_update_staging() -> None:
         raise RuntimeSetupError("The update staging directory is outside the installation.")
     if not root.exists():
         return
-    # The installer may still be waiting for this process to release the update lock.
     installer = root / "BillBot.exe"
     for process in psutil.process_iter(["exe"]):
         executable = process.info["exe"]

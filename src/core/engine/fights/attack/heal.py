@@ -7,7 +7,6 @@ from DBDofusUnity.dofus_unity_reader.models.datas.spell_levels_root import (
     Effect,
     SpellLevelsRootItem,
 )
-
 from src.core.engine.contexts import AttackContext
 from src.core.engine.fights.attack.spell_filter import collect_castable_spells
 from src.core.engine.fights.effect import base_roll, can_self_cast, is_heal_effect, is_vitality_buff_effect
@@ -15,7 +14,6 @@ from src.core.engine.fights.spell_modifier import SpellModifiers
 from src.core.engine.fights.stats.characteristic import get_stat_by_id
 
 HEAL_HP_THRESHOLD = 0.5
-EMERGENCY_HEAL_HP_THRESHOLD = 0.25
 
 
 def estimate_self_heal(effect: Effect, context: AttackContext) -> int:

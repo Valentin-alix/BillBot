@@ -1,5 +1,4 @@
 import logging
-from src.utils.runtime_support import RuntimeSetupError
 from threading import RLock
 from typing import ClassVar, Literal
 
@@ -18,17 +17,18 @@ from ankama_launcher_emulator.utils.proxy import (
     build_http_proxy_url,
     build_socks_proxy_url,
 )
-from utils.singleton import Singleton
 from pydantic import BaseModel
+
+from src.utils.runtime_support import RuntimeSetupError
+from utils.singleton import Singleton
+
+logger = logging.getLogger()
 
 
 class BotConfig(BaseModel):
     schedule_profile: str | None = None
     connection_mode: Literal["mitm", "socket"] = "socket"
     hardware_id: str | None = None
-
-
-logger = logging.getLogger()
 
 
 class BotConfigService(metaclass=Singleton):

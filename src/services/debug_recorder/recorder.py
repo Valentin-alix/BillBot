@@ -1,5 +1,3 @@
-"""Hot paths enqueue only; a per-bot worker serializes and writes records without blocking Qt."""
-
 import atexit
 import gzip
 import json
@@ -15,10 +13,9 @@ from typing import Any, Literal, TypedDict
 
 from google.protobuf.message import Message
 
+from src.protocol.message import MessageInfo
 from src.protocol.protocol_connection import get_conn_msg_info
 from src.protocol.protocol_game import get_game_msg_info
-from src.protocol.message import MessageInfo
-
 
 MessageSource = Literal["server", "client_forwarded", "framework_injected"]
 
@@ -206,16 +203,7 @@ class DebugRecorder:
         from_server: bool,
         source: MessageSource,
     ) -> None:
-        self._queue.put(
-            _GameMsgRaw(
-                datetime.now(),
-                clear_sub_msg,
-                obf_sub_msg,
-                uid,
-                from_server,
-                source,
-            )
-        )
+        self._queue.put(_GameMsgRaw(datetime.now(), clear_sub_msg, obf_sub_msg, uid, from_server, source))
 
     def record_conn_message(
         self,
@@ -426,6 +414,7 @@ def _prune_bot_debug_sessions(
     for session_path in session_paths:
         if session_path != active_session_path and session_path.stat().st_mtime < expiration_timestamp:
             session_path.unlink()
+
 
 def _bot_debug_session_paths(account_logs_directory: Path) -> list[Path]:
     return [

@@ -19,7 +19,6 @@ class MuleExchangeSignals(QObject):
 
     @staticmethod
     def connect_direct(signal: pyqtBoundSignal, callback: Callable[[str], None]) -> None:
-        # PyQt's stubs omit the connection type accepted at runtime.
         connect = cast(
             Callable[[Callable[[str], None], Qt.ConnectionType], QMetaObject.Connection], signal.connect
         )

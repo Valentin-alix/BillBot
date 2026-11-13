@@ -5,6 +5,7 @@ from functools import partial
 from threading import RLock
 
 from DBDofusUnity.dofus_unity_reader.data_center.area_info import AreaInfo
+from src.controller.settings import SettingsService
 from src.core.behaviors.craft.craft_behavior import CraftBehavior, CraftRequest
 from src.core.behaviors.farms.base_farm_behavior import BaseFarmingErrorCode
 from src.core.behaviors.farms.fight.fighter_behavior import FighterBehavior
@@ -20,7 +21,6 @@ from src.core.behaviors.storage.enter_chests.enter_bank_chest_behavior import (
 )
 from src.core.bot.session_activity_plan import SessionActivity, SessionActivityPlan
 from src.core.config import get_time_beween_areas
-from src.controller.settings import SettingsService
 from src.core.engine.contexts import HarvesterAreaContext
 from src.core.engine.crafts.recipes import (
     get_recipes_for_job_lvl_up_or_benefice,
@@ -131,7 +131,7 @@ class AutoBotBehavior(RecoverableBehavior):
                 or datetime_start_played + get_time_beween_areas() < datetime.now()
             )
 
-        self.report_status("Analyzing harvesting areas…")
+        self.report_status("Analyzing farming areas…")
         with AREA_CHOICE_LOCK:
             area_info = get_random_best_area_info(
                 self._area_id,

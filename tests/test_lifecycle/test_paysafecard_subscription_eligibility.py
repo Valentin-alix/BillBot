@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -137,28 +137,3 @@ def test_paysafecard_subscription_requires_an_eligible_complete_profile(runtime_
     handler.profile_subscription_eligibility.is_eligible.assert_called_once_with(
         "A", "TEST", 31, 15_000
     )
-
-
-@pytest.mark.parametrize("subscription", ["paysafecard", "ogrine"])
-def test_automatic_subscription_is_postponed_during_league_of_legends_match(
-    runtime_bot: Bot,
-    subscription: str,
-) -> None:
-    handler = runtime_bot.connection_handler
-    handler.behavior_coordinator.is_playing_event.set()
-    handler._is_eligible_for_subscription = Mock(return_value=True)
-    handler._should_subscribe_with_paysafe_card = Mock(return_value=subscription == "paysafecard")
-    handler._should_renew_subscription_with_ogrines = Mock(return_value=subscription == "ogrine")
-    handler.paysafecard_subscription_behavior.start = Mock()
-    handler.ogrine_subscription_behavior.start = Mock()
-    handler.behavior_coordinator.run_current_bot_action = Mock()
-
-    with patch(
-        "src.core.bot.lifecycle.connection_handler.is_league_of_legends_match_running",
-        return_value=True,
-    ):
-        handler._continue_after_required_behavior()
-
-    handler.paysafecard_subscription_behavior.start.assert_not_called()
-    handler.ogrine_subscription_behavior.start.assert_not_called()
-    handler.behavior_coordinator.run_current_bot_action.assert_not_called()

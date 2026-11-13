@@ -89,13 +89,13 @@ class RandomFarmBehavior(Behavior):
         if self._should_go_to_area():
             self.edge_path = None
             self.logger.info("go to area for farm")
-            self.report_status("Calculating route to the harvesting area…")
+            self.report_status("Calculating route to the farming area…")
             self.auto_trip_smart_behavior.start(
                 callback=self.on_auto_trip_world_behavior_finished,
                 parent=self,
                 map_ids=self.map_ids,
             )
-            self.report_status("Traveling to the harvesting area…")
+            self.report_status("Traveling to the farming area…")
             return
 
         if self._is_edge_path_empty():

@@ -23,6 +23,14 @@
       }
     },
     {
+      "obf": "jsq.jre",
+      "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent.LifePointsGain",
+      "field_mapping_by_obf": {
+        "fwnm": "delta",
+        "fwnn": "target_id"
+      }
+    },
+    {
       "obf": "jsq",
       "non_obf": "Com.Ankama.Dofus.Server.Game.Protocol.Game.Action.GameActionFightEvent",
       "field_mapping_by_obf": {
