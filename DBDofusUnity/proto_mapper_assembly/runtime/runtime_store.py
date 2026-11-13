@@ -1,10 +1,12 @@
+import json
+import logging
 from collections import defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from functools import cached_property
-import json
 from pathlib import Path
 from threading import RLock
+from time import perf_counter
 from uuid import uuid4
 
 from google.protobuf.descriptor import FieldDescriptor
@@ -26,6 +28,7 @@ from utils.protobuf import is_repeated_field
 from utils.singleton import Singleton
 
 MAX_COUNT_BY_NAME = 1_500
+logger = logging.getLogger()
 
 
 ContentByName = dict[str, list[RuntimeInstance]]
@@ -38,6 +41,7 @@ class RuntimeDataStore(metaclass=Singleton):
     _capture_sequence_index: int | None = field(init=False, default=None)
     _capture_session_id: str | None = field(init=False, default=None)
     _capture_target_path: Path | None = field(init=False, default=None)
+    _has_unsaved_changes: bool = field(init=False, default=False)
 
     def __hash__(self) -> int:
         return 0
@@ -268,6 +272,7 @@ class RuntimeDataStore(metaclass=Singleton):
             existing = self._writing_content.setdefault(name, [])
             if len(existing) < MAX_COUNT_BY_NAME:
                 existing.append(value_by_field)
+                self._has_unsaved_changes = True
         return value_by_field
 
     def write_captured_content(self) -> None:
@@ -276,13 +281,19 @@ class RuntimeDataStore(metaclass=Singleton):
         with self._lock:
             _ = self.content_by_name
             target_path = self._capture_target_path
-            if target_path is None or not self._writing_content:
+            if target_path is None or not self._writing_content or not self._has_unsaved_changes:
                 return
             if not target_path.parent.exists():
                 return
-            print("writing captured info contents...")
-            runtime_document = RuntimeCaptureDocument(
+            started_at = perf_counter()
+            runtime_document = RuntimeCaptureDocument.model_construct(
                 schema_fingerprint=self.schema_fingerprint,
-                root={name: tuple(entries) for name, entries in self._writing_content.items()}
+                root={name: tuple(entries) for name, entries in self._writing_content.items()},
             )
             target_path.write_text(runtime_document.model_dump_json(), encoding="utf-8")
+            self._has_unsaved_changes = False
+            logger.info(
+                "Wrote captured protocol data (%d bytes) in %.3f seconds",
+                target_path.stat().st_size,
+                perf_counter() - started_at,
+            )

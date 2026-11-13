@@ -170,7 +170,7 @@ class TestCalculateAttackWeight:
 
         assert weight <= 0
 
-    def test_life_steal_overkill_is_capped(
+    def test_life_steal_damage_is_capped_at_enemy_max_health(
         self,
         monkeypatch: pytest.MonkeyPatch,
         patch_singletons: dict[str, str],
@@ -191,6 +191,8 @@ class TestCalculateAttackWeight:
             ("Vol de vie", enemy.life_point),
             ("Vol de vie", 200),
             ("Vol de vie", 400),
+            ("Vol de vie", enemy.max_life_point),
+            ("Vol de vie", enemy.max_life_point * 2),
         ):
             patch_singletons["description"] = description
             damage_calculator.get_damage_effect.return_value = damage
@@ -208,9 +210,12 @@ class TestCalculateAttackWeight:
             )
 
         assert weights[1] > weights[0] > 0
-        assert weights[1] == weights[2] == weights[3]
+        assert weights[1] < weights[2] < weights[3] < weights[4]
+        assert weights[4] == weights[5]
 
-    def test_low_hp_target_is_prioritized_over_full_hp(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_same_damage_has_same_weight_for_low_and_full_hp_targets(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         _stub_no_type_effect(monkeypatch)
 
         effect = _make_effect()
@@ -244,7 +249,7 @@ class TestCalculateAttackWeight:
             modifiers=_make_modifiers(ap_cost=1),
         )
 
-        assert weight_low > weight_full
+        assert weight_low == weight_full
 
     def test_multiple_malus_life_percent_effects_are_summed(self, monkeypatch: pytest.MonkeyPatch) -> None:
         _stub_malus_life_percent(monkeypatch, malus=100)
