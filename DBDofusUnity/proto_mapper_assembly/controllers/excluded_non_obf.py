@@ -2,14 +2,18 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
+from DBDofusUnity.consts import PROTOS_ROOT
+from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
 from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
 
 
-def load_excluded_non_obf(path: Path) -> ExcludedNonObfConfig:
-    if not path.exists():
-        return ExcludedNonObfConfig(root=[])
-    return ExcludedNonObfConfig.model_validate_json(path.read_text(encoding="utf-8"))
+def compute_excluded_non_obf_names(
+    messages: Sequence[DumpCSMessage],
+    *,
+    protos_dir: Path = PROTOS_ROOT / "non_obf" / "game",
+) -> frozenset[str]:
+    valid_class_names = build_dump_cs_messages_from_pb2(protos_dir).keys()
+    return frozenset(message.composed_name for message in messages if message.composed_name not in valid_class_names)
 
 
 def split_excluded_non_obf_messages(

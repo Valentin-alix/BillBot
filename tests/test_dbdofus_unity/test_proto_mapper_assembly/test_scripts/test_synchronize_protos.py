@@ -6,7 +6,6 @@ import pytest
 from tests.fixtures.proto_mapper.field_builders import dump_cs_field
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
-from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
 from tests.fixtures.proto_mapper.script_builders import game_mapping_entry
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingsDocument,
@@ -26,7 +25,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
 
 
 class TestSynchronizeNonObfMappingArtifacts:
-    def test_rebuilds_exclusions_and_prunes_orphaned_mapping_artifacts(
+    def test_rebuilds_descriptors_and_prunes_orphaned_mapping_artifacts(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
         live_message = DumpCSMessage(
@@ -41,8 +40,7 @@ class TestSynchronizeNonObfMappingArtifacts:
         )
         live_name = live_message.composed_name
         stale_name = stale_message.composed_name
-        new_dump_path = tmp_path / "new_dump_cs.json"
-        excluded_path = tmp_path / "excluded_non_obf.json"
+        new_dump_path = tmp_path / "Ankama.Dofus.Protocol.Game.override.json"
         pins_path = tmp_path / "pinned_pairs.json"
         overrides_path = tmp_path / "overrides.json"
         mappings_path = tmp_path / "game_mappings.json"
@@ -103,7 +101,6 @@ class TestSynchronizeNonObfMappingArtifacts:
                 protos_dir=tmp_path,
                 non_obf_dump_cs_path=tmp_path / "Ankama.Dofus.Protocol.Game.cs",
                 new_dump_cs_path=new_dump_path,
-                excluded_non_obf_path=excluded_path,
                 pinned_pairs_path=pins_path,
                 signature_overrides_path=overrides_path,
                 game_mappings_path=mappings_path,
@@ -116,8 +113,6 @@ class TestSynchronizeNonObfMappingArtifacts:
             pair.non_obf for pair in PinnedPairsConfig.model_validate_json(pins_path.read_text()).pairs
         ] == [live_name]
         assert set(SignatureOverridesFile.model_validate_json(overrides_path.read_text()).root) == {live_name}
-        exclusion_document = ExcludedNonObfConfig.model_validate_json(excluded_path.read_text())
-        assert exclusion_document.root == [stale_name]
         assert set(SimpleGameMappingsDocument.model_validate_json(mappings_path.read_text()).root) == {
             live_mapping_key
         }
@@ -182,7 +177,7 @@ class TestSynchronizeNonObfMappingArtifacts:
             update={"fields": [existing_field.model_copy(update={"memory_offset": 0})]}
         )
         bootstrap_second = second_message.model_copy(update={"fields": [existing_field]})
-        new_dump_path = tmp_path / "new_dump_cs.json"
+        new_dump_path = tmp_path / "Ankama.Dofus.Protocol.Game.override.json"
         new_dump_path.write_text(
             NewDumpCSFile(
                 root={first_name: bootstrap_first, second_name: bootstrap_second}
@@ -201,7 +196,6 @@ class TestSynchronizeNonObfMappingArtifacts:
                 protos_dir=tmp_path,
                 non_obf_dump_cs_path=tmp_path / "Ankama.Dofus.Protocol.Game.cs",
                 new_dump_cs_path=new_dump_path,
-                excluded_non_obf_path=tmp_path / "excluded.json",
                 pinned_pairs_path=tmp_path / "pins.json",
                 signature_overrides_path=tmp_path / "overrides.json",
                 game_mappings_path=tmp_path / "mappings.json",

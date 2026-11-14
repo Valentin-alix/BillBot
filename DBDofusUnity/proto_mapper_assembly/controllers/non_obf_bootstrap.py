@@ -13,10 +13,11 @@ class BootstrapMessageOverlay(NamedTuple):
     virtual_field_clean_names_by_cls: dict[str, set[str]]
 
 
-def build_missing_manual_new_dump_cs_message(non_obf_cls: str) -> str:
+def build_missing_bootstrap_message_error(non_obf_cls: str) -> str:
     return (
-        f"Missing manual DumpCSMessage for override-only non-obf class {non_obf_cls!r} in "
-        f"{NON_OBF_NEW_DUMP_CS_FILE}. Fill this file manually with the DumpCsMessage for the new message."
+        f"Missing generated message definition for override-only non-obf class {non_obf_cls!r} in "
+        f"{NON_OBF_NEW_DUMP_CS_FILE}. Check that the message is defined in the non-obf .proto files, "
+        "then run uv run python -m scripts.maintenance.main synchronize-protos."
     )
 
 
@@ -82,7 +83,7 @@ def inject_synthetic_non_obf_entries_for_override_only_messages(
             continue
         bootstrap_message = bootstrap_messages_by_cls.get(non_obf_cls)
         if bootstrap_message is None:
-            message = build_missing_manual_new_dump_cs_message(non_obf_cls)
+            message = build_missing_bootstrap_message_error(non_obf_cls)
             raise ValueError(message)
         remapped_bootstrap_message = _apply_field_binding_remapping(
             bootstrap_message,

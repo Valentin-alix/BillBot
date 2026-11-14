@@ -445,7 +445,7 @@ def _export_era_overrides(
     detailed_path.write_text(candidate_document.model_dump_json(indent=2), encoding="utf-8")
     empty_pins_path = export_dir / "pinned_pairs.json"
     write_pinned_pairs(empty_pins_path, PinnedPairsConfig(pairs=[]))
-    overrides_path = export_dir / "messages_access_signature_override.json"
+    overrides_path = export_dir / "proto_accesses.override.json"
 
     run_export_signature_overrides(
         export_paths=SignatureOverrideExportPaths(

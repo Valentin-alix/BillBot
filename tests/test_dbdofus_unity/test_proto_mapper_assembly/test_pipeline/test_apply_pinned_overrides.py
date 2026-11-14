@@ -38,7 +38,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import (
 
 class TestInjectSyntheticNonObfEntriesForOverrideOnlyMessages:
     def test_raises_when_bootstrap_message_is_missing(self) -> None:
-        with pytest.raises(ValueError, match=r"new_dump_cs.json"):
+        with pytest.raises(ValueError, match=r"Ankama.Dofus.Protocol.Game.override.json"):
             inject_synthetic_non_obf_entries_for_override_only_messages(
                 overrides={
                     NEW_NON_OBF_CLS: SignatureOverrideEntry(function_signatures=[], field_signatures={})

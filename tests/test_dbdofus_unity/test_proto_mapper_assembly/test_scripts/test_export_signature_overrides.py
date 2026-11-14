@@ -165,7 +165,7 @@ class TestBuildSignatureOverrides:
                 obf_signatures={},
             )
 
-    def test_rejects_missing_manual_new_dump_cs_entry_for_new_message(self) -> None:
+    def test_rejects_unknown_non_obf_alias_without_generated_message(self) -> None:
         pinned = pinned_config(non_obf="Com.Ankama.Dofus.Server.Game.Protocol.Fight.NewMsg")
         obf_sigs = {"xyz": _sig("xyz", [32])}
         namespace_anchor = DumpCSMessage(
@@ -432,7 +432,7 @@ class TestRekeyedOverrideEntry:
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            path = Path(temp_dir) / "messages_access_signature_override.json"
+            path = Path(temp_dir) / "proto_accesses.override.json"
             path.write_text(exported.model_dump_json(), encoding="utf-8")
             loaded = load_signature_overrides(path)
 
@@ -757,9 +757,9 @@ class TestManualNewDumpCs:
             root={"Com.Ankama.Stale": SignatureOverrideEntry(function_signatures=[], field_signatures={})}
         )
         with tempfile.TemporaryDirectory() as temp_dir:
-            overrides_path = Path(temp_dir) / "messages_access_signature_override.json"
+            overrides_path = Path(temp_dir) / "proto_accesses.override.json"
             overrides_path.write_text(stale_overrides.model_dump_json(), encoding="utf-8")
-            new_dump_cs_path = Path(temp_dir) / "new_dump_cs.json"
+            new_dump_cs_path = Path(temp_dir) / "Ankama.Dofus.Protocol.Game.override.json"
             new_dump_cs_path.write_text("{}", encoding="utf-8")
 
             with (
@@ -794,7 +794,7 @@ class TestManualNewDumpCs:
         with tempfile.TemporaryDirectory() as temp_dir:
             obf_dir = Path(temp_dir) / "20_05_2026"
             obf_dir.mkdir()
-            new_dump_cs_path = Path(temp_dir) / "new_dump_cs.json"
+            new_dump_cs_path = Path(temp_dir) / "Ankama.Dofus.Protocol.Game.override.json"
             new_dump_cs_path.write_text("{}", encoding="utf-8")
 
             with (
@@ -813,7 +813,7 @@ class TestManualNewDumpCs:
             ):
                 main()
 
-            expected_overrides_path = obf_dir / "messages_access_signature_override.json"
+            expected_overrides_path = obf_dir / "proto_accesses.override.json"
             build_signature_overrides.assert_called_once()
             pinned_pairs_path = build_signature_overrides.call_args.args[0]
             export_paths = build_signature_overrides.call_args.kwargs["export_paths"]

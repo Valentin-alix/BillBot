@@ -18,7 +18,11 @@ from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     validate_game_mapping_targets,
     write_game_mappings,
 )
-from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import split_excluded_non_obf_messages
+from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import (
+    compute_excluded_non_obf_names,
+    drop_excluded_signature_overrides,
+    split_excluded_non_obf_messages,
+)
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_mapping_rejected_infos import ValidationFailureRejectedInfo
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import GameMappingsDocument
@@ -34,6 +38,31 @@ from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract im
 pytestmark = pytest.mark.usefixtures("reuse_generated_non_obf_messages")
 
 class TestGameMappings:
+    def test_computes_exclusions_from_current_descriptors_and_drops_stale_overrides(self) -> None:
+        from DBDofusUnity.consts import PROTOS_ROOT
+        from DBDofusUnity.proto_mapper_assembly.interfaces.signature_overrides import SignatureOverrideEntry
+        from DBDofusUnity.proto_mapper_assembly.parsers.protobuf_dump_cs import build_dump_cs_messages_from_pb2
+
+        generated_messages = build_dump_cs_messages_from_pb2(PROTOS_ROOT / "non_obf" / "game")
+        root = next(message for message in generated_messages.values() if message.parent_name is None)
+        nested = next(message for message in generated_messages.values() if message.parent_name is not None)
+        stale = DumpCSMessage(file_descriptor="RemovedReflection", name="RemovedMessageForExclusionTest")
+        messages = [root, nested, stale]
+
+        excluded_names = compute_excluded_non_obf_names(messages)
+        kept, dropped = split_excluded_non_obf_messages(
+            messages=messages, excluded_message_names=excluded_names
+        )
+        override = SignatureOverrideEntry(function_signatures=[], field_signatures={})
+        retained_overrides = drop_excluded_signature_overrides(
+            overrides={message.composed_name: override for message in messages},
+            dropped_message_names=dropped,
+        )
+
+        assert excluded_names == frozenset({stale.composed_name})
+        assert kept == [root, nested]
+        assert set(retained_overrides) == {root.composed_name, nested.composed_name}
+
     def test_excludes_only_the_requested_non_obf_message(self) -> None:
         excluded_message = DumpCSMessage(
             file_descriptor="GuildInformationReflection",

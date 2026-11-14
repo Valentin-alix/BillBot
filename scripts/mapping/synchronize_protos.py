@@ -2,7 +2,6 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from DBDofusUnity.consts import (
-    EXCLUDED_NON_OBF_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     GAME_MAPPINGS_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -21,7 +20,6 @@ from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import load_pin
 from DBDofusUnity.proto_mapper_assembly.controllers.signature_overrides import load_signature_overrides
 from DBDofusUnity.proto_mapper_assembly.helpers.non_obf_names import build_filtered_message_namespace
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
-from DBDofusUnity.proto_mapper_assembly.interfaces.excluded_non_obf import ExcludedNonObfConfig
 from DBDofusUnity.proto_mapper_assembly.interfaces.game_mappings import (
     GameMappingsDocument,
     SimpleGameMappingsDocument,
@@ -94,7 +92,6 @@ def synchronize_non_obf_mapping_artifacts(
     protos_dir: Path = _NON_OBF_PROTOS_DIR,
     non_obf_dump_cs_path: Path = NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     new_dump_cs_path: Path = NON_OBF_NEW_DUMP_CS_FILE,
-    excluded_non_obf_path: Path = EXCLUDED_NON_OBF_FILE,
     pinned_pairs_path: Path = PINNED_PAIRS_FILE,
     signature_overrides_path: Path = NON_OBF_SIGNATURE_OVERRIDES_FILE,
     game_mappings_path: Path = GAME_MAPPINGS_JSON_FILE,
@@ -125,11 +122,6 @@ def synchronize_non_obf_mapping_artifacts(
     new_dump_cs_path.write_text(f"{document.model_dump_json(indent=2)}\n", encoding="utf-8")
     print(f"Rebuilt {len(rebuilt_root)} entries in {new_dump_cs_path}.")
     valid_class_names = frozenset(proto_messages_by_name)
-    _write_automatic_exclusions(
-        assembly_messages=assembly_messages,
-        valid_class_names=valid_class_names,
-        output_path=excluded_non_obf_path,
-    )
     _prune_pinned_pairs(messages_by_cls=proto_messages_by_name, path=pinned_pairs_path)
     _prune_signature_overrides(valid_class_names=valid_class_names, path=signature_overrides_path)
     _prune_game_mappings(
@@ -138,21 +130,6 @@ def synchronize_non_obf_mapping_artifacts(
         detailed_mapping_path=game_mappings_detailed_path,
         detailed_document=detailed_mappings,
     )
-
-
-def _write_automatic_exclusions(
-    *,
-    assembly_messages: list[DumpCSMessage],
-    valid_class_names: frozenset[str],
-    output_path: Path,
-) -> None:
-    missing_class_names = sorted(
-        message.composed_name
-        for message in assembly_messages
-        if message.composed_name not in valid_class_names
-    )
-    document = ExcludedNonObfConfig(root=missing_class_names)
-    output_path.write_text(f"{document.model_dump_json(indent=2)}\n", encoding="utf-8")
 
 
 def _prune_pinned_pairs(*, messages_by_cls: Mapping[str, DumpCSMessage], path: Path) -> None:

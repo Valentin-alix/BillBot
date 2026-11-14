@@ -1,20 +1,20 @@
 from pathlib import Path
 
 from DBDofusUnity.consts import (
-    EXCLUDED_NON_OBF_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
     NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     NON_OBF_SIGNATURE_OVERRIDES_FILE,
     OBF_PROTO_ACCESSES_FILE,
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
+    PROTOS_ROOT,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_from_trace,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import (
     drop_excluded_signature_overrides,
-    load_excluded_non_obf,
+    compute_excluded_non_obf_names,
     split_excluded_non_obf_messages,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
@@ -35,14 +35,15 @@ def load_matching_inputs(
     non_obf_proto_accesses_path: Path = NON_OBF_PROTO_ACCESSES_FILE,
     bootstrap_non_obf_dump_cs_path: Path = NON_OBF_NEW_DUMP_CS_FILE,
     signature_overrides_path: Path = NON_OBF_SIGNATURE_OVERRIDES_FILE,
-    excluded_non_obf_path: Path = EXCLUDED_NON_OBF_FILE,
+    non_obf_protos_dir: Path = PROTOS_ROOT / "non_obf" / "game",
 ) -> MatchingInputs:
     obf_messages = parse_messages(str(obf_dump_cs_path))
-    excluded_config = load_excluded_non_obf(excluded_non_obf_path)
     all_non_obf_messages = parse_messages(str(non_obf_dump_cs_path))
     non_obf_messages, excluded_non_obf_names = split_excluded_non_obf_messages(
         messages=all_non_obf_messages,
-        excluded_message_names=frozenset(excluded_config.root),
+        excluded_message_names=compute_excluded_non_obf_names(
+            all_non_obf_messages, protos_dir=non_obf_protos_dir
+        ),
     )
     obf_messages_by_cls = {message.composed_name: message for message in obf_messages}
     non_obf_messages_by_cls = {message.composed_name: message for message in non_obf_messages}

@@ -80,7 +80,7 @@ class TestRunPipeline:
             obf_proto_accesses_path=obf_dir / "proto_accesses.json",
             non_obf_proto_accesses_path=NON_OBF_PROTO_ACCESSES_FILE,
             bootstrap_non_obf_dump_cs_path=NON_OBF_NEW_DUMP_CS_FILE,
-            signature_overrides_path=obf_dir / "messages_access_signature_override.json",
+            signature_overrides_path=obf_dir / "proto_accesses.override.json",
         )
         mock_load_new_dump_cs_messages.assert_called_once_with(NON_OBF_NEW_DUMP_CS_FILE)
         mock_load_pinned_pairs.assert_called_once_with(obf_dir / "pinned_pairs.json")

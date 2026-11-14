@@ -10,7 +10,6 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from DBDofusUnity.consts import (
-    EXCLUDED_NON_OBF_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
     NON_OBF_PROTO_ACCESSES_FILE,
@@ -27,7 +26,7 @@ from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
 from DBDofusUnity.proto_mapper_assembly.controllers.enum_signatures import (
     build_canonical_enum_signature,
 )
-from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import load_excluded_non_obf
+from DBDofusUnity.proto_mapper_assembly.controllers.excluded_non_obf import compute_excluded_non_obf_names
 from DBDofusUnity.proto_mapper_assembly.controllers.game_mappings import (
     load_game_mappings_document,
     resolve_generated_message_alias,
@@ -36,7 +35,7 @@ from DBDofusUnity.proto_mapper_assembly.controllers.message_fields import build_
 from DBDofusUnity.proto_mapper_assembly.controllers.new_dump_cs import load_new_dump_cs_messages
 from DBDofusUnity.proto_mapper_assembly.controllers.non_obf_bootstrap import (
     build_bootstrap_message_overlay,
-    build_missing_manual_new_dump_cs_message,
+    build_missing_bootstrap_message_error,
 )
 from DBDofusUnity.proto_mapper_assembly.controllers.pinned_pairs import (
     build_resolved_field_mapping,
@@ -130,7 +129,7 @@ def run_export_signature_overrides(
     )
 
     print(f"Built overrides for {len(generated_overrides.root)} mapped messages.")
-    print(f"Validated manual new_dump_cs entries from {resolved_export_paths.new_dump_cs_path}.")
+    print(f"Validated generated message definitions from {resolved_export_paths.new_dump_cs_path}.")
 
     resolved_export_paths.signature_overrides_path.write_text(
         generated_overrides.model_dump_json(indent=2, exclude_defaults=True),
@@ -170,7 +169,7 @@ def _build_export_paths(*, obf_dir: Path | None) -> SignatureOverrideExportPaths
 
     return SignatureOverrideExportPaths(
         pinned_pairs_path=obf_dir / "pinned_pairs.json",
-        signature_overrides_path=obf_dir / "messages_access_signature_override.json",
+        signature_overrides_path=obf_dir / "proto_accesses.override.json",
         obf_dump_cs_path=obf_dir / "cs" / "Ankama.Dofus.Protocol.Game.cs",
         non_obf_dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
         new_dump_cs_path=NON_OBF_NEW_DUMP_CS_FILE,
@@ -460,7 +459,7 @@ def _load_export_context(export_paths: SignatureOverrideExportPaths) -> _ExportC
 
     print("Parsing non-obf dump.cs")
     non_obf_messages = parse_messages(str(export_paths.non_obf_dump_cs_path))
-    excluded_non_obf_names = frozenset(load_excluded_non_obf(EXCLUDED_NON_OBF_FILE).root)
+    excluded_non_obf_names = compute_excluded_non_obf_names(non_obf_messages)
 
     obf_messages_by_cls = {message.composed_name: message for message in obf_messages}
     parsed_non_obf_messages_by_cls = {message.composed_name: message for message in non_obf_messages}
@@ -697,7 +696,7 @@ def _build_bootstrap_override_entry(
 ) -> tuple[SignatureOverrideEntry, frozenset[str]]:
     bootstrap_message = bootstrap_messages_by_cls.get(pair_non_obf)
     if bootstrap_message is None:
-        raise ValueError(build_missing_manual_new_dump_cs_message(pair_non_obf))
+        raise ValueError(build_missing_bootstrap_message_error(pair_non_obf))
 
     game_mapping_entry = game_mappings_by_obf_cls.get(obf_sig.message_cls)
     field_mapping = build_resolved_field_mapping(pair=pair, game_mapping_entry=game_mapping_entry)

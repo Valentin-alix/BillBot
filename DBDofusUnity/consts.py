@@ -88,19 +88,20 @@ NON_OBF_IL2CPP_METADATA_FILE: Path = NON_OBF_GAME_DIR / "global-metadata.dat"
 PROTO_MAPPER_DATA_ROOT: Path = DATA_ROOT / "proto_mapper"
 AUTO_MODE_MAPPING_CONTRACT_FILE: Path = PROTO_MAPPER_DATA_ROOT / "auto_mode_mapping_contract.json"
 PINNED_PAIRS_FILE: Path = PROTO_MAPPER_DATA_ROOT / "pinned_pairs.json"
-CAPTURE_SEQUENCE_HINTS_FILE: Path = PROTO_MAPPER_DATA_ROOT / "capture_sequence_hints.json"
-EXCLUDED_NON_OBF_FILE: Path = PROTO_MAPPER_DATA_ROOT / "excluded_non_obf.json"
+CAPTURE_SEQUENCE_HINTS_FILE: Path = (
+    PROJECT_ROOT / "proto_mapper_assembly" / "validators" / "capture_sequence_hints.json"
+)
 OBFUSCATED_DATA_DIR: Path = PROTO_MAPPER_DATA_ROOT / "obf"
 NON_OBFUSCATED_DATA_DIR: Path = PROTO_MAPPER_DATA_ROOT / "non_obf"
 OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "obf" / "game"
 NON_OBF_PROTO_OUTPUT: Path = PROTOS_ROOT / "non_obf" / "game"
-NON_OBF_NEW_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / "new_dump_cs.json"
+NON_OBF_NEW_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / "Ankama.Dofus.Protocol.Game.override.json"
 
 RUNTIME_DATA_FILE: Path = PROTO_MAPPER_DATA_ROOT / "instancied_msg_infos.json"
 
 OBF_PROTO_ACCESSES_FILE: Path = OBFUSCATED_DATA_DIR / "proto_accesses.json"
 NON_OBF_PROTO_ACCESSES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "proto_accesses.json"
-NON_OBF_SIGNATURE_OVERRIDES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "messages_access_signature_override.json"
+NON_OBF_SIGNATURE_OVERRIDES_FILE: Path = NON_OBFUSCATED_DATA_DIR / "proto_accesses.override.json"
 OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE: Path = NON_OBFUSCATED_DATA_DIR / PROTOCOL_GAME_DUMP_CS_RELATIVE_PATH
 
