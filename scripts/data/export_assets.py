@@ -1,4 +1,5 @@
 import re
+import sys
 from collections import Counter
 from collections.abc import Iterator
 from io import BytesIO
@@ -8,6 +9,8 @@ from typing import Any
 import msgspec
 from PIL.Image import Image
 from UnityPy.files.ObjectReader import ObjectReader
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from DBDofusUnity.consts import BUNDLES_ROOT, OBF_GAME_DIR
 from DBDofusUnity.dofus_unity_reader.bundle_export import load_bundle
@@ -57,7 +60,16 @@ def _png_bytes(image: Image) -> bytes:
 
 def _native_assets(obj: ObjectReader[Any], base: Path) -> Iterator[tuple[Path, bytes]]:
     kind = obj.type.name
-    if kind not in {"Sprite", "Texture2D", "Texture2DArray", "TextAsset", "Mesh", "Shader", "Font", "AudioClip"}:
+    if kind not in {
+        "Sprite",
+        "Texture2D",
+        "Texture2DArray",
+        "TextAsset",
+        "Mesh",
+        "Shader",
+        "Font",
+        "AudioClip",
+    }:
         return
     data: Any = obj.parse_as_object()
     if kind in {"Sprite", "Texture2D"}:

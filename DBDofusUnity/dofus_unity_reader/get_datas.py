@@ -1,4 +1,7 @@
+import os
 import subprocess
+from concurrent.futures import ProcessPoolExecutor
+from itertools import repeat
 import sys
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -26,7 +29,7 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import (
 )
 from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
 from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
-from DBDofusUnity.dofus_unity_reader.generator.maps import iter_bundle_maps
+from DBDofusUnity.dofus_unity_reader.generator.maps import export_map_bundle
 from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationsRoot
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
 from src.utils.project_paths import BUNDLE_ROOT
@@ -83,14 +86,15 @@ def get_map_datas(*, manifest: ExtractionManifest) -> None:
             temporary_archive_path,
             "w",
             compression=ZIP_DEFLATED,
-            compresslevel=9,
+            compresslevel=6,
             allowZip64=True,
         ) as archive:
-            exported_names: set[str] = set()
-            for bundle_path in tqdm(map_bundles):
-                for name, content in iter_bundle_maps(bundle_path, names=names):
-                    archive.writestr(f"map/{name}.json", msgspec.json.encode(content))
-                    exported_names.add(name)
+            workers = min(4, os.process_cpu_count() or 1, len(map_bundles))
+            with ProcessPoolExecutor(max_workers=workers) as executor:
+                results = executor.map(export_map_bundle, map_bundles, repeat(names), buffersize=workers)
+                for exports in tqdm(results, total=len(map_bundles)):
+                    for name, payload in exports:
+                        archive.writestr(f"map/{name}.json", payload)
         temporary_archive_path.replace(MAPS_ARCHIVE_PATH)
     finally:
         temporary_archive_path.unlink(missing_ok=True)

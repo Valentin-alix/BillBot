@@ -1,10 +1,10 @@
 from collections.abc import Iterator, Set
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import msgspec
 
-from DBDofusUnity.dofus_unity_reader.bundle_export import load_bundle, read_managed_references
+from DBDofusUnity.dofus_unity_reader.bundle_export import load_bundle
 from DBDofusUnity.dofus_unity_reader.models.maps import (
     CellData,
     MapData,
@@ -56,8 +56,7 @@ class LayerMapElements(msgspec.Struct, frozen=True):
     mapElements: list[ElementReference]
 
 
-class ClientMapReference(msgspec.Struct, frozen=True, kw_only=True):
-    rid: int
+class ClientReferenceData(msgspec.Struct, frozen=True, kw_only=True):
     gfxId: int | None = None
     cellId: int | None = None
     displayOrder: int | None = None
@@ -65,12 +64,32 @@ class ClientMapReference(msgspec.Struct, frozen=True, kw_only=True):
     interactiveId: int | None = msgspec.field(default=None, name="<interactiveId>k__BackingField")
 
 
-class ClientMapData(msgspec.Struct, frozen=True):
+class ClientMapReference(ClientReferenceData, frozen=True, kw_only=True):
+    rid: int
+
+
+class UnityMapReference(msgspec.Struct, frozen=True):
+    rid: int
+    data: ClientReferenceData | msgspec.UnsetType = msgspec.UNSET
+
+
+class UnityMapReferences(msgspec.Struct, frozen=True):
+    version: Literal[2]
+    RefIds: list[UnityMapReference]
+
+
+class ClientMapGeometry(msgspec.Struct, frozen=True):
     cellsData: list[ClientCellData]
-    references: list[ClientMapReference]
     middlegroundMapElements: list[PlacedMapElements]
     backgroundMapElements: list[LayerMapElements]
     foregroundMapElements: list[LayerMapElements]
+
+
+class ClientMapData(ClientMapGeometry, frozen=True):
+    references: list[ClientMapReference]
+
+
+_EMPTY_REFERENCE = ClientReferenceData()
 
 
 def decode_map_export(raw: bytes) -> MapDataRoot:
@@ -79,6 +98,12 @@ def decode_map_export(raw: bytes) -> MapDataRoot:
 
 def decode_map_data(root: dict[str, Any]) -> MapDataRoot:
     data = msgspec.convert(root, type=ClientMapData)
+    return _decode_map(data, ((ref.rid, ref) for ref in data.references))
+
+
+def _decode_map(
+    data: ClientMapGeometry, source_references: Iterator[tuple[int, ClientReferenceData]]
+) -> MapDataRoot:
     placements = {
         element.rid: (group.cellId, group.displayOrder)
         for group in data.middlegroundMapElements
@@ -90,10 +115,18 @@ def decode_map_data(root: dict[str, Any]) -> MapDataRoot:
         for element in group.mapElements
     }
     references: list[MapReference] = []
-    for ref in data.references:
-        cell_id, order = placements.get(ref.rid, (ref.cellId, ref.displayOrder))
-        if ref.interactiveId is not None and cell_id is None and ref.rid not in unplaced_layer_rids:
+    for rid, ref in source_references:
+        cell_id, order = placements.get(rid, (ref.cellId, ref.displayOrder))
+        if ref.interactiveId is not None and cell_id is None and rid not in unplaced_layer_rids:
             raise ValueError(f"Interactive {ref.interactiveId} has no cell placement")
+        if (
+            ref.gfxId is None
+            and cell_id is None
+            and ref.interactiveId is None
+            and order is None
+            and ref.position is None
+        ):
+            continue
         references.append(
             MapReference(
                 gfxId=ref.gfxId,
@@ -112,20 +145,20 @@ def decode_map_data(root: dict[str, Any]) -> MapDataRoot:
     return result
 
 
-_REFERENCE_FIELDS = frozenset(field.encode_name for field in msgspec.structs.fields(ClientMapReference))
+def _unity_references(registry: UnityMapReferences) -> Iterator[tuple[int, ClientReferenceData]]:
+    for ref in registry.RefIds:
+        if ref.data is msgspec.UNSET:
+            if ref.rid != -2:
+                raise ValueError(f"Managed reference {ref.rid} has no data")
+            yield ref.rid, _EMPTY_REFERENCE
+        else:
+            yield ref.rid, ref.data
 
 
 def decode_unity_map(raw: dict[str, Any]) -> MapDataRoot:
-    fields = ("cellsData", "middlegroundMapElements", "backgroundMapElements", "foregroundMapElements")
-    root = {key: raw[key] for key in fields}
-    references: list[dict[str, Any]] = []
-    for ref in read_managed_references(raw["references"]):
-        entry: dict[str, Any] = {"rid": ref.rid}
-        if ref.data is not msgspec.UNSET:
-            entry.update((key, value) for key, value in ref.data.items() if key in _REFERENCE_FIELDS)
-        references.append(entry)
-    root["references"] = references
-    return decode_map_data(root)
+    geometry = msgspec.convert(raw, type=ClientMapGeometry)
+    registry = msgspec.convert(raw["references"], type=UnityMapReferences)
+    return _decode_map(geometry, _unity_references(registry))
 
 
 def iter_bundle_maps(bundle_path: Path, *, names: Set[str]) -> Iterator[tuple[str, MapDataRoot]]:
@@ -136,3 +169,9 @@ def iter_bundle_maps(bundle_path: Path, *, names: Set[str]) -> Iterator[tuple[st
         name = obj.peek_name()
         if name is not None and name in names:
             yield name, decode_unity_map(obj.parse_as_dict())
+
+
+def export_map_bundle(bundle_path: Path, names: frozenset[str]) -> list[tuple[str, bytes]]:
+    return [
+        (name, msgspec.json.encode(content)) for name, content in iter_bundle_maps(bundle_path, names=names)
+    ]
