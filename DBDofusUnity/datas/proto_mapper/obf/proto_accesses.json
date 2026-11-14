@@ -125088,8 +125088,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 66,
-        "edge_count": 83,
+        "basic_block_count": 67,
+        "edge_count": 84,
         "back_edge_count": 4,
         "max_block_depth": 18
       }
@@ -176239,10 +176239,10 @@
         "mscorlib.dll/System/Convert::ToUInt32/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 53,
-        "edge_count": 71,
+        "basic_block_count": 54,
+        "edge_count": 72,
         "back_edge_count": 4,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x182916180": {
@@ -178639,10 +178639,10 @@
         "mscorlib.dll/System/Convert::ToUInt32/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 53,
-        "edge_count": 71,
+        "basic_block_count": 54,
+        "edge_count": 72,
         "back_edge_count": 4,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x182917680": {
@@ -181038,10 +181038,10 @@
         "mscorlib.dll/System/Convert::ToUInt32/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 53,
-        "edge_count": 71,
+        "basic_block_count": 54,
+        "edge_count": 72,
         "back_edge_count": 4,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x182918f80": {
@@ -254295,10 +254295,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 38,
-        "edge_count": 54,
+        "basic_block_count": 39,
+        "edge_count": 55,
         "back_edge_count": 1,
-        "max_block_depth": 12
+        "max_block_depth": 13
       }
     },
     "0x18270bdd0": {
@@ -273441,10 +273441,10 @@
         "mscorlib.dll/System/Int64::ToString/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 42,
-        "edge_count": 50,
+        "basic_block_count": 43,
+        "edge_count": 51,
         "back_edge_count": 1,
-        "max_block_depth": 13
+        "max_block_depth": 14
       }
     },
     "0x1828b8e10": {
@@ -279016,8 +279016,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 113,
-        "edge_count": 142,
+        "basic_block_count": 115,
+        "edge_count": 144,
         "back_edge_count": 6,
         "max_block_depth": 24
       }
@@ -284721,8 +284721,8 @@
         "Core.dll/<PrivateImplementationDetails>::ThrowSwitchExpressionException/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 154,
-        "edge_count": 177,
+        "basic_block_count": 155,
+        "edge_count": 178,
         "back_edge_count": 5,
         "max_block_depth": 39
       }
@@ -288631,10 +288631,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 22,
-        "edge_count": 28,
+        "basic_block_count": 24,
+        "edge_count": 30,
         "back_edge_count": 0,
-        "max_block_depth": 8
+        "max_block_depth": 9
       }
     },
     "0x1817ea8d0": {
@@ -296977,10 +296977,10 @@
         "mscorlib.dll/System/String::IsNullOrEmpty/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 35,
-        "edge_count": 49,
+        "basic_block_count": 36,
+        "edge_count": 50,
         "back_edge_count": 0,
-        "max_block_depth": 13
+        "max_block_depth": 14
       }
     },
     "0x1817f8720": {
@@ -297417,10 +297417,10 @@
         "mscorlib.dll/System/String::IsNullOrEmpty/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 35,
-        "edge_count": 49,
+        "basic_block_count": 36,
+        "edge_count": 50,
         "back_edge_count": 0,
-        "max_block_depth": 13
+        "max_block_depth": 14
       }
     },
     "0x1817f9840": {
@@ -302783,10 +302783,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::Cancel/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 30,
-        "edge_count": 37,
+        "basic_block_count": 31,
+        "edge_count": 38,
         "back_edge_count": 0,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x18182e900": {
@@ -322120,8 +322120,8 @@
         "Core.dll/Core/UILogic/Connection/CreationCharacterWrapper::CreationCharacterWrapper/6"
       ],
       "cfg_stats": {
-        "basic_block_count": 54,
-        "edge_count": 82,
+        "basic_block_count": 55,
+        "edge_count": 83,
         "back_edge_count": 4,
         "max_block_depth": 18
       }
@@ -339765,10 +339765,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/World/SubAreasDataRoot::GetSubAreaByMapId/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 164,
-        "edge_count": 205,
+        "basic_block_count": 166,
+        "edge_count": 207,
         "back_edge_count": 6,
-        "max_block_depth": 56
+        "max_block_depth": 58
       }
     },
     "0x18187a880": {
@@ -346057,10 +346057,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/World/SubAreasDataRoot::GetSubAreaByMapId/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 164,
-        "edge_count": 205,
+        "basic_block_count": 166,
+        "edge_count": 207,
         "back_edge_count": 6,
-        "max_block_depth": 56
+        "max_block_depth": 58
       }
     },
     "0x181881940": {
@@ -386057,8 +386057,8 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 91,
-        "edge_count": 113,
+        "basic_block_count": 93,
+        "edge_count": 115,
         "back_edge_count": 7,
         "max_block_depth": 31
       }
@@ -387332,10 +387332,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 114,
-        "edge_count": 140,
+        "basic_block_count": 115,
+        "edge_count": 141,
         "back_edge_count": 10,
-        "max_block_depth": 36
+        "max_block_depth": 37
       }
     },
     "0x1818dd530": {
@@ -393985,10 +393985,10 @@
         "Core.dll/Core/UILogic/InfiniteDream/InfiniteDreamMapInfo::InfiniteDreamMapInfo/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 91,
-        "edge_count": 126,
+        "basic_block_count": 92,
+        "edge_count": 127,
         "back_edge_count": 8,
-        "max_block_depth": 41
+        "max_block_depth": 42
       }
     },
     "0x1818d80e0": {
@@ -399810,10 +399810,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 64,
-        "edge_count": 79,
+        "basic_block_count": 65,
+        "edge_count": 80,
         "back_edge_count": 3,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x1818d3020": {
@@ -400073,10 +400073,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 64,
-        "edge_count": 79,
+        "basic_block_count": 65,
+        "edge_count": 80,
         "back_edge_count": 3,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x1818d5bc0": {
@@ -400557,10 +400557,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 64,
-        "edge_count": 79,
+        "basic_block_count": 65,
+        "edge_count": 80,
         "back_edge_count": 3,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x1818d30c0": {
@@ -406148,8 +406148,8 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/DataCenterModule::get_spellLevelsDataRoot/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 101,
-        "edge_count": 130,
+        "basic_block_count": 102,
+        "edge_count": 131,
         "back_edge_count": 8,
         "max_block_depth": 35
       }
@@ -406346,10 +406346,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 64,
-        "edge_count": 79,
+        "basic_block_count": 65,
+        "edge_count": 80,
         "back_edge_count": 3,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x1818dd8f0": {
@@ -411525,10 +411525,10 @@
         "Core.dll/Core/UILogic/InfiniteDream/InfiniteDreamMapInfo::InfiniteDreamMapInfo/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 77,
-        "edge_count": 110,
+        "basic_block_count": 78,
+        "edge_count": 111,
         "back_edge_count": 6,
-        "max_block_depth": 39
+        "max_block_depth": 40
       }
     },
     "0x1818d2080": {
@@ -420160,8 +420160,8 @@
         "Core.dll/Core/UILogic/Ladder/LadderRewardsTableLine::ApplyExperienceLimit/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 117,
-        "edge_count": 141,
+        "basic_block_count": 121,
+        "edge_count": 145,
         "back_edge_count": 8,
         "max_block_depth": 32
       }
@@ -424729,8 +424729,8 @@
         "Core.dll/Core/UILogic/Ladder/LadderRewardsTableLine::ApplyExperienceLimit/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 117,
-        "edge_count": 141,
+        "basic_block_count": 121,
+        "edge_count": 145,
         "back_edge_count": 8,
         "max_block_depth": 32
       }
@@ -451673,10 +451673,10 @@
         "mscorlib.dll/System/Array::Clear/3"
       ],
       "cfg_stats": {
-        "basic_block_count": 412,
-        "edge_count": 587,
+        "basic_block_count": 414,
+        "edge_count": 589,
         "back_edge_count": 27,
-        "max_block_depth": 89
+        "max_block_depth": 90
       }
     },
     "0x18192b2c0": {
@@ -454020,10 +454020,10 @@
         "mscorlib.dll/System/Array::Clear/3"
       ],
       "cfg_stats": {
-        "basic_block_count": 412,
-        "edge_count": 587,
+        "basic_block_count": 414,
+        "edge_count": 589,
         "back_edge_count": 27,
-        "max_block_depth": 89
+        "max_block_depth": 90
       }
     },
     "0x181933d50": {
@@ -468459,10 +468459,10 @@
         "mscorlib.dll/System/Array::Clear/3"
       ],
       "cfg_stats": {
-        "basic_block_count": 412,
-        "edge_count": 587,
+        "basic_block_count": 414,
+        "edge_count": 589,
         "back_edge_count": 27,
-        "max_block_depth": 89
+        "max_block_depth": 90
       }
     },
     "0x18192c680": {
@@ -477623,10 +477623,10 @@
         "mscorlib.dll/System/Array::Clear/3"
       ],
       "cfg_stats": {
-        "basic_block_count": 412,
-        "edge_count": 587,
+        "basic_block_count": 414,
+        "edge_count": 589,
         "back_edge_count": 27,
-        "max_block_depth": 89
+        "max_block_depth": 90
       }
     },
     "0x181936830": {
@@ -477723,10 +477723,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WhenAll/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 83,
-        "edge_count": 105,
+        "basic_block_count": 85,
+        "edge_count": 107,
         "back_edge_count": 3,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181937eb0": {
@@ -477836,10 +477836,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 26,
-        "edge_count": 32,
+        "basic_block_count": 28,
+        "edge_count": 34,
         "back_edge_count": 0,
-        "max_block_depth": 8
+        "max_block_depth": 10
       }
     },
     "0x1819380e0": {
@@ -477956,10 +477956,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 51,
-        "edge_count": 66,
+        "basic_block_count": 53,
+        "edge_count": 68,
         "back_edge_count": 2,
-        "max_block_depth": 14
+        "max_block_depth": 16
       }
     },
     "0x1819384e0": {
@@ -478260,10 +478260,10 @@
         "mscorlib.dll/System/Threading/CancellationToken::get_IsCancellationRequested/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 99,
-        "edge_count": 129,
+        "basic_block_count": 104,
+        "edge_count": 134,
         "back_edge_count": 7,
-        "max_block_depth": 17
+        "max_block_depth": 19
       }
     },
     "0x181949b10": {
@@ -490029,10 +490029,10 @@
         "mscorlib.dll/System/TimeSpan::FromHours/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 36,
-        "edge_count": 49,
+        "basic_block_count": 38,
+        "edge_count": 51,
         "back_edge_count": 3,
-        "max_block_depth": 15
+        "max_block_depth": 16
       }
     },
     "0x1819e17b0": {
@@ -490965,8 +490965,8 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Effect/EffectInstanceData::BonusType/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 70,
-        "edge_count": 92,
+        "basic_block_count": 72,
+        "edge_count": 94,
         "back_edge_count": 10,
         "max_block_depth": 19
       }
@@ -493613,8 +493613,8 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Effect/EffectInstanceData::BonusType/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 70,
-        "edge_count": 92,
+        "basic_block_count": 72,
+        "edge_count": 94,
         "back_edge_count": 10,
         "max_block_depth": 19
       }
@@ -494545,8 +494545,8 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Effect/EffectInstanceData::BonusType/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 70,
-        "edge_count": 92,
+        "basic_block_count": 72,
+        "edge_count": 94,
         "back_edge_count": 10,
         "max_block_depth": 19
       }
@@ -504423,8 +504423,8 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Effect/EffectInstanceData::BonusType/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 70,
-        "edge_count": 92,
+        "basic_block_count": 72,
+        "edge_count": 94,
         "back_edge_count": 10,
         "max_block_depth": 19
       }
@@ -515184,10 +515184,10 @@
         "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLocalized/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 128,
-        "edge_count": 167,
+        "basic_block_count": 129,
+        "edge_count": 168,
         "back_edge_count": 7,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x181a0eb50": {
@@ -516362,10 +516362,10 @@
         "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLocalized/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 128,
-        "edge_count": 167,
+        "basic_block_count": 129,
+        "edge_count": 168,
         "back_edge_count": 7,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x181a09e60": {
@@ -517804,10 +517804,10 @@
         "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLocalized/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 128,
-        "edge_count": 167,
+        "basic_block_count": 129,
+        "edge_count": 168,
         "back_edge_count": 7,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x181a08be0": {
@@ -518376,10 +518376,10 @@
         "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLocalized/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 128,
-        "edge_count": 167,
+        "basic_block_count": 129,
+        "edge_count": 168,
         "back_edge_count": 7,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x181a07de0": {
@@ -518606,10 +518606,10 @@
         "Core.Localization.dll/Core/Localization/LocalizedStringUtilities::GetLocalized/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 128,
-        "edge_count": 167,
+        "basic_block_count": 129,
+        "edge_count": 168,
         "back_edge_count": 7,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x181a10350": {
@@ -585243,10 +585243,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::NextFrame/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 68,
-        "edge_count": 96,
+        "basic_block_count": 69,
+        "edge_count": 97,
         "back_edge_count": 3,
-        "max_block_depth": 16
+        "max_block_depth": 17
       }
     },
     "0x181a421c0": {
@@ -592601,10 +592601,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Job/SkillsDataRoot::GetSkillById/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 114,
-        "edge_count": 185,
+        "basic_block_count": 115,
+        "edge_count": 186,
         "back_edge_count": 3,
-        "max_block_depth": 23
+        "max_block_depth": 24
       }
     },
     "0x181a69710": {
@@ -594371,10 +594371,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 38,
-        "edge_count": 46,
+        "basic_block_count": 40,
+        "edge_count": 48,
         "back_edge_count": 0,
-        "max_block_depth": 13
+        "max_block_depth": 15
       }
     },
     "0x181a77b20": {
@@ -594470,10 +594470,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 45,
-        "edge_count": 59,
+        "basic_block_count": 46,
+        "edge_count": 60,
         "back_edge_count": 1,
-        "max_block_depth": 12
+        "max_block_depth": 13
       }
     },
     "0x181a807e0": {
@@ -599950,10 +599950,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::get_Token/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 28,
-        "edge_count": 34,
+        "basic_block_count": 30,
+        "edge_count": 36,
         "back_edge_count": 0,
-        "max_block_depth": 10
+        "max_block_depth": 11
       }
     },
     "0x181a88030": {
@@ -600892,10 +600892,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::get_Token/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 58,
-        "edge_count": 73,
+        "basic_block_count": 60,
+        "edge_count": 75,
         "back_edge_count": 0,
-        "max_block_depth": 17
+        "max_block_depth": 18
       }
     },
     "0x181a77830": {
@@ -601017,10 +601017,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::get_Token/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 31,
-        "edge_count": 39,
+        "basic_block_count": 33,
+        "edge_count": 41,
         "back_edge_count": 0,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x181a909b0": {
@@ -604479,8 +604479,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 47,
-        "edge_count": 59,
+        "basic_block_count": 48,
+        "edge_count": 60,
         "back_edge_count": 5,
         "max_block_depth": 19
       }
@@ -604748,8 +604748,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 47,
-        "edge_count": 59,
+        "basic_block_count": 48,
+        "edge_count": 60,
         "back_edge_count": 5,
         "max_block_depth": 19
       }
@@ -605017,8 +605017,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 47,
-        "edge_count": 59,
+        "basic_block_count": 48,
+        "edge_count": 60,
         "back_edge_count": 5,
         "max_block_depth": 19
       }
@@ -605286,8 +605286,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 47,
-        "edge_count": 59,
+        "basic_block_count": 48,
+        "edge_count": 60,
         "back_edge_count": 5,
         "max_block_depth": 19
       }
@@ -610355,10 +610355,10 @@
         "Unity.InputSystem.dll/UnityEngine/InputSystem/InputAction::Disable/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 35,
-        "edge_count": 39,
+        "basic_block_count": 36,
+        "edge_count": 40,
         "back_edge_count": 0,
-        "max_block_depth": 12
+        "max_block_depth": 13
       }
     },
     "0x181a9fc80": {
@@ -616524,10 +616524,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitWhile/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 190,
-        "edge_count": 227,
+        "basic_block_count": 194,
+        "edge_count": 231,
         "back_edge_count": 6,
-        "max_block_depth": 41
+        "max_block_depth": 42
       }
     },
     "0x181aa33a0": {
@@ -627567,10 +627567,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Quest/QuestsDataRoot::GetQuestById/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 327,
-        "edge_count": 410,
+        "basic_block_count": 328,
+        "edge_count": 411,
         "back_edge_count": 27,
-        "max_block_depth": 64
+        "max_block_depth": 65
       }
     },
     "0x181ab9980": {
@@ -628668,10 +628668,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Quest/QuestsDataRoot::GetQuestById/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 327,
-        "edge_count": 410,
+        "basic_block_count": 328,
+        "edge_count": 411,
         "back_edge_count": 27,
-        "max_block_depth": 64
+        "max_block_depth": 65
       }
     },
     "0x181abffc0": {
@@ -630909,10 +630909,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 231,
-        "edge_count": 263,
+        "basic_block_count": 232,
+        "edge_count": 264,
         "back_edge_count": 3,
-        "max_block_depth": 68
+        "max_block_depth": 69
       }
     },
     "0x181ac5d80": {
@@ -646840,8 +646840,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 86,
-        "edge_count": 122,
+        "basic_block_count": 87,
+        "edge_count": 123,
         "back_edge_count": 6,
         "max_block_depth": 28
       }
@@ -647179,8 +647179,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 84,
-        "edge_count": 117,
+        "basic_block_count": 85,
+        "edge_count": 118,
         "back_edge_count": 6,
         "max_block_depth": 26
       }
@@ -648296,10 +648296,10 @@
         "Core.dll/Core/UILogic/Inventory/Inventory::GetItem/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 99,
-        "edge_count": 137,
+        "basic_block_count": 100,
+        "edge_count": 138,
         "back_edge_count": 8,
-        "max_block_depth": 35
+        "max_block_depth": 36
       }
     },
     "0x181ad55d0": {
@@ -653093,8 +653093,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 84,
-        "edge_count": 117,
+        "basic_block_count": 85,
+        "edge_count": 118,
         "back_edge_count": 6,
         "max_block_depth": 26
       }
@@ -654352,8 +654352,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 84,
-        "edge_count": 117,
+        "basic_block_count": 85,
+        "edge_count": 118,
         "back_edge_count": 6,
         "max_block_depth": 26
       }
@@ -657891,8 +657891,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 86,
-        "edge_count": 122,
+        "basic_block_count": 87,
+        "edge_count": 123,
         "back_edge_count": 6,
         "max_block_depth": 28
       }
@@ -657974,8 +657974,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 86,
-        "edge_count": 122,
+        "basic_block_count": 87,
+        "edge_count": 123,
         "back_edge_count": 6,
         "max_block_depth": 28
       }
@@ -665804,10 +665804,10 @@
         "Core.dll/Core/UILogic/Inventory/Inventory::GetItem/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 99,
-        "edge_count": 137,
+        "basic_block_count": 100,
+        "edge_count": 138,
         "back_edge_count": 8,
-        "max_block_depth": 35
+        "max_block_depth": 36
       }
     },
     "0x181ae72d0": {
@@ -666177,8 +666177,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 86,
-        "edge_count": 122,
+        "basic_block_count": 87,
+        "edge_count": 123,
         "back_edge_count": 6,
         "max_block_depth": 28
       }
@@ -668004,8 +668004,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 84,
-        "edge_count": 117,
+        "basic_block_count": 85,
+        "edge_count": 118,
         "back_edge_count": 6,
         "max_block_depth": 26
       }
@@ -668312,8 +668312,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 86,
-        "edge_count": 122,
+        "basic_block_count": 87,
+        "edge_count": 123,
         "back_edge_count": 6,
         "max_block_depth": 28
       }
@@ -702139,10 +702139,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 33,
-        "edge_count": 48,
+        "basic_block_count": 34,
+        "edge_count": 49,
         "back_edge_count": 1,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181afc370": {
@@ -704580,10 +704580,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 33,
-        "edge_count": 48,
+        "basic_block_count": 34,
+        "edge_count": 49,
         "back_edge_count": 1,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181b19500": {
@@ -704742,8 +704742,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 61,
-        "edge_count": 74,
+        "basic_block_count": 62,
+        "edge_count": 75,
         "back_edge_count": 6,
         "max_block_depth": 20
       }
@@ -710771,8 +710771,8 @@
         "Core.dll/Core/UILogic/Inventory/Inventory::ModifyObjectItem/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 90,
-        "edge_count": 123,
+        "basic_block_count": 91,
+        "edge_count": 124,
         "back_edge_count": 10,
         "max_block_depth": 35
       }
@@ -717435,8 +717435,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 61,
-        "edge_count": 74,
+        "basic_block_count": 62,
+        "edge_count": 75,
         "back_edge_count": 6,
         "max_block_depth": 20
       }
@@ -719673,8 +719673,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 61,
-        "edge_count": 74,
+        "basic_block_count": 62,
+        "edge_count": 75,
         "back_edge_count": 6,
         "max_block_depth": 20
       }
@@ -721341,10 +721341,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 33,
-        "edge_count": 48,
+        "basic_block_count": 34,
+        "edge_count": 49,
         "back_edge_count": 1,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181b190e0": {
@@ -721503,8 +721503,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 61,
-        "edge_count": 74,
+        "basic_block_count": 62,
+        "edge_count": 75,
         "back_edge_count": 6,
         "max_block_depth": 20
       }
@@ -727016,10 +727016,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 33,
-        "edge_count": 48,
+        "basic_block_count": 34,
+        "edge_count": 49,
         "back_edge_count": 1,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181b00e70": {
@@ -732622,10 +732622,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 33,
-        "edge_count": 48,
+        "basic_block_count": 34,
+        "edge_count": 49,
         "back_edge_count": 1,
-        "max_block_depth": 19
+        "max_block_depth": 20
       }
     },
     "0x181b0dd50": {
@@ -752485,8 +752485,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 61,
-        "edge_count": 74,
+        "basic_block_count": 62,
+        "edge_count": 75,
         "back_edge_count": 6,
         "max_block_depth": 20
       }
@@ -769166,10 +769166,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/PlayerLoopHelper::AddContinuation/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 119,
-        "edge_count": 156,
+        "basic_block_count": 121,
+        "edge_count": 158,
         "back_edge_count": 5,
-        "max_block_depth": 26
+        "max_block_depth": 27
       }
     },
     "0x181b2d920": {
@@ -781456,10 +781456,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 20,
-        "edge_count": 26,
+        "basic_block_count": 22,
+        "edge_count": 28,
         "back_edge_count": 0,
-        "max_block_depth": 8
+        "max_block_depth": 9
       }
     },
     "0x181b57cb0": {
@@ -791351,10 +791351,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitWhile/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 51,
-        "edge_count": 62,
+        "basic_block_count": 53,
+        "edge_count": 64,
         "back_edge_count": 0,
-        "max_block_depth": 15
+        "max_block_depth": 17
       }
     },
     "0x181b58690": {
@@ -791532,10 +791532,10 @@
         "mscorlib.dll/System/String::Format/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 89,
-        "edge_count": 105,
+        "basic_block_count": 92,
+        "edge_count": 108,
         "back_edge_count": 0,
-        "max_block_depth": 25
+        "max_block_depth": 27
       }
     },
     "0x181c36dc0": {
@@ -819007,10 +819007,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::Cancel/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 87,
-        "edge_count": 118,
+        "basic_block_count": 89,
+        "edge_count": 120,
         "back_edge_count": 4,
-        "max_block_depth": 26
+        "max_block_depth": 27
       }
     },
     "0x181c6c7b0": {
@@ -827933,10 +827933,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::Cancel/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 87,
-        "edge_count": 118,
+        "basic_block_count": 89,
+        "edge_count": 120,
         "back_edge_count": 4,
-        "max_block_depth": 26
+        "max_block_depth": 27
       }
     },
     "0x181c75fa0": {
@@ -836164,10 +836164,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::Cancel/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 87,
-        "edge_count": 118,
+        "basic_block_count": 89,
+        "edge_count": 120,
         "back_edge_count": 4,
-        "max_block_depth": 26
+        "max_block_depth": 27
       }
     },
     "0x181c79ce0": {
@@ -838127,10 +838127,10 @@
         "mscorlib.dll/System/Threading/CancellationTokenSource::Cancel/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 87,
-        "edge_count": 118,
+        "basic_block_count": 89,
+        "edge_count": 120,
         "back_edge_count": 4,
-        "max_block_depth": 26
+        "max_block_depth": 27
       }
     },
     "0x181c6a6e0": {
@@ -1084840,10 +1084840,10 @@
         "mscorlib.dll/System/Text/StringBuilder::StringBuilder/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 122,
-        "edge_count": 162,
+        "basic_block_count": 123,
+        "edge_count": 163,
         "back_edge_count": 3,
-        "max_block_depth": 31
+        "max_block_depth": 32
       }
     },
     "0x181d49840": {
@@ -1110926,10 +1110926,10 @@
         "mscorlib.dll/System/Text/StringBuilder::StringBuilder/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 122,
-        "edge_count": 162,
+        "basic_block_count": 123,
+        "edge_count": 163,
         "back_edge_count": 3,
-        "max_block_depth": 31
+        "max_block_depth": 32
       }
     },
     "0x181d50620": {
@@ -1122665,10 +1122665,10 @@
         "mscorlib.dll/System/Text/StringBuilder::StringBuilder/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 122,
-        "edge_count": 162,
+        "basic_block_count": 123,
+        "edge_count": 163,
         "back_edge_count": 3,
-        "max_block_depth": 31
+        "max_block_depth": 32
       }
     },
     "0x181d48310": {
@@ -1133697,10 +1133697,10 @@
         "mscorlib.dll/System/Text/StringBuilder::StringBuilder/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 122,
-        "edge_count": 162,
+        "basic_block_count": 123,
+        "edge_count": 163,
         "back_edge_count": 3,
-        "max_block_depth": 31
+        "max_block_depth": 32
       }
     },
     "0x181d46be0": {
@@ -1205788,10 +1205788,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::WaitUntil/4"
       ],
       "cfg_stats": {
-        "basic_block_count": 45,
-        "edge_count": 58,
+        "basic_block_count": 46,
+        "edge_count": 59,
         "back_edge_count": 0,
-        "max_block_depth": 12
+        "max_block_depth": 13
       }
     },
     "0x181d863b0": {
@@ -1210673,10 +1210673,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 32,
-        "edge_count": 41,
+        "basic_block_count": 33,
+        "edge_count": 42,
         "back_edge_count": 1,
-        "max_block_depth": 9
+        "max_block_depth": 10
       }
     },
     "0x181d94a10": {
@@ -1231629,10 +1231629,10 @@
         "UniTask.dll/Cysharp/Threading/Tasks/UniTask::NextFrame/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 27,
-        "edge_count": 30,
+        "basic_block_count": 28,
+        "edge_count": 31,
         "back_edge_count": 0,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x181da2700": {
@@ -1254907,10 +1254907,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 43,
-        "edge_count": 54,
+        "basic_block_count": 44,
+        "edge_count": 55,
         "back_edge_count": 3,
-        "max_block_depth": 17
+        "max_block_depth": 18
       }
     },
     "0x181def020": {
@@ -1254982,10 +1254982,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 43,
-        "edge_count": 54,
+        "basic_block_count": 44,
+        "edge_count": 55,
         "back_edge_count": 3,
-        "max_block_depth": 17
+        "max_block_depth": 18
       }
     },
     "0x181dee770": {
@@ -1255057,10 +1255057,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 43,
-        "edge_count": 54,
+        "basic_block_count": 44,
+        "edge_count": 55,
         "back_edge_count": 3,
-        "max_block_depth": 17
+        "max_block_depth": 18
       }
     },
     "0x181decb10": {
@@ -1255132,10 +1255132,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 43,
-        "edge_count": 54,
+        "basic_block_count": 44,
+        "edge_count": 55,
         "back_edge_count": 3,
-        "max_block_depth": 17
+        "max_block_depth": 18
       }
     },
     "0x181dec600": {
@@ -1257337,10 +1257337,10 @@
         "mscorlib.dll/System/Array::Clear/3"
       ],
       "cfg_stats": {
-        "basic_block_count": 53,
-        "edge_count": 60,
+        "basic_block_count": 54,
+        "edge_count": 61,
         "back_edge_count": 0,
-        "max_block_depth": 24
+        "max_block_depth": 25
       }
     },
     "0x181dfbed0": {
@@ -1257519,10 +1257519,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 69,
-        "edge_count": 87,
+        "basic_block_count": 70,
+        "edge_count": 88,
         "back_edge_count": 7,
-        "max_block_depth": 27
+        "max_block_depth": 28
       }
     },
     "0x181dfc8e0": {
@@ -1261913,10 +1261913,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 69,
-        "edge_count": 87,
+        "basic_block_count": 70,
+        "edge_count": 88,
         "back_edge_count": 7,
-        "max_block_depth": 27
+        "max_block_depth": 28
       }
     },
     "0x181dfd920": {
@@ -1264816,10 +1264816,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 69,
-        "edge_count": 87,
+        "basic_block_count": 70,
+        "edge_count": 88,
         "back_edge_count": 7,
-        "max_block_depth": 27
+        "max_block_depth": 28
       }
     },
     "0x181df6350": {
@@ -1265903,10 +1265903,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 69,
-        "edge_count": 87,
+        "basic_block_count": 70,
+        "edge_count": 88,
         "back_edge_count": 7,
-        "max_block_depth": 27
+        "max_block_depth": 28
       }
     },
     "0x181dfa860": {
@@ -1269174,10 +1269174,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 69,
-        "edge_count": 87,
+        "basic_block_count": 70,
+        "edge_count": 88,
         "back_edge_count": 7,
-        "max_block_depth": 27
+        "max_block_depth": 28
       }
     },
     "0x181df8130": {
@@ -1306772,10 +1306772,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Spell/SpellData::get_spellLevelsData/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 171,
-        "edge_count": 284,
+        "basic_block_count": 172,
+        "edge_count": 285,
         "back_edge_count": 2,
-        "max_block_depth": 64
+        "max_block_depth": 65
       }
     },
     "0x181e90040": {
@@ -1310480,8 +1310480,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 73,
-        "edge_count": 89,
+        "basic_block_count": 74,
+        "edge_count": 90,
         "back_edge_count": 6,
         "max_block_depth": 19
       }
@@ -1312080,8 +1312080,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 73,
-        "edge_count": 89,
+        "basic_block_count": 74,
+        "edge_count": 90,
         "back_edge_count": 6,
         "max_block_depth": 19
       }
@@ -1316247,10 +1316247,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 77,
-        "edge_count": 93,
+        "basic_block_count": 79,
+        "edge_count": 95,
         "back_edge_count": 6,
-        "max_block_depth": 30
+        "max_block_depth": 32
       }
     },
     "0x181e9ebe0": {
@@ -1317186,8 +1317186,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 73,
-        "edge_count": 89,
+        "basic_block_count": 74,
+        "edge_count": 90,
         "back_edge_count": 6,
         "max_block_depth": 19
       }
@@ -1324167,10 +1324167,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 75,
-        "edge_count": 91,
+        "basic_block_count": 76,
+        "edge_count": 92,
         "back_edge_count": 6,
-        "max_block_depth": 29
+        "max_block_depth": 30
       }
     },
     "0x181e9d490": {
@@ -1327057,10 +1327057,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Spell/SpellData::get_spellLevelsData/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 153,
-        "edge_count": 253,
+        "basic_block_count": 154,
+        "edge_count": 254,
         "back_edge_count": 2,
-        "max_block_depth": 50
+        "max_block_depth": 51
       }
     },
     "0x181e8e330": {
@@ -1328066,8 +1328066,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 73,
-        "edge_count": 89,
+        "basic_block_count": 74,
+        "edge_count": 90,
         "back_edge_count": 6,
         "max_block_depth": 19
       }
@@ -1330483,10 +1330483,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 136,
-        "edge_count": 151,
+        "basic_block_count": 137,
+        "edge_count": 152,
         "back_edge_count": 3,
-        "max_block_depth": 39
+        "max_block_depth": 40
       }
     },
     "0x181e97a80": {
@@ -1332196,8 +1332196,8 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 73,
-        "edge_count": 89,
+        "basic_block_count": 74,
+        "edge_count": 90,
         "back_edge_count": 6,
         "max_block_depth": 19
       }
@@ -1336868,10 +1336868,10 @@
         "mscorlib.dll/System/String::op_Inequality/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 75,
-        "edge_count": 91,
+        "basic_block_count": 76,
+        "edge_count": 92,
         "back_edge_count": 6,
-        "max_block_depth": 29
+        "max_block_depth": 30
       }
     },
     "0x181e9a4e0": {
@@ -1340244,10 +1340244,10 @@
         "Ankama.Dofus.Core.DataCenter.dll/Core/DataCenter/Metadata/Spell/SpellData::get_spellLevelsData/0"
       ],
       "cfg_stats": {
-        "basic_block_count": 153,
-        "edge_count": 253,
+        "basic_block_count": 154,
+        "edge_count": 254,
         "back_edge_count": 2,
-        "max_block_depth": 50
+        "max_block_depth": 51
       }
     },
     "0x181e9a200": {
@@ -1344038,10 +1344038,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 27,
-        "edge_count": 35,
+        "basic_block_count": 28,
+        "edge_count": 36,
         "back_edge_count": 2,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x181ebcf00": {
@@ -1344220,10 +1344220,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 27,
-        "edge_count": 35,
+        "basic_block_count": 28,
+        "edge_count": 36,
         "back_edge_count": 2,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x181ebdec0": {
@@ -1344402,10 +1344402,10 @@
       "resolved_metadata": null,
       "stable_callees": [],
       "cfg_stats": {
-        "basic_block_count": 27,
-        "edge_count": 35,
+        "basic_block_count": 28,
+        "edge_count": 36,
         "back_edge_count": 2,
-        "max_block_depth": 11
+        "max_block_depth": 12
       }
     },
     "0x181ebbdc0": {
@@ -1345123,10 +1345123,10 @@
         "mscorlib.dll/System/TimeSpan::FromMilliseconds/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 15,
-        "edge_count": 18,
+        "basic_block_count": 16,
+        "edge_count": 19,
         "back_edge_count": 0,
-        "max_block_depth": 5
+        "max_block_depth": 6
       }
     },
     "0x181ee8260": {
@@ -1350442,10 +1350442,10 @@
         "mscorlib.dll/System/Math::Max/2"
       ],
       "cfg_stats": {
-        "basic_block_count": 162,
-        "edge_count": 227,
+        "basic_block_count": 166,
+        "edge_count": 231,
         "back_edge_count": 4,
-        "max_block_depth": 22
+        "max_block_depth": 23
       }
     },
     "0x181f4e380": {
@@ -1406741,10 +1406741,10 @@
         "mscorlib.dll/System/Type::GetTypeFromHandle/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 281,
-        "edge_count": 344,
+        "basic_block_count": 283,
+        "edge_count": 346,
         "back_edge_count": 22,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x18207ef20": {
@@ -1412759,10 +1412759,10 @@
         "mscorlib.dll/System/Type::GetTypeFromHandle/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 298,
-        "edge_count": 340,
+        "basic_block_count": 301,
+        "edge_count": 343,
         "back_edge_count": 12,
-        "max_block_depth": 35
+        "max_block_depth": 36
       }
     },
     "0x1820832a0": {
@@ -1415400,10 +1415400,10 @@
         "mscorlib.dll/System/Type::GetTypeFromHandle/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 281,
-        "edge_count": 344,
+        "basic_block_count": 283,
+        "edge_count": 346,
         "back_edge_count": 22,
-        "max_block_depth": 38
+        "max_block_depth": 39
       }
     },
     "0x18207fef0": {
@@ -1417548,8 +1417548,8 @@
         "mscorlib.dll/System/Type::GetTypeFromHandle/1"
       ],
       "cfg_stats": {
-        "basic_block_count": 253,
-        "edge_count": 278,
+        "basic_block_count": 256,
+        "edge_count": 281,
         "back_edge_count": 5,
         "max_block_depth": 37
       }
@@ -1461664,14 +1461664,16 @@
       "resolved_metadata": {
         "resolution_kind": "ida_type",
         "raw_name": "il2cpp_runtime_class_init",
-        "raw_signature": "__int64(void)",
-        "return_type": "Void",
+        "raw_signature": "__int64 __fastcall(_QWORD, _QWORD)",
+        "return_type": "__int64",
         "parameter_types": [
-          "void"
+          "_QWORD",
+          "_QWORD"
         ],
-        "return_kind": "void",
+        "return_kind": "int_like",
         "parameter_kinds": [
-          "void"
+          "pointer_like",
+          "pointer_like"
         ]
       },
       "stable_callees": [],
@@ -1462968,14 +1462970,14 @@
       "resolved_metadata": {
         "resolution_kind": "ida_type",
         "raw_name": "sub_18059BC20",
-        "raw_signature": "void __noreturn(void)",
+        "raw_signature": "void __fastcall __noreturn(_QWORD)",
         "return_type": "void",
         "parameter_types": [
-          "void"
+          "_QWORD"
         ],
         "return_kind": "void",
         "parameter_kinds": [
-          "void"
+          "pointer_like"
         ]
       },
       "stable_callees": [],
@@ -1469724,13 +1469726,35 @@
       },
       "aliases": [],
       "resolved_metadata": {
-        "resolution_kind": "decompiled",
+        "resolution_kind": "ida_type",
         "raw_name": "sub_180116BF0",
-        "raw_signature": "\u0001\u0017__int64 __fastcall sub_180116BF0\u0001\t(\u0002\t\u0002\u0017 \u0001\u0017\u0001(0000000040000000        unsigned __int16 a1,\u0002\u0017 \u0001\u0017\u0001(0000000040000001        __int64 a2,\u0002\u0017 \u0001\u0017\u0001(0000000040000002        __int64 *a3,\u0002\u0017 \u0001\u0017\u0001(0000000040000003        __int64 a4,\u0002\u0017 \u0001\u0017\u0001(0000000040000004        __int64 a5,\u0002\u0017 \u0001\u0017\u0001(0000000040000005        unsigned int a6,\u0002\u0017 \u0001\u0017\u0001(0000000040000006        __int64 a7,\u0002\u0017 \u0001\u0017\u0001(0000000040000007        char a8,\u0002\u0017 \u0001\u0017\u0001(0000000040000008        __int64 a9,\u0002\u0017 \u0001\u0017\u0001(0000000040000009        _OWORD *a10\u0001\t)\u0002\t\u0002\u0017\u0002\u0017 \u0001\t{\u0002\t\u0001(0000000000000000 \u0001(000000004000000B\u0001!unsigned __int16 v11\u0002!\u0001\t;\u0002\t \u0001\u0018// ax\u0002\u0018 \u0001(000000004000000D\u0001\u0017__int64 v13\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// rbx\u0002\u0018 \u0001(000000004000000E\u0001!unsigned __int16 v14\u0002!\u0001\t;\u0002\t \u0001\u0018// r11\u0002\u0018 \u0001(000000004000000F\u0001\u0017__int64 v15\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// r10\u0002\u0018 \u0001(0000000040000010\u0001!__int64 v16\u0002!\u0001\t;\u0002\t \u0001\u0018// rax\u0002\u0018 \u0001(0000000040000011\u0001\u0017__int64 (__fastcall *v17)(__int64 *, __int64, __int64, _QWORD, __int64, char, __int64, _OWORD *, __int64)\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// r10\u0002\u0018 \u0001(0000000040000012\u0001\u0017__int128 v18\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// xmm1\u0002\u0018 \u0001(0000000040000013\u0001\u0017__int128 v19\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// xmm0\u0002\u0018 \u0001(0000000040000016\u0001\u0017__int64 v22\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// [rsp+40h] [rbp-48h]\u0002\u0018 \u0001(0000000040000017\u0001\u0017_OWORD v23[3]\u0002\u0017\u0001\t;\u0002\t \u0001\u0018// [rsp+50h] [rbp-38h] BYREF\u0002\u0018 \u0001(0000000080000000\u0001(0000000000000000 \u0001(0000000000000000\u0001(0000000000000001  \u0001(0000000000000003\u0001\u0018v11\u0002\u0018 \u0001(0000000000000002\u0001\t=\u0002\t \u0001(0000000000000004\u0001 0\u0002 \u0001\t;\u0002\t\u0001(0000000000000001 \u0001(0000000000000005  \u0001(0000000000000007\u0001\u0018v13\u0002\u0018 \u0001(0000000000000006\u0001\t=\u0002\t \u0001(0000000000000008\u0001\t*\u0002\t\u0001(0000000000000009\u0001\u0018a3\u0002\u0018\u0001\t;\u0002\t\u0001(0000000000000005 \u0001(000000000000000A  \u0001(000000000000000C\u0001\u0018v14\u0002\u0018 \u0001(000000000000000B\u0001\t=\u0002\t \u0001(000000000000000D\u0001\t*\u0002\t\u0001(000000000000000E\u0001\t(\u0002\t\u0001\u0017_WORD *\u0002\u0017\u0001\t)\u0002\t\u0001\t(\u0002\t\u0001(0000000000000010\u0001\t*\u0002\t\u0001(0000000000000011\u0001\u0018a3\u0002\u0018 \u0001(000000000000000F\u0001\t+\u0002\t \u0001(0000000000000012\u0001 302\u0002 \u0001\t)\u0002\t\u0001\t;\u0002\t\u0001(000000000000000A \u0001(0000000000000013  \u0001 if\u0002  \u0001\t(\u0002\t \u0001(000000000000004C\u0001\u0018v14\u0002\u0018 \u0001\t)\u0002\t\u0001(0000000000000013 \u0001\t{\u0002\t\u0001(0000000000000014 \u0001(0000000000000015    \u0001(0000000000000017\u0001\u0018v15\u0002\u0018 \u0001(0000000000000016\u0001\t=\u0002\t \u0001(0000000000000018\u0001\t*\u0002\t\u0001(0000000000000019\u0001\t(\u0002\t\u0001\u0017_QWORD *\u0002\u0017\u0001\t)\u0002\t\u0001\t(\u0002\t\u0001(000000000000001B\u0001\u0018v13\u0002\u0018 \u0001(000000000000001A\u0001\t+\u0002\t \u0001(000000000000001C\u0001 176\u0002 \u0001\t)\u0002\t\u0001\t;\u0002\t\u0001(0000000000000015 \u0001(000000000000001D    \u0001 while\u0002  \u0001\t(\u0002\t \u0001(0000000000000027\u0001\t*\u0002\t\u0001(0000000000000028\u0001\t(\u0002\t\u0001\u0017_QWORD *\u0002\u0017\u0001\t)\u0002\t\u0001\t(\u0002\t\u0001(000000000000002A\u0001\u0018v15\u0002\u0018 \u0001(0000000000000029\u0001\t+\u0002\t \u0001(000000000000002C\u0001 16LL\u0002  \u0001(000000000000002B\u0001\t*\u0002\t \u0001(000000000000002D\u0001\u0018v11\u0002\u0018\u0001\t)\u0002\t \u0001(0000000000000026\u0001\t!=\u0002\t \u0001(000000000000002E\u0001\u0018a2\u0002\u0018 \u0001\t)\u0002\t\u0001(000000000000001D \u0001\t{\u0002\t\u0001(000000000000001E \u0001(000000000000001F      \u0001 if\u0002  \u0001\t(\u0002\t \u0001(0000000000000023\u0001\t++\u0002\t\u0001(0000000000000024\u0001\u0018v11\u0002\u0018 \u0001(0000000000000022\u0001\t>=\u0002\t \u0001(0000000000000025\u0001\u0018v14\u0002\u0018 \u0001\t)\u0002\t\u0001(000000000000001F \u0001(0000000000000020\u0001(0000000000000021        \u0001 goto\u0002  \u0001 LABEL_5\u0002 \u0001\t;\u0002\t\u0001(0000000000000021 \u0004\u0004\u0001\t}\u0002\t\u0001(000000000000001E \u0001(000000000000002F    \u0001(0000000000000031\u0001\u0018v16\u0002\u0018 \u0001(0000000000000030\u0001\t=\u0002\t \u0001(0000000000000033\u0001\u0018v13\u0002\u0018 \u0001(0000000000000032\u0001\t+\u0002\t \u0001(0000000000000036\u0001 16LL\u0002  \u0001(0000000000000035\u0001\t*\u0002\t \u0001\t(\u0002\t\u0001(0000000000000038\u0001\u0018a1\u0002\u0018 \u0001(0000000000000037\u0001\t+\u0002\t \u0001(0000000000000039\u0001\t*\u0002\t\u0001(000000000000003A\u0001\t(\u0002\t\u0001\u0017_DWORD *\u0002\u0017\u0001\t)\u0002\t\u0001\t(\u0002\t\u0001(000000000000003D\u0001\u0018v15\u0002\u0018 \u0001(000000000000003C\u0001\t+\u0002\t \u0001(000000000000003F\u0001 16LL\u0002  \u0001(000000000000003E\u0001\t*\u0002\t \u0001(0000000000000040\u0001\u0018v11\u0002\u0018 \u0001(000000000000003B\u0001\t+\u0002\t \u0001(0000000000000041\u0001 8\u0002 \u0001\t)\u0002\t\u0001\t)\u0002\t \u0001(0000000000000034\u0001\t+\u0002\t \u0001(0000000000000042\u0001 312\u0002 \u0001\t;\u0002\t\u0001(000000000000002F \u0004\u0004\u0001\t}\u0002\t\u0001(0000000000000014 \u0001 else\u0002 \u0001(0000000000000013 \u0001\t{\u0002\t\u0001(0000000000000043 \u0001 \u0001(0000000000000044LABEL_5\u0002 \u0001\t:\u0002\t\u0001(0000000000000044 \u0001(0000000000000044    \u0001(0000000000000046\u0001\u0018v16\u0002\u0018 \u0001(0000000000000045\u0001\t=\u0002\t \u0001(0000000000000048\u0001\bsub_180598D50\u0002\b\u0001(0000000000000047\u0001\t(\u0002\t\u0001(0000000000000049\u0001\u0018a3\u0002\u0018\u0001\t,\u0002\t \u0001(000000000000004A\u0001\u0018a2\u0002\u0018\u0001\t,\u0002\t \u0001(000000000000004B\u0001\u0018a1\u0002\u0018\u0001\t)\u0002\t\u0001\t;\u0002\t\u0001(0000000000000044 \u0004\u0004\u0001\t}\u0002\t\u0001(0000000000000043 \u0001(000000000000004D  \u0001(000000000000004F\u0001\u0018v17\u0002\u0018 \u0001(000000000000004E\u0001\t=\u0002\t \u0001(0000000000000050\u0001\t*\u0002\t\u0001(0000000000000051\u0001\t(\u0002\t\u0001\u0017__int64 (__fastcall **)(__int64 *, __int64, __int64, _QWORD, __int64, char, __int64, _OWORD *, __int64)\u0002\u0017\u0001\t)\u0002\t\u0001(0000000000000052\u0001\u0018v16\u0002\u0018\u0001\t;\u0002\t\u0001(000000000000004D \u0001(0000000000000053  \u0001(0000000000000055\u0001\u0018v22\u0002\u0018 \u0001(0000000000000054\u0001\t=\u0002\t \u0001(0000000000000056\u0001\t*\u0002\t\u0001(0000000000000057\u0001\t(\u0002\t\u0001\u0017_QWORD *\u0002\u0017\u0001\t)\u0002\t\u0001\t(\u0002\t\u0001(0000000000000059\u0001\u0018v16\u0002\u0018 \u0001(0000000000000058\u0001\t+\u0002\t \u0001(000000000000005A\u0001 8\u0002 \u0001\t)\u0002\t\u0001\t;\u0002\t\u0001(0000000000000053 \u0001(000000000000005B  \u0001(000000000000005D\u0001\u0018v18\u0002\u0018 \u0001(000000000000005C\u0001\t=\u0002\t \u0001(000000000000005F\u0001\u0018a10\u0002\u0018\u0001(000000000000005E\u0001\t[\u0002\t\u0001(0000000000000060\u0001 1\u0002 \u0001\t]\u0002\t\u0001\t;\u0002\t\u0001(000000000000005B \u0001(0000000000000061  \u0001(0000000000000064\u0001\u0018v23\u0002\u0018\u0001(0000000000000063\u0001\t[\u0002\t\u0001(0000000000000065\u0001 0\u0002 \u0001\t]\u0002\t \u0001(0000000000000062\u0001\t=\u0002\t \u0001(0000000000000066\u0001\t*\u0002\t\u0001(0000000000000067\u0001\u0018a10\u0002\u0018\u0001\t;\u0002\t\u0001(0000000000000061 \u0001(0000000000000068  \u0001(000000000000006A\u0001\u0018v19\u0002\u0018 \u0001(0000000000000069\u0001\t=\u0002\t \u0001(000000000000006C\u0001\u0018a10\u0002\u0018\u0001(000000000000006B\u0001\t[\u0002\t\u0001(000000000000006D\u0001 2\u0002 \u0001\t]\u0002\t\u0001\t;\u0002\t\u0001(0000000000000068 \u0001(000000000000006E  \u0001(0000000000000071\u0001\u0018v23\u0002\u0018\u0001(0000000000000070\u0001\t[\u0002\t\u0001(0000000000000072\u0001 1\u0002 \u0001\t]\u0002\t \u0001(000000000000006F\u0001\t=\u0002\t \u0001(0000000000000073\u0001\u0018v18\u0002\u0018\u0001\t;\u0002\t\u0001(000000000000006E \u0001(0000000000000074  \u0001(0000000000000077\u0001\u0018v23\u0002\u0018\u0001(0000000000000076\u0001\t[\u0002\t\u0001(0000000000000078\u0001 2\u0002 \u0001\t]\u0002\t \u0001(0000000000000075\u0001\t=\u0002\t \u0001(0000000000000079\u0001\u0018v19\u0002\u0018\u0001\t;\u0002\t\u0001(0000000000000074 \u0001(000000000000007A  \u0001 return\u0002  \u0001(000000000000007C\u0001\u0018v17\u0002\u0018\u0001(000000000000007B\u0001\t(\u0002\t\u0001(000000000000007D\u0001\u0018a3\u0002\u0018\u0001\t,\u0002\t \u0001(000000000000007E\u0001\u0018a4\u0002\u0018\u0001\t,\u0002\t \u0001(000000000000007F\u0001\u0018a5\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000080\u0001\u0018a6\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000081\u0001\u0018a7\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000082\u0001\u0018a8\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000083\u0001\u0018a9\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000084\u0001\u0018v23\u0002\u0018\u0001\t,\u0002\t \u0001(0000000000000085\u0001\u0018v22\u0002\u0018\u0001\t)\u0002\t\u0001\t;\u0002\t\u0001(000000000000007A \u0004\u0004\u0001\t}\u0002\t\u0001(0000000000000000",
-        "return_type": "Void",
-        "parameter_types": [],
-        "return_kind": "void",
-        "parameter_kinds": []
+        "raw_signature": "__int64 __fastcall(unsigned __int16, __int64, __int64 *, __int64, __int64, unsigned int, __int64, char, __int64, _OWORD *)",
+        "return_type": "__int64",
+        "parameter_types": [
+          "unsigned",
+          "__int64",
+          "__int64 *",
+          "__int64",
+          "__int64",
+          "unsigned",
+          "__int64",
+          "char",
+          "__int64",
+          "_OWORD *"
+        ],
+        "return_kind": "int_like",
+        "parameter_kinds": [
+          "unknown",
+          "int_like",
+          "pointer_like",
+          "int_like",
+          "int_like",
+          "unknown",
+          "int_like",
+          "int_like",
+          "int_like",
+          "pointer_like"
+        ]
       },
       "stable_callees": [],
       "cfg_stats": null
