@@ -16,7 +16,6 @@ from qfluentwidgets import (
     NavigationItemPosition,
     PushButton,
 )
-from qfluentwidgets.components.widgets.progress_ring import IndeterminateProgressRing
 lazy from ankama_launcher_emulator.controller.bot_storage import BotStorageController
 
 from src.consts import LOGO_FILE, MIN_DATE
@@ -63,14 +62,10 @@ class MainWindow(AppFluentWindow):
         self.startup_status = QWidget(self)
         status_layout = QHBoxLayout(self.startup_status)
         self.status_label = BodyLabel("Starting?", self.startup_status)
-        self.status_progress = IndeterminateProgressRing(self.startup_status)
-        self.status_progress.setFixedSize(20, 20)
-        self.status_progress.start()
         self.retry_button = PushButton("Retry", self.startup_status)
         self.retry_button.clicked.connect(self.retry_requested.emit)
         self.retry_button.hide()
         status_layout.addWidget(self.status_label, 1)
-        status_layout.addWidget(self.status_progress)
         status_layout.addWidget(self.retry_button)
         self.widgetLayout.insertWidget(0, self.startup_status)
 
@@ -131,19 +126,14 @@ class MainWindow(AppFluentWindow):
     def set_startup_status(self, status: str) -> None:
         self.status_label.setText(status)
         self.startup_status.show()
-        self.status_progress.show()
-        self.status_progress.start()
         self.retry_button.hide()
 
     def show_startup_error(self, message: str) -> None:
         self.status_label.setText(message)
-        self.status_progress.stop()
-        self.status_progress.hide()
         self.retry_button.show()
         self.startup_status.show()
 
     def set_runtime_ready(self) -> None:
-        self.status_progress.stop()
         self.startup_status.hide()
         if self._runtime_ready:
             return
@@ -254,13 +244,9 @@ class MainWindow(AppFluentWindow):
         account.game_info_signals.connected.connect(on_connected)
 
         def on_character_name(name: str) -> None:
-            navigation_widget.set_title(
-                f"{account.account.apikey.login.split('@')[0]} : {name}"
-            )
+            navigation_widget.set_title(f"{account.account.apikey.login.split('@')[0]} : {name}")
 
-        account.game_info_signals.character_name.connect(
-            on_character_name
-        )
+        account.game_info_signals.character_name.connect(on_character_name)
 
         account.game_info_signals.in_fight.connect(navigation_widget.show_battle_icon)
         account.game_info_signals.is_ready_to_play.connect(

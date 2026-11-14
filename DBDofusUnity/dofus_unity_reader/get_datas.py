@@ -26,7 +26,8 @@ from DBDofusUnity.dofus_unity_reader.data_center.data_reader import (
 )
 from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
 from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
-from DBDofusUnity.dofus_unity_reader.generator.maps import decode_map_export
+from DBDofusUnity.dofus_unity_reader.generator.maps import iter_bundle_maps
+from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationsRoot
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
 from src.utils.project_paths import BUNDLE_ROOT
 
@@ -61,6 +62,9 @@ def get_world_graph_datas(*, manifest: ExtractionManifest) -> None:
 
 def get_map_datas(*, manifest: ExtractionManifest) -> None:
     print("get maps")
+    catalog_path = DATA_BUNDLES_ROOT / FILEPATH_BY_MODEL[MapInformationsRoot]
+    catalog = msgspec.json.decode(catalog_path.read_bytes(), type=MapInformationsRoot)
+    names = frozenset(f"map_{entry.id}" for entry in catalog)
 
     map_bundles = sorted(
         path
@@ -82,16 +86,11 @@ def get_map_datas(*, manifest: ExtractionManifest) -> None:
             compresslevel=9,
             allowZip64=True,
         ) as archive:
+            exported_names: set[str] = set()
             for bundle_path in tqdm(map_bundles):
-                map_count = 0
-                for name, data in iter_bundle_data(bundle_path):
-                    if not name.startswith("map_"):
-                        continue
-                    content = decode_map_export(msgspec.json.encode(data))
+                for name, content in iter_bundle_maps(bundle_path, names=names):
                     archive.writestr(f"map/{name}.json", msgspec.json.encode(content))
-                    map_count += 1
-                if not map_count:
-                    raise ValueError(f"No maps exported from {bundle_path}")
+                    exported_names.add(name)
         temporary_archive_path.replace(MAPS_ARCHIVE_PATH)
     finally:
         temporary_archive_path.unlink(missing_ok=True)

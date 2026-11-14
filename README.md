@@ -85,7 +85,20 @@ in **Git Bash on Windows**:
 bash scripts/packaging/build-tools.sh
 ```
 
-This builds UABEA, Il2CppInspector, and protodec.
+This builds Il2CppInspector and protodec.
+
+### Map loading benchmark
+
+The bot's map archive includes only IDs listed in the freshly extracted
+`MapsInformationDataRoot.json`. Obsolete maps left in the installation are
+filtered before decoding; the old nested `mapData` input format is unsupported.
+
+Run `uv run python -m scripts.data.benchmark_map_loading` to compare individual
+map reads from the installed game with `maps.zip`. It checks the map-ID/bundle
+relationship across all map bundles, compares decoded maps on a sample of bundle
+sizes, and measures cache hits and fresh processes. Results are written to
+`DBDofusUnity/datas/bundles/exports/map_read_benchmark/report.json` (ignored by Git).
+The benchmark leaves the production `MapReader` unchanged.
 
 ### Checks
 

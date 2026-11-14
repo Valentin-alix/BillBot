@@ -44,6 +44,16 @@ def _unity_version(game_dir: Path) -> str:
     return version
 
 
+def read_managed_references(value: Any) -> list[ManagedReference]:
+    registry = msgspec.convert(value, type=ManagedReferences)
+    if registry.version != 2:
+        raise ValueError(f"Unsupported managed reference registry version: {registry.version}")
+    for ref in registry.RefIds:
+        if ref.data is msgspec.UNSET and ref.rid != -2:
+            raise ValueError(f"Managed reference {ref.rid} has no data")
+    return registry.RefIds
+
+
 def _normalize_value(value: Any) -> Any:
     if isinstance(value, list):
         return [_normalize_value(item) for item in cast(list[Any], value)]
@@ -51,14 +61,9 @@ def _normalize_value(value: Any) -> Any:
         return value
     value = cast(dict[str, Any], value)
     if "RefIds" in value and "version" in value:
-        registry = msgspec.convert(value, type=ManagedReferences)
-        if registry.version != 2:
-            raise ValueError(f"Unsupported managed reference registry version: {registry.version}")
         references: list[dict[str, Any]] = []
-        for ref in registry.RefIds:
+        for ref in read_managed_references(value):
             if ref.data is msgspec.UNSET:
-                if ref.rid != -2:
-                    raise ValueError(f"Managed reference {ref.rid} has no data")
                 references.append({"rid": ref.rid})
             else:
                 references.append({"rid": ref.rid, **_normalize_value(ref.data)})

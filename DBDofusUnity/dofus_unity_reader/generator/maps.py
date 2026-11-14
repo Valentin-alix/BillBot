@@ -1,7 +1,10 @@
+from collections.abc import Iterator, Set
+from pathlib import Path
 from typing import Any
 
 import msgspec
 
+from DBDofusUnity.dofus_unity_reader.bundle_export import load_bundle, read_managed_references
 from DBDofusUnity.dofus_unity_reader.models.maps import (
     CellData,
     MapData,
@@ -28,31 +31,12 @@ class ClientCellData(msgspec.Struct, frozen=True, kw_only=True):
     arrow: int
 
 
-class MapCellDataExport(ClientCellData, frozen=True, kw_only=True):
-    floor: int = msgspec.field(name="floor")
-    nonWalkableDuringFight: int
-    nonWalkableDuringRP: int
-
-
-class MapDataExport(msgspec.Struct, frozen=True):
-    cellsData: list[MapCellDataExport]
-
-
-class MapExport(msgspec.Struct, frozen=True):
-    references: list[MapReference]
-    mapData: MapDataExport
-
-
 def _normalize_cell(cell: ClientCellData) -> CellData:
-    mov_during_fight = mov_during_rp = bool(cell.mov)
-    if isinstance(cell, MapCellDataExport):
-        mov_during_fight = mov_during_fight and not cell.nonWalkableDuringFight
-        mov_during_rp = mov_during_rp and not cell.nonWalkableDuringRP
     return msgspec.convert(
         {
             **msgspec.structs.asdict(cell),
-            "movDuringFight": mov_during_fight,
-            "movDuringRP": mov_during_rp,
+            "movDuringFight": bool(cell.mov),
+            "movDuringRP": bool(cell.mov),
         },
         type=CellData,
     )
@@ -90,45 +74,65 @@ class ClientMapData(msgspec.Struct, frozen=True):
 
 
 def decode_map_export(raw: bytes) -> MapDataRoot:
-    root = msgspec.json.decode(raw, type=dict[str, Any])
-    if "cellsData" in root:
-        data = msgspec.convert(root, type=ClientMapData)
-        placements = {
-            element.rid: (group.cellId, group.displayOrder)
-            for group in data.middlegroundMapElements
-            for element in group.mapElements
-        }
-        unplaced_layer_rids = {
-            element.rid
-            for group in data.backgroundMapElements + data.foregroundMapElements
-            for element in group.mapElements
-        }
-        references: list[MapReference] = []
-        for ref in data.references:
-            cell_id, order = placements.get(ref.rid, (ref.cellId, ref.displayOrder))
-            if ref.interactiveId is not None and cell_id is None and ref.rid not in unplaced_layer_rids:
-                raise ValueError(f"Interactive {ref.interactiveId} has no cell placement")
-            references.append(
-                MapReference(
-                    gfxId=ref.gfxId,
-                    cellId=cell_id,
-                    m_interactionId=ref.interactiveId,
-                    innerCellRenderOrder=order,
-                    position=ref.position,
-                )
+    return decode_map_data(msgspec.json.decode(raw, type=dict[str, Any]))
+
+
+def decode_map_data(root: dict[str, Any]) -> MapDataRoot:
+    data = msgspec.convert(root, type=ClientMapData)
+    placements = {
+        element.rid: (group.cellId, group.displayOrder)
+        for group in data.middlegroundMapElements
+        for element in group.mapElements
+    }
+    unplaced_layer_rids = {
+        element.rid
+        for group in data.backgroundMapElements + data.foregroundMapElements
+        for element in group.mapElements
+    }
+    references: list[MapReference] = []
+    for ref in data.references:
+        cell_id, order = placements.get(ref.rid, (ref.cellId, ref.displayOrder))
+        if ref.interactiveId is not None and cell_id is None and ref.rid not in unplaced_layer_rids:
+            raise ValueError(f"Interactive {ref.interactiveId} has no cell placement")
+        references.append(
+            MapReference(
+                gfxId=ref.gfxId,
+                cellId=cell_id,
+                m_interactionId=ref.interactiveId,
+                innerCellRenderOrder=order,
+                position=ref.position,
             )
-        result = MapDataRoot(
-            references=references,
-            mapData=MapData(
-                cellsData=[_normalize_cell(cell) for cell in data.cellsData]
-            ),
         )
-    else:
-        exported = msgspec.convert(root, type=MapExport)
-        result = MapDataRoot(
-            references=exported.references,
-            mapData=MapData(cellsData=[_normalize_cell(cell) for cell in exported.mapData.cellsData]),
-        )
+    result = MapDataRoot(
+        references=references,
+        mapData=MapData(cellsData=[_normalize_cell(cell) for cell in data.cellsData]),
+    )
     if [cell.cellNumber for cell in result.mapData.cellsData] != list(range(560)):
         raise ValueError("Map export must contain the 560 cells in cell number order")
     return result
+
+
+_REFERENCE_FIELDS = frozenset(field.encode_name for field in msgspec.structs.fields(ClientMapReference))
+
+
+def decode_unity_map(raw: dict[str, Any]) -> MapDataRoot:
+    fields = ("cellsData", "middlegroundMapElements", "backgroundMapElements", "foregroundMapElements")
+    root = {key: raw[key] for key in fields}
+    references: list[dict[str, Any]] = []
+    for ref in read_managed_references(raw["references"]):
+        entry: dict[str, Any] = {"rid": ref.rid}
+        if ref.data is not msgspec.UNSET:
+            entry.update((key, value) for key, value in ref.data.items() if key in _REFERENCE_FIELDS)
+        references.append(entry)
+    root["references"] = references
+    return decode_map_data(root)
+
+
+def iter_bundle_maps(bundle_path: Path, *, names: Set[str]) -> Iterator[tuple[str, MapDataRoot]]:
+    environment = load_bundle(bundle_path)
+    for obj in environment.objects:
+        if obj.type.name != "MonoBehaviour":
+            continue
+        name = obj.peek_name()
+        if name is not None and name in names:
+            yield name, decode_unity_map(obj.parse_as_dict())
