@@ -31,6 +31,8 @@ from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract im
 )
 
 
+pytestmark = pytest.mark.usefixtures("reuse_generated_non_obf_messages")
+
 class TestGameMappings:
     def test_excludes_only_the_requested_non_obf_message(self) -> None:
         excluded_message = DumpCSMessage(

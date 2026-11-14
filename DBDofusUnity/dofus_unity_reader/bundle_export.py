@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Any, Protocol, cast
 
 import msgspec
-import UnityPy
-import UnityPy.config
-from UnityPy.files.ObjectReader import ObjectReader
-from UnityPy.files.SerializedFile import SerializedFile
+lazy import UnityPy
+lazy import UnityPy.config
+lazy from UnityPy.files.ObjectReader import ObjectReader
+lazy from UnityPy.files.SerializedFile import SerializedFile
 
 from DBDofusUnity.consts import OBF_GAME_DIR
 

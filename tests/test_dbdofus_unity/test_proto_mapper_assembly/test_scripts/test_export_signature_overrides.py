@@ -69,6 +69,8 @@ from scripts.mapping.export_signature_overrides import (
 )
 
 
+pytestmark = pytest.mark.usefixtures("reuse_generated_non_obf_messages")
+
 class TestBuildSignatureOverrides:
     def test_exports_field_signatures_for_mapped_pair(self) -> None:
         pinned = pinned_config()

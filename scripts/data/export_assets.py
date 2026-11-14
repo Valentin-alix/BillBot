@@ -9,7 +9,7 @@ from typing import Any
 
 import msgspec
 from PIL.Image import Image
-from UnityPy.files.ObjectReader import ObjectReader
+lazy from UnityPy.files.ObjectReader import ObjectReader
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
 

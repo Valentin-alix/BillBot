@@ -2,7 +2,6 @@ from collections.abc import Callable, Iterator
 from pathlib import Path
 from threading import Timer
 from typing import Any, Protocol, cast
-from unittest.mock import MagicMock
 
 import pytest
 import requests
@@ -46,13 +45,8 @@ def bot_scheduler() -> BotScheduler:
 
 
 @pytest.fixture(autouse=True)
-def logger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
-    monkeypatch.setattr("src.consts.BOT_DEBUG_LOGS_DIR", tmp_path)
-    return MagicMock()
-
-
-@pytest.fixture(autouse=True)
 def _isolate_resource_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("src.consts.BOT_DEBUG_LOGS_DIR", tmp_path)
     monkeypatch.setattr("src.controller.settings.SETTINGS_PATH", tmp_path / "settings.json")
     monkeypatch.setattr(SettingsService(), "_settings", None)
     monkeypatch.setattr(

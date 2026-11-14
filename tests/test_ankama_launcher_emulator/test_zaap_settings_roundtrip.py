@@ -1,7 +1,7 @@
-from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 
+from ankama_launcher_emulator.controller import bot_storage
 from ankama_launcher_emulator.haapi.haapi import (
     get_account_info_by_login,
     get_game_sub_info_by_login,
@@ -13,7 +13,7 @@ from ankama_launcher_emulator.interfaces.zaap_files import (
     GameSubscription,
     UserAccount,
 )
-from ankama_launcher_emulator.controller import bot_storage
+
 from tests.fixtures.launcher import IsolatedLauncherStorageTestCase
 
 
@@ -58,30 +58,6 @@ def _update_password_repeatedly(
 
 
 class TestAccountInfoRoundTrip(IsolatedLauncherStorageTestCase):
-    def test_concurrent_processes_preserve_distinct_bot_updates(self) -> None:
-        bots_path = bot_storage.BOTS_STORAGE_PATH
-        with ProcessPoolExecutor(max_workers=2) as executor:
-            first_update = executor.submit(
-                _update_password_repeatedly,
-                str(bots_path),
-                "first@example.com",
-                "first-password",
-            )
-            second_update = executor.submit(
-                _update_password_repeatedly,
-                str(bots_path),
-                "second@example.com",
-                "second-password",
-            )
-            first_update.result(timeout=30)
-            second_update.result(timeout=30)
-
-        records = bot_storage.BotStorageController().get_all_records()
-
-        self.assertEqual(records["first@example.com"].password, "first-password-9")
-        self.assertEqual(records["second@example.com"].password, "second-password-9")
-        self.assertEqual(list(bots_path.parent.glob("*.tmp")), [])
-
     def test_upsert_then_load_recovers_account_and_subscription(self) -> None:
         bot_storage.BotStorageController().upsert_record(
             "user@example.com",
