@@ -1,8 +1,8 @@
 import os
 import subprocess
+import sys
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
-import sys
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 

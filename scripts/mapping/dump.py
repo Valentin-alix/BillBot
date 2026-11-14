@@ -116,7 +116,6 @@ def update_protos(*, use_obf: bool, obf_dir: Path | None = None, force: bool = F
             )
 
         if use_obf and obf_dir is not None:
-            # Archived tracing must skip live-workspace steps that clear pins and overwrite current mappings.
             _record_dump_cs_hash(target)
             _record_game_assembly_mtime(target)
             return

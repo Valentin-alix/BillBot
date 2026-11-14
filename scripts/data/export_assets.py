@@ -1,3 +1,4 @@
+import argparse
 import re
 import sys
 from collections import Counter
@@ -141,24 +142,38 @@ def export_asset_bundle(source: Path, destination: Path, *, game_dir: Path) -> B
     return report
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Export Unity assets from folders or bundle files.")
+    parser.add_argument("sources", nargs="*", type=Path, help="Folders (recursive) or bundle files; defaults to StreamingAssets")
+    args = parser.parse_args(argv if argv is not None else [])
     game_dir = OBF_GAME_DIR.resolve()
     streaming = game_dir / "Dofus_Data" / "StreamingAssets"
     output = (BUNDLES_ROOT / "exports").resolve()
     if output.is_relative_to(game_dir) or game_dir.is_relative_to(output):
         raise ValueError("The export directory must be separate from the game installation.")
-    if not streaming.is_dir():
-        raise FileNotFoundError(f"StreamingAssets directory not found: {streaming}")
-    bundles = sorted(streaming.rglob("*.bundle"))
+    bundles: set[Path] = set()
+    for path in args.sources or [streaming]:
+        source = path.resolve()
+        if source.is_dir():
+            bundles.update(bundle for bundle in source.rglob("*.bundle") if bundle.is_file())
+        elif source.is_file():
+            bundles.add(source)
+        else:
+            parser.error(f"Source does not exist: {path}")
     if not bundles:
-        raise FileNotFoundError(f"No bundles found in {streaming}")
+        parser.error("No bundles found in the selected sources")
     output.mkdir(parents=True, exist_ok=True)
     totals: Counter[str] = Counter()
     failures: list[ExportIssue] = []
-    for index, source in enumerate(bundles, start=1):
-        destination = output / source.relative_to(streaming)
+    for index, source in enumerate(sorted(bundles), start=1):
+        relative = (
+            source.relative_to(streaming)
+            if source.is_relative_to(streaming)
+            else Path("external", _safe_name(source.anchor), *source.parts[1:])
+        )
+        destination = output / relative
         entry = destination / "index.json"
-        print(f"[{index}] {source.relative_to(streaming)}", flush=True)
+        print(f"[{index}] {source}", flush=True)
         try:
             report = export_asset_bundle(source, destination, game_dir=game_dir)
         except ExportWriteError:
@@ -180,4 +195,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
