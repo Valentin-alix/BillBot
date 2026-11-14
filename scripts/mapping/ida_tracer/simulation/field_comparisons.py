@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import replace
 from typing import Literal
 
@@ -11,6 +12,7 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.field_comparison import (
     FieldComparison,
 )
 from scripts.mapping.ida_tracer.core.operands import (
+    Operand,
     get_operand_access_size,
     read_immediate_operand_value,
 )
@@ -19,12 +21,12 @@ from scripts.mapping.ida_tracer.lookups.accessor_candidate import (
 )
 from scripts.mapping.ida_tracer.simulation.field_access import (
     _get_field_accesses_for_operand,
-    _get_instruction_feature,
 )
 from scripts.mapping.ida_tracer.simulation.interproc_calls import (
     resolve_accessor_candidate_for_call,
 )
 from scripts.mapping.ida_tracer.state.analysis_state import AnalysisState
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.numeric_provenance import (
     NumericComparison,
     NumericFieldValue,
@@ -90,20 +92,26 @@ def _origin(entry: FieldAccessEntry, width: Literal[8, 16, 32, 64]) -> NumericFi
 
 
 def _source_value(
-    operand: idaapi.op_t,
+    operand: Operand,
     state: AnalysisState,
     fields: dict[str, dict[int, DumpCSMessageField]],
     ea: int,
 ) -> NumericFieldValue | None:
     if operand.type == idaapi.o_reg:
         value = state.numeric_registers.get(operand.reg)
+        if value is None:
+            return None
         size = get_operand_access_size(operand)
-        return value if value is not None and size is not None and size * 8 >= value.width else None
+        return value if size is not None and size * 8 >= value.width else None
+    if operand.type not in {idaapi.o_displ, idaapi.o_phrase}:
+        return None
     slot = get_stack_slot(operand, state.frame_state)
     if slot is not None:
         value = state.numeric_stack.get(slot)
+        if value is None:
+            return None
         size = get_operand_access_size(operand)
-        return value if value is not None and size is not None and size * 8 >= value.width else None
+        return value if size is not None and size * 8 >= value.width else None
     entries = _get_field_accesses_for_operand(operand, "read", ea, state.reg_state, fields)
     if len(entries) != 1:
         return None
@@ -152,15 +160,17 @@ def _branch_comparison(mnemonic: str, state: AnalysisState) -> list[FieldAccessE
 
 
 def track_field_comparisons(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     ea: int,
     mnemonic: str,
     state: AnalysisState,
     fields: dict[str, dict[int, DumpCSMessageField]],
     accessors: dict[int, list[AccessorCandidate]],
-) -> list[FieldAccessEntry]:
+    *,
+    collect_entries: bool = True,
+) -> Sequence[FieldAccessEntry]:
     if mnemonic.startswith("j"):
-        return _branch_comparison(mnemonic, state)
+        return _branch_comparison(mnemonic, state) if collect_entries else ()
     destination, source = insn.ops[0], insn.ops[1]
     if mnemonic == "cmp":
         value = _source_value(destination, state, fields, ea)
@@ -175,7 +185,7 @@ def track_field_comparisons(
             if value is not None and constant is not None
             else None
         )
-        return []
+        return ()
     if mnemonic == "test":
         value = _source_value(destination, state, fields, ea)
         state.numeric_comparison = (
@@ -183,7 +193,7 @@ def track_field_comparisons(
             if value is not None and source.type == idaapi.o_reg and source.reg == destination.reg
             else None
         )
-        return []
+        return ()
     if mnemonic in {"mov", "movzx", "movsxd"}:
         value = _source_value(source, state, fields, ea)
         size = get_operand_access_size(destination)
@@ -199,7 +209,7 @@ def track_field_comparisons(
             target.pop(key, None)
             if value is not None:
                 target[key] = value
-        return []
+        return ()
     if mnemonic == "call":
         candidate = resolve_accessor_candidate_for_call(insn, accessors, state.reg_state)
         state.numeric_comparison = None
@@ -217,10 +227,14 @@ def track_field_comparisons(
                     else 32
                 )
                 state.numeric_registers[0] = _origin(candidate.to_field_access_entry(ea), width)
-        return []
+        return ()
+    if not state.numeric_registers and not state.numeric_stack and state.numeric_comparison is None:
+        return ()
     value = state.numeric_registers.get(destination.reg) if destination.type == idaapi.o_reg else None
-    immediate = read_immediate_operand_value(source)
-    if mnemonic in {"add", "sub"} and value is not None and immediate is not None:
+    immediate = (
+        read_immediate_operand_value(source) if mnemonic in {"add", "sub"} and value is not None else None
+    )
+    if immediate is not None and value is not None:
         size = get_operand_access_size(destination)
         if size is not None and size * 8 == value.width:
             adjustment = (value.adjustment + (immediate if mnemonic == "add" else -immediate)) % (
@@ -229,21 +243,20 @@ def track_field_comparisons(
             updated = replace(value, adjustment=adjustment)
             state.numeric_registers[destination.reg] = updated
             state.numeric_comparison = NumericComparison(updated, 0, ea)
-            return []
-    feature = _get_instruction_feature(insn)
+            return ()
+    feature = insn.feature
     if feature is None:
         state.numeric_registers.clear()
         state.numeric_stack.clear()
         state.numeric_comparison = None
-        return []
-    for index in range(8):
+        return ()
+    for index in insn.changed_operand_indices:
         operand = insn.ops[index]
-        if feature & (getattr(idaapi, f"CF_CHG{index + 1}")):
-            if operand.type == idaapi.o_reg:
-                state.numeric_registers.pop(operand.reg, None)
-            slot = get_stack_slot(operand, state.frame_state)
-            if slot is not None:
-                state.numeric_stack.pop(slot, None)
+        if operand.type == idaapi.o_reg:
+            state.numeric_registers.pop(operand.reg, None)
+        slot = get_stack_slot(operand, state.frame_state)
+        if slot is not None:
+            state.numeric_stack.pop(slot, None)
     if mnemonic not in {"lea", "push", "pop", "nop", "xchg", "not"}:
         state.numeric_comparison = None
-    return []
+    return ()

@@ -3,24 +3,24 @@ from typing import cast
 from unittest.mock import patch
 
 import idaapi
-from tests.fixtures.proto_mapper.signatures import (
-    builder_field_access_entry,
-    function_access_info,
-    stub_message,
-)
 
 from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_from_trace,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from scripts.mapping.ida_tracer.tracing.trace_export import (
-    build_traced_functions_from_proto_infos,
-)
 from scripts.mapping.ida_tracer.state.basic_block import (
     DecodedInstruction,
     FunctionScanPlan,
 )
 from scripts.mapping.ida_tracer.tracing import stable_callees
+from scripts.mapping.ida_tracer.tracing.trace_export import (
+    build_traced_functions_from_proto_infos,
+)
+from tests.fixtures.proto_mapper.signatures import (
+    builder_field_access_entry,
+    function_access_info,
+    stub_message,
+)
 
 
 def test_shared_native_function_retains_accesses_for_each_alias() -> None:
@@ -87,7 +87,10 @@ def test_stable_callees_include_external_tail_calls_only() -> None:
     instructions = tuple(
         DecodedInstruction(
             ea=100 + index,
-            insn=cast(idaapi.insn_t, SimpleNamespace(ops=[SimpleNamespace(type=operand_type, addr=target)])),
+            insn=cast(
+                idaapi.insn_t,
+                SimpleNamespace(ops=[SimpleNamespace(dtype=None, reg=0, type=operand_type, addr=target)]),
+            ),
             mnemonic=mnemonic,
         )
         for index, (mnemonic, operand_type, target) in enumerate(operations)

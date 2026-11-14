@@ -6,7 +6,10 @@ from typing import Literal
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessKind, FieldAccessEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessage, DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
+    extract_map_inner_types,
+    extract_repeated_inner_type,
+)
 from scripts.mapping.ida_tracer.core.function_inspector import (
     get_operation_index_inside_function,
 )

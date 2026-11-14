@@ -284,7 +284,7 @@ def find_enum_switch_func_addrs(
     function_scan_cache: FunctionScanCache | None = None,
 ) -> set[int]:
     def has_enum_field_access(decoded: DecodedInstruction) -> bool:
-        return any(op.type == idaapi.o_displ and op.addr in enum_field_offsets for op in decoded.insn.ops)
+        return any(op.type == idaapi.o_displ and op.addr in enum_field_offsets for op in decoded.ops)
 
     result: set[int] = set()
     for method in methods:
@@ -292,7 +292,7 @@ def find_enum_switch_func_addrs(
         func = idaapi.get_func(method_va)
         if func is None:
             continue
-        recent: deque[DecodedInstruction] = deque(maxlen=6)
+        recent: deque[bool] = deque(maxlen=6)
         scan_plan = build_function_scan_plan(func, function_scan_cache)
         decoded_instructions = sorted(
             (
@@ -303,13 +303,11 @@ def find_enum_switch_func_addrs(
             key=lambda decoded: decoded.ea,
         )
         for decoded in decoded_instructions:
-            if ida_nalt.get_switch_info(decoded.ea) is not None and any(
-                has_enum_field_access(previous_decoded) for previous_decoded in recent
-            ):
+            if any(recent) and ida_nalt.get_switch_info(decoded.ea) is not None:
                 result.add(method_va)
                 break
 
-            recent.append(decoded)
+            recent.append(has_enum_field_access(decoded))
     return result
 
 

@@ -10,15 +10,12 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCS
 from scripts.mapping.ida_tracer.core.function_inspector import (
     get_operation_index_inside_function,
 )
-from scripts.mapping.ida_tracer.core.mnemonics import (
-    CMOV_MNEMONICS,
-    READ_WRITE_DEST_MNEMONICS,
-    VECTOR_MOVE_MNEMONICS,
-)
 from scripts.mapping.ida_tracer.core.operands import (
+    Operand,
     get_displacement_value,
     get_operand_access_size,
 )
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.encoding import (
     decode_field_address,
     decode_object_offset,
@@ -28,37 +25,15 @@ from scripts.mapping.ida_tracer.state.types import (
     decode_object_union,
 )
 
-_IDA_OPERAND_COUNT: int = 8
-_IDA_OPERAND_USE_FLAGS: tuple[int, ...] = (
-    idaapi.CF_USE1,
-    idaapi.CF_USE2,
-    idaapi.CF_USE3,
-    idaapi.CF_USE4,
-    idaapi.CF_USE5,
-    idaapi.CF_USE6,
-    idaapi.CF_USE7,
-    idaapi.CF_USE8,
-)
-_IDA_OPERAND_CHANGE_FLAGS: tuple[int, ...] = (
-    idaapi.CF_CHG1,
-    idaapi.CF_CHG2,
-    idaapi.CF_CHG3,
-    idaapi.CF_CHG4,
-    idaapi.CF_CHG5,
-    idaapi.CF_CHG6,
-    idaapi.CF_CHG7,
-    idaapi.CF_CHG8,
-)
-
 
 def collect_instruction_field_accesses(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     ea: int,
     reg_state: RegisterState,
     proto_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
 ) -> list[FieldAccessEntry]:
     entries: list[FieldAccessEntry] = []
-    for operand_index, access_kind in _iter_operand_accesses(insn):
+    for operand_index, access_kind in insn.operand_accesses:
         if operand_index >= len(insn.ops):
             continue
         entries.extend(
@@ -83,49 +58,16 @@ def dedupe_and_sort_access_entries(entries: list[AccessEntry]) -> list[AccessEnt
                 (comparison.similarity_key, comparison.instruction_address): comparison
                 for comparison in [*previous.comparisons, *entry.comparisons]
             }
-            entry = entry.model_copy(update={"comparisons": sorted(
-                comparisons.values(), key=lambda comparison: (comparison.similarity_key, comparison.instruction_address)
-            )})
+            entry = entry.model_copy(
+                update={
+                    "comparisons": sorted(
+                        comparisons.values(),
+                        key=lambda comparison: (comparison.similarity_key, comparison.instruction_address),
+                    )
+                }
+            )
         unique_entries[identity] = entry
     return sorted(unique_entries.values(), key=_access_entry_sort_key)
-
-
-def _iter_operand_accesses(insn: idaapi.insn_t) -> list[tuple[int, AccessKind]]:
-    feature = _get_instruction_feature(insn)
-    if feature is not None:
-        accesses: list[tuple[int, AccessKind]] = []
-        for operand_index in range(_IDA_OPERAND_COUNT):
-            if feature & _IDA_OPERAND_USE_FLAGS[operand_index]:
-                accesses.append((operand_index, "read"))
-            if feature & _IDA_OPERAND_CHANGE_FLAGS[operand_index]:
-                accesses.append((operand_index, "write"))
-        if accesses:
-            return accesses
-
-    mnemonic = insn.get_canon_mnem()
-    if mnemonic in {"mov", "movzx", "movsxd"}:
-        accesses = []
-        if mnemonic == "mov":
-            accesses.append((0, "write"))
-        accesses.append((1, "read"))
-        return accesses
-    if mnemonic in {"cmp", "test"}:
-        return [(0, "read"), (1, "read")]
-    if mnemonic in CMOV_MNEMONICS:
-        return [(1, "read")]
-    if mnemonic in READ_WRITE_DEST_MNEMONICS:
-        return [(0, "read"), (0, "write"), (1, "read")]
-    if mnemonic in VECTOR_MOVE_MNEMONICS:
-        return [(0, "write"), (1, "read")]
-    return []
-
-
-def _get_instruction_feature(insn: idaapi.insn_t) -> int | None:
-    try:
-        feature = insn.get_canon_feature()
-    except (AttributeError, TypeError, RuntimeError):
-        return None
-    return feature if isinstance(feature, int) else None
 
 
 def _access_entry_identity(entry: AccessEntry) -> tuple[object, ...]:
@@ -186,7 +128,7 @@ def _access_entry_sort_key(entry: AccessEntry) -> tuple[object, ...]:
 
 
 def _get_field_accesses_for_operand(
-    operand: idaapi.op_t,
+    operand: Operand,
     access_kind: AccessKind,
     ea: int,
     reg_state: RegisterState,

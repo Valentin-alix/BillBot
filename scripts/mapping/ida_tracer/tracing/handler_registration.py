@@ -2,16 +2,18 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import idaapi
-import idautils
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import HandlerRegistrationAccessEntry
 from scripts.mapping.ida_tracer.core.function_inspector import (
+    get_function_operation_indices,
     get_operation_index_inside_function,
 )
 from scripts.mapping.ida_tracer.lookups.il2cpp import HandlerMethodInfo
+from scripts.mapping.ida_tracer.simulation.scan_engine import build_function_scan_plan
 from scripts.mapping.ida_tracer.simulation.static_loads import (
     get_static_lookup_operand_addr,
 )
+from scripts.mapping.ida_tracer.state.basic_block import FunctionScanCache
 
 
 @dataclass(frozen=True)
@@ -27,18 +29,29 @@ def collect_handler_registration_accesses(
     func: idaapi.func_t,
     filter_typeinfo_lookup: dict[int, str],
     handler_methodinfo_lookup: dict[int, HandlerMethodInfo],
+    method_address_lookup: dict[int, str],
+    function_scan_cache: FunctionScanCache,
 ) -> list[HandlerRegistrationAccessEntry]:
     filter_refs_by_cls: dict[str, list[tuple[int, int]]] = defaultdict(list)
     method_refs_by_cls: dict[str, list[tuple[int, int, HandlerMethodInfo]]] = defaultdict(list)
-    method_address_lookup = {
-        address: method_info.cls for address, method_info in handler_methodinfo_lookup.items()
+    operation_indices = get_function_operation_indices(func)
+    scan_plan = build_function_scan_plan(func, function_scan_cache)
+    instructions_by_address = {
+        decoded.ea: decoded
+        for instructions in scan_plan.instructions_by_block.values()
+        for decoded in instructions
     }
 
-    for instruction_address in idautils.FuncItems(func.start_ea):
-        insn = idaapi.insn_t()
-        if idaapi.decode_insn(insn, instruction_address) <= 0:
-            continue
-        for operand in insn.ops:
+    for instruction_address in operation_indices:
+        decoded = instructions_by_address.get(instruction_address)
+        if decoded is None:
+            insn = idaapi.insn_t()
+            if idaapi.decode_insn(insn, instruction_address) <= 0:
+                continue
+            operands = tuple(insn.ops)
+        else:
+            operands = decoded.ops
+        for operand in operands:
             if operand.type == idaapi.o_void:
                 break
             filter_address = get_static_lookup_operand_addr(operand, filter_typeinfo_lookup, None)

@@ -2,8 +2,11 @@ import idaapi
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
-from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import extract_map_inner_types, extract_repeated_inner_type
-from scripts.mapping.ida_tracer.core.operands import get_displacement_value
+from DBDofusUnity.proto_mapper_assembly.parsers._clr_type_utils import (
+    extract_map_inner_types,
+    extract_repeated_inner_type,
+)
+from scripts.mapping.ida_tracer.core.operands import Operand, get_displacement_value
 from scripts.mapping.ida_tracer.lookups.name_resolution import resolve_message_type_name
 from scripts.mapping.ida_tracer.signatures.type_utils import is_non_message_type
 from scripts.mapping.ida_tracer.state.encoding import decode_object_offset
@@ -24,7 +27,7 @@ from scripts.mapping.ida_tracer.state.types import (
 
 
 def resolve_move_source(
-    source_operand: idaapi.op_t,
+    source_operand: Operand,
     reg_state: RegisterState,
     frame_state: StackFrameState,
     stack_state: StackState,
@@ -86,7 +89,7 @@ def resolve_move_source(
 
 
 def get_stack_slot(
-    operand: idaapi.op_t,
+    operand: Operand,
     frame_state: StackFrameState,
 ) -> StackSlot | None:
     if operand.type not in {idaapi.o_displ, idaapi.o_phrase}:
@@ -105,7 +108,7 @@ def get_stack_slot(
 
 
 def is_heap_tracking_destination(
-    operand: idaapi.op_t,
+    operand: Operand,
     frame_state: StackFrameState,
     reg_state: RegisterState,
 ) -> bool:
@@ -155,7 +158,7 @@ def resolve_referenced_tracked_value(
 
 
 def _resolve_nested_object_value(
-    operand: idaapi.op_t,
+    operand: Operand,
     reg_state: RegisterState,
     tracking_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
     tracking_type_lookup: dict[str, str],

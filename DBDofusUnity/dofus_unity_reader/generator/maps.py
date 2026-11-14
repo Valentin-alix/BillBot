@@ -64,10 +64,6 @@ class ClientReferenceData(msgspec.Struct, frozen=True, kw_only=True):
     interactiveId: int | None = msgspec.field(default=None, name="<interactiveId>k__BackingField")
 
 
-class ClientMapReference(ClientReferenceData, frozen=True, kw_only=True):
-    rid: int
-
-
 class UnityMapReference(msgspec.Struct, frozen=True):
     rid: int
     data: ClientReferenceData | msgspec.UnsetType = msgspec.UNSET
@@ -85,20 +81,7 @@ class ClientMapGeometry(msgspec.Struct, frozen=True):
     foregroundMapElements: list[LayerMapElements]
 
 
-class ClientMapData(ClientMapGeometry, frozen=True):
-    references: list[ClientMapReference]
-
-
 _EMPTY_REFERENCE = ClientReferenceData()
-
-
-def decode_map_export(raw: bytes) -> MapDataRoot:
-    return decode_map_data(msgspec.json.decode(raw, type=dict[str, Any]))
-
-
-def decode_map_data(root: dict[str, Any]) -> MapDataRoot:
-    data = msgspec.convert(root, type=ClientMapData)
-    return _decode_map(data, ((ref.rid, ref) for ref in data.references))
 
 
 def _decode_map(

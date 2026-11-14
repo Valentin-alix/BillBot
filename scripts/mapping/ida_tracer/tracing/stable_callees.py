@@ -2,9 +2,6 @@ from collections.abc import Mapping
 
 import idaapi
 
-from scripts.mapping.ida_tracer.simulation.interproc_calls import (
-    get_direct_call_target_addr,
-)
 from scripts.mapping.ida_tracer.simulation.scan_engine import build_function_scan_plan
 from scripts.mapping.ida_tracer.state.basic_block import FunctionScanCache
 
@@ -20,9 +17,9 @@ def collect_stable_callees(
         for decoded in instructions:
             if decoded.mnemonic not in {"call", "jmp"}:
                 continue
-            if decoded.mnemonic == "jmp" and decoded.insn.ops[0].type not in {idaapi.o_near, idaapi.o_far}:
+            if decoded.mnemonic == "jmp" and decoded.ops[0].type not in {idaapi.o_near, idaapi.o_far}:
                 continue
-            target_address = get_direct_call_target_addr(decoded.insn)
+            target_address = decoded.direct_call_target_addr
             if target_address is None:
                 continue
             if decoded.mnemonic == "jmp":

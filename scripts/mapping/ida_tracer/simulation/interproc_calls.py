@@ -5,18 +5,19 @@ import idautils
 
 from scripts.mapping.ida_tracer.lookups.accessor_candidate import AccessorCandidate
 from scripts.mapping.ida_tracer.simulation.constants import (
-    IENUMERATOR_TYPEINFO_PREFIX,
     IENUMERABLE_TYPEINFO_PREFIX,
+    IENUMERATOR_TYPEINFO_PREFIX,
     IL2CPP_TYPEINFO_CAST_HELPERS,
-    KVP_VALUE_TYPEINFO_PREFIX,
     KVP_VALUE_METHODINFO_PREFIX,
     KVP_VALUE_POINTER_OFFSET,
+    KVP_VALUE_TYPEINFO_PREFIX,
     R8_REG,
     R9_REG,
     RAX_REG,
     RCX_REG,
     RDX_REG,
 )
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.invalidation import (
     invalidate_heap_slots_for_volatile_bases,
     invalidate_volatile_registers,
@@ -30,7 +31,7 @@ from scripts.mapping.ida_tracer.state.types import (
 
 
 def update_register_state_for_call(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     getter_setter_lookup: dict[int, list[AccessorCandidate]],
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
@@ -60,7 +61,7 @@ def update_register_state_for_call(
             reg_state[RAX_REG] = ("object", indirect_cls)
         return
     direct_call_result: TrackedValue | None = None
-    direct_call_target_addr = get_direct_call_target_addr(insn)
+    direct_call_target_addr = insn.direct_call_target_addr
     if direct_call_target_addr is not None:
         direct_call_result = _resolve_direct_call_result(
             insn,
@@ -77,11 +78,11 @@ def update_register_state_for_call(
 
 
 def resolve_accessor_candidate_for_call(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     getter_setter_lookup: dict[int, list[AccessorCandidate]],
     reg_state: RegisterState,
 ) -> AccessorCandidate | None:
-    target_addr = get_direct_call_target_addr(insn)
+    target_addr = insn.direct_call_target_addr
     if target_addr is None:
         return None
     candidates = getter_setter_lookup.get(target_addr)
@@ -100,7 +101,7 @@ def resolve_accessor_candidate_for_call(
 
 
 def resolve_pending_indirect_call_target(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
 ) -> tuple[str, bool] | None:
     target_operand = insn.ops[0]
@@ -114,19 +115,6 @@ def resolve_pending_indirect_call_target(
     if tracked_value[0] == "pending_indirect_kvp_current":
         return tracked_value[1], True
     return None
-
-
-def get_direct_call_target_addr(insn: idaapi.insn_t) -> int | None:
-    operand = insn.ops[0]
-    if operand.type not in (idaapi.o_near, idaapi.o_far, idaapi.o_mem):
-        return None
-    target_addr = int(operand.addr)
-    func = idaapi.get_func(target_addr)
-    if func is not None:
-        start_ea = func.start_ea
-        if isinstance(start_ea, int):
-            return start_ea
-    return target_addr
 
 
 def resolve_inline_ienumerator_current_cls(reg_state: RegisterState) -> str | None:
@@ -203,7 +191,7 @@ def resolve_inline_kvp_current_cls(reg_state: RegisterState) -> str | None:
 
 
 def _resolve_direct_call_result(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     target_addr: int,
     reg_state: RegisterState,
     getter_setter_lookup: dict[int, list[AccessorCandidate]],
@@ -235,7 +223,8 @@ def _resolve_direct_call_result(
 
     enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
     if enumerable_cls is not None and reg_state.get(RDX_REG) == (
-        "typeinfo", IENUMERABLE_TYPEINFO_PREFIX + enumerable_cls
+        "typeinfo",
+        IENUMERABLE_TYPEINFO_PREFIX + enumerable_cls,
     ):
         if _invokes_interface_slot(target_addr):
             return "repeated_enumerator", enumerable_cls

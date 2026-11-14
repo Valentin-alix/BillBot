@@ -1,13 +1,15 @@
 import idaapi
 
+from scripts.mapping.ida_tracer.core.operands import Operand
 from scripts.mapping.ida_tracer.simulation.static_loads import (
     get_static_lookup_operand_addr,
 )
 from scripts.mapping.ida_tracer.state.analysis_state import TypeGuard
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.types import RegisterState
 
 
-def handle_mov_type_guard_instruction(insn: idaapi.insn_t, reg_state: RegisterState) -> None:
+def handle_mov_type_guard_instruction(insn: DecodedInstruction, reg_state: RegisterState) -> None:
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
     if destination_operand.type != idaapi.o_reg:
@@ -23,7 +25,7 @@ def handle_mov_type_guard_instruction(insn: idaapi.insn_t, reg_state: RegisterSt
 
 
 def resolve_type_guard_compare(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     typeinfo_lookup: dict[int, str],
 ) -> TypeGuard | None:
@@ -43,13 +45,13 @@ def resolve_type_guard_compare(
 
 
 def apply_type_guarded_cmov(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     type_guard: TypeGuard | None,
 ) -> None:
     if type_guard is None:
         return
-    if insn.get_canon_mnem() not in {"cmove", "cmovz"}:
+    if insn.mnemonic not in {"cmove", "cmovz"}:
         return
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
@@ -64,8 +66,8 @@ def apply_type_guarded_cmov(
 
 
 def _resolve_type_guard_compare_operands(
-    vtable_operand: idaapi.op_t,
-    typeinfo_operand: idaapi.op_t,
+    vtable_operand: Operand,
+    typeinfo_operand: Operand,
     reg_state: RegisterState,
     typeinfo_lookup: dict[int, str],
 ) -> TypeGuard | None:

@@ -90,6 +90,7 @@ class MockTInfo:
 
 def _install_idaapi_mock() -> None:
     attrs: dict[str, object] = {
+        "o_void": 0,
         "o_reg": IDA_O_REG,
         "o_mem": IDA_O_MEM,
         "o_phrase": IDA_O_PHRASE,

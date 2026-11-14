@@ -18,15 +18,16 @@ from scripts.mapping.ida_tracer.simulation.constants import (
 )
 from scripts.mapping.ida_tracer.simulation.interproc_calls import (
     resolve_accessor_candidate_for_call,
+    resolve_inline_get_enumerator_cls,
     resolve_inline_ienumerator_current_cls,
     resolve_inline_kvp_current_cls,
-    resolve_inline_get_enumerator_cls,
 )
 from scripts.mapping.ida_tracer.simulation.static_loads import (
     handle_static_tracker_load,
     handle_typeinfo_load,
     static_lookup_contains_operand,
 )
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.encoding import (
     decode_field_address,
     decode_object_offset,
@@ -47,7 +48,7 @@ from scripts.mapping.ida_tracer.state.value_resolution import get_stack_slot
 def _resolve_xmm0_register_number() -> int:
     try:
         return list(idaapi.ph.regnames).index("xmm0")
-    except (AttributeError, ValueError):
+    except AttributeError, ValueError:
         return 33
 
 
@@ -55,7 +56,7 @@ XMM0_REG: int = _resolve_xmm0_register_number()
 
 
 def handle_call_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     getter_setter_lookup: dict[int, list[AccessorCandidate]],
     reg_state: RegisterState,
     ea: int,
@@ -67,7 +68,7 @@ def handle_call_instruction(
 
 
 def handle_lea_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     typeinfo_lookup: dict[int, str],
     reg_state: RegisterState,
     proto_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
@@ -75,6 +76,8 @@ def handle_lea_instruction(
     methodinfo_get_enumerator_lookup: dict[int, str] | None = None,
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
     frame_state: StackFrameState | None = None,
+    *,
+    collect_entries: bool = True,
 ) -> Sequence[AccessEntry]:
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
@@ -82,14 +85,18 @@ def handle_lea_instruction(
         stack_slot = get_stack_slot(source_operand, frame_state)
         if stack_slot is not None:
             reg_state[destination_operand.reg] = ("stack_address", str(stack_slot))
-            return []
+            return ()
     resolved_methodinfo_lookup = methodinfo_get_enumerator_lookup or {}
     resolved_ienumerator_typeinfo_lookup = ienumerator_typeinfo_lookup or {}
     inline_kvp_current_cls = resolve_inline_kvp_current_cls(reg_state)
     inline_current_cls = resolve_inline_ienumerator_current_cls(reg_state)
     inline_enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
     if (
-        (inline_kvp_current_cls is not None or inline_current_cls is not None or inline_enumerable_cls is not None)
+        (
+            inline_kvp_current_cls is not None
+            or inline_current_cls is not None
+            or inline_enumerable_cls is not None
+        )
         and destination_operand.type == idaapi.o_reg
         and source_operand.type == idaapi.o_displ
         and int(source_operand.addr) == IENUMERATOR_INTERFACE_SLOT_DISPLACEMENT
@@ -102,8 +109,11 @@ def handle_lea_instruction(
         elif inline_current_cls is not None:
             reg_state[destination_operand.reg] = ("pending_indirect_current_base", inline_current_cls)
         elif inline_enumerable_cls is not None:
-            reg_state[destination_operand.reg] = ("pending_indirect_get_enumerator_base", inline_enumerable_cls)
-        return []
+            reg_state[destination_operand.reg] = (
+                "pending_indirect_get_enumerator_base",
+                inline_enumerable_cls,
+            )
+        return ()
 
     if destination_operand.type == idaapi.o_reg and source_operand.type == idaapi.o_displ:
         base_info = reg_state.get(source_operand.reg)
@@ -120,6 +130,8 @@ def handle_lea_instruction(
                     "field_address",
                     encode_field_address(base_class_name, field_offset),
                 )
+                if not collect_entries:
+                    return ()
                 return [
                     FieldAccessEntry(
                         type="field",
@@ -136,7 +148,7 @@ def handle_lea_instruction(
                 "object_offset",
                 encode_object_offset(base_class_name, field_offset),
             )
-            return []
+            return ()
 
     if static_lookup_contains_operand(source_operand, resolved_methodinfo_lookup):
         handle_static_tracker_load(
@@ -147,7 +159,7 @@ def handle_lea_instruction(
             tracked_domain="methodinfo_get_enumerator",
             clear_destination_on_failure=False,
         )
-        return []
+        return ()
     return handle_typeinfo_load(
         destination_operand,
         source_operand,
@@ -156,11 +168,12 @@ def handle_lea_instruction(
         ea=ea,
         clear_destination_on_failure=True,
         silent_typeinfo_lookup=resolved_ienumerator_typeinfo_lookup,
+        collect_entries=collect_entries,
     )
 
 
 def handle_vector_move_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     frame_state: StackFrameState,
     stack_state: StackState,
@@ -185,12 +198,12 @@ def handle_vector_move_instruction(
 
 
 def update_register_state_for_arithmetic(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     heap_state: HeapState | None = None,
 ) -> None:
     destination_operand = insn.ops[0]
-    mnemonic = insn.get_canon_mnem()
+    mnemonic = insn.mnemonic
     if mnemonic == "add" and destination_operand.type == idaapi.o_reg:
         source_operand = insn.ops[1]
         destination_value = reg_state.get(destination_operand.reg)
@@ -216,7 +229,10 @@ def update_register_state_for_arithmetic(
                     return
                 inline_enumerable_cls = resolve_inline_get_enumerator_cls(reg_state)
                 if inline_enumerable_cls is not None:
-                    reg_state[destination_operand.reg] = ("pending_indirect_get_enumerator_base", inline_enumerable_cls)
+                    reg_state[destination_operand.reg] = (
+                        "pending_indirect_get_enumerator_base",
+                        inline_enumerable_cls,
+                    )
                     if heap_state is not None:
                         invalidate_heap_slots_for_register(heap_state, destination_operand.reg)
                     return
@@ -252,7 +268,7 @@ def update_register_state_for_arithmetic(
 
 
 def _invalidate_arithmetic_destination(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     heap_state: HeapState | None = None,
 ) -> None:

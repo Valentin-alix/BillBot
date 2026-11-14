@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
-from scripts.mapping.ida_tracer.state.numeric_provenance import (
-    NumericFieldValue, NumericComparison,
-)
 
+from scripts.mapping.ida_tracer.state.numeric_provenance import (
+    NumericComparison,
+    NumericFieldValue,
+)
 from scripts.mapping.ida_tracer.state.register_updates import copy_frame_state
 from scripts.mapping.ida_tracer.state.types import (
     HeapState,
@@ -46,33 +47,19 @@ def copy_analysis_state(state: AnalysisState) -> AnalysisState:
     )
 
 
-def analysis_state_equals(
-    left: AnalysisState | None,
-    right: AnalysisState | None,
-) -> bool:
-    if left is None or right is None:
-        return left is right
-    return (
-        left.reg_state == right.reg_state
-        and left.frame_state == right.frame_state
-        and left.stack_state == right.stack_state
-        and left.heap_state == right.heap_state
-        and left.type_guard == right.type_guard
-        and left.numeric_registers == right.numeric_registers
-        and left.numeric_stack == right.numeric_stack
-        and left.numeric_comparison == right.numeric_comparison
-    )
-
-
 def merge_analysis_states(states: list[AnalysisState]) -> AnalysisState:
+    if len(states) == 1:
+        return copy_analysis_state(states[0])
     merged_frames = [state.frame_state for state in states]
-    merged_frame_state = _merge_frame_states(merged_frames)
-    merged_stack_state = (
-        _merge_tracked_maps([state.stack_state for state in states])
-        if _all_frame_states_equal(merged_frames)
-        else {}
+    frames_equal = _all_frame_states_equal(merged_frames)
+    merged_frame_state = (
+        copy_frame_state(merged_frames[0])
+        if frames_equal
+        else StackFrameState(rsp_entry_offset=None, rbp_entry_offset=None)
     )
-    merged_heap_state = _merge_heap_maps([state.heap_state for state in states])
+    merged_stack_state = _merge_tracked_maps([state.stack_state for state in states]) if frames_equal else {}
+    merged_heap_state = _merge_tracked_maps([state.heap_state for state in states])
+    other_states = states[1:]
     return AnalysisState(
         reg_state=_merge_tracked_maps([state.reg_state for state in states]),
         frame_state=merged_frame_state,
@@ -80,17 +67,20 @@ def merge_analysis_states(states: list[AnalysisState]) -> AnalysisState:
         heap_state=merged_heap_state,
         type_guard=_merge_type_guards([state.type_guard for state in states]),
         numeric_registers={
-            key: value for key, value in states[0].numeric_registers.items()
-            if all(state.numeric_registers.get(key) == value for state in states[1:])
+            key: value
+            for key, value in states[0].numeric_registers.items()
+            if all(state.numeric_registers.get(key) == value for state in other_states)
         },
         numeric_stack={
-            key: value for key, value in states[0].numeric_stack.items()
-            if _all_frame_states_equal(merged_frames)
-            and all(state.numeric_stack.get(key) == value for state in states[1:])
-        },
+            key: value
+            for key, value in states[0].numeric_stack.items()
+            if all(state.numeric_stack.get(key) == value for state in other_states)
+        }
+        if frames_equal
+        else {},
         numeric_comparison=(
             states[0].numeric_comparison
-            if all(state.numeric_comparison == states[0].numeric_comparison for state in states[1:])
+            if all(state.numeric_comparison == states[0].numeric_comparison for state in other_states)
             else None
         ),
     )
@@ -100,32 +90,10 @@ def _all_frame_states_equal(frame_states: list[StackFrameState]) -> bool:
     return all(frame_state == frame_states[0] for frame_state in frame_states[1:])
 
 
-def _merge_frame_states(frame_states: list[StackFrameState]) -> StackFrameState:
-    if _all_frame_states_equal(frame_states):
-        return copy_frame_state(frame_states[0])
-    return StackFrameState(rsp_entry_offset=None, rbp_entry_offset=None)
-
-
-def _merge_tracked_maps(
-    tracked_maps: list[dict[int, TrackedValue]],
-) -> dict[int, TrackedValue]:
+def _merge_tracked_maps[K](
+    tracked_maps: list[dict[K, TrackedValue]],
+) -> dict[K, TrackedValue]:
     common_values = dict(tracked_maps[0])
-    for current_map in tracked_maps[1:]:
-        for key in list(common_values):
-            current_value = current_map.get(key)
-            if current_value is None:
-                common_values.pop(key)
-                continue
-            merged_value = _merge_tracked_value(common_values[key], current_value)
-            if merged_value is None:
-                common_values.pop(key)
-                continue
-            common_values[key] = merged_value
-    return common_values
-
-
-def _merge_heap_maps(tracked_maps: list[HeapState]) -> HeapState:
-    common_values: HeapState = dict(tracked_maps[0])
     for current_map in tracked_maps[1:]:
         for key in list(common_values):
             current_value = current_map.get(key)

@@ -2,11 +2,10 @@ from collections.abc import Callable, Iterable
 
 import idaapi
 import pytest
-from tests.fixtures.proto_mapper.field_builders import dump_field, typed_dump_field
 
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry, FieldAccessEntry
-from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
+from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from scripts.mapping.ida_tracer.lookups.accessor_candidate import (
     AccessorCandidate,
 )
@@ -22,6 +21,7 @@ from scripts.mapping.ida_tracer.state.types import (
     RegisterState,
     StackFrameState,
 )
+from tests.fixtures.proto_mapper.field_builders import dump_field, typed_dump_field
 
 
 class Operand(idaapi.op_t):
@@ -72,6 +72,7 @@ def call(address: int) -> Instruction:
 @pytest.fixture
 def scan(monkeypatch: pytest.MonkeyPatch) -> Callable[..., list[AccessEntry]]:
     import idautils
+
     from scripts.mapping.ida_tracer.simulation.interproc_calls import (
         _invokes_interface_slot,
     )
@@ -250,6 +251,55 @@ def test_different_field_origins_are_discarded_at_branch_join(scan: Callable[...
     )
     assert {entry.field_offset for entry in entries if isinstance(entry, FieldAccessEntry)} == {32, 36}
     assert all(not entry.comparisons for entry in entries if isinstance(entry, FieldAccessEntry))
+
+
+def test_loop_revisits_processed_blocks_when_input_changes(scan: Callable[..., list[AccessEntry]]) -> None:
+    entries = scan(
+        [
+            Instruction("nop"),
+            Instruction("mov", reg(0, 4), mem(7, 32)),
+            Instruction("mov", reg(7), imm(0)),
+            Instruction("jmp"),
+            Instruction("mov", reg(0, 4), mem(8, 36)),
+        ],
+        {7: ("object", "Msg"), 8: ("object", "Msg")},
+        successors_by_index={0: (1,), 1: (2, 4), 2: (1,), 4: ()},
+    )
+    assert [(entry.cls, entry.field_offset) for entry in entries if isinstance(entry, FieldAccessEntry)] == [
+        ("Msg", 36)
+    ]
+
+
+def test_cached_features_preserve_accesses_on_later_operands(
+    scan: Callable[..., list[AccessEntry]], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def feature(_insn: Instruction) -> int:
+        return idaapi.CF_USE3 | idaapi.CF_CHG4
+
+    monkeypatch.setattr(Instruction, "get_canon_feature", feature)
+    entries = scan(
+        [Instruction("custom", reg(0), reg(1), mem(7, 32), mem(7, 36))],
+        {7: ("object", "Msg")},
+    )
+    assert [
+        (entry.access_kind, entry.field_offset) for entry in entries if isinstance(entry, FieldAccessEntry)
+    ] == [("read", 32), ("write", 36)]
+
+
+@pytest.mark.parametrize("unavailable", [False, True])
+def test_cached_features_preserve_mnemonic_fallback(
+    scan: Callable[..., list[AccessEntry]], monkeypatch: pytest.MonkeyPatch, unavailable: bool
+) -> None:
+    def feature(_insn: Instruction) -> int:
+        if unavailable:
+            raise RuntimeError("feature unavailable")
+        return 0
+
+    monkeypatch.setattr(Instruction, "get_canon_feature", feature)
+    entries = scan([Instruction("mov", reg(0), mem(7, 32))], {7: ("object", "Msg")})
+    assert [
+        (entry.access_kind, entry.field_offset) for entry in entries if isinstance(entry, FieldAccessEntry)
+    ] == [("read", 32)]
 
 
 def test_narrow_register_copy_does_not_compare_the_whole_field(

@@ -32,7 +32,6 @@ from scripts.mapping.ida_tracer.simulation.handlers import (
     update_register_state_for_arithmetic,
 )
 from scripts.mapping.ida_tracer.simulation.interproc_calls import (
-    get_direct_call_target_addr,
     update_register_state_for_call,
 )
 from scripts.mapping.ida_tracer.simulation.static_loads import (
@@ -46,7 +45,6 @@ from scripts.mapping.ida_tracer.simulation.type_guards import (
 )
 from scripts.mapping.ida_tracer.state.analysis_state import (
     AnalysisState,
-    analysis_state_equals,
     copy_analysis_state,
     merge_analysis_states,
 )
@@ -108,17 +106,20 @@ def scan_function_instructions(
             active_keys=set(),
         )
     scan_plan = build_function_scan_plan(func, function_scan_cache)
-    input_states = _compute_block_input_states(
-        scan_plan,
-        initial_state,
-        proto_fields_by_class_and_offset,
-        tracking_fields_by_class_and_offset,
-        tracking_type_lookup,
-        getter_setter_lookup,
-        typeinfo_lookup,
-        resolved_methodinfo_lookup,
-        resolved_ienumerator_typeinfo_lookup,
-    )
+    if len(scan_plan.blocks) == 1 and not scan_plan.blocks[scan_plan.entry_block_start].successors:
+        input_states = {scan_plan.entry_block_start: initial_state}
+    else:
+        input_states = _compute_block_input_states(
+            scan_plan,
+            initial_state,
+            proto_fields_by_class_and_offset,
+            tracking_fields_by_class_and_offset,
+            tracking_type_lookup,
+            getter_setter_lookup,
+            typeinfo_lookup,
+            resolved_methodinfo_lookup,
+            resolved_ienumerator_typeinfo_lookup,
+        )
 
     collected: list[AccessEntry] = []
     for block_start in sorted(scan_plan.blocks):
@@ -143,7 +144,7 @@ def scan_function_instructions(
     if deduped_entries or len(scan_plan.blocks) <= 1:
         return deduped_entries
     linear_entries, _ = _scan_basic_block(
-        _decode_instruction_range(func.start_ea, func.end_ea),
+        _get_linear_function_instructions(func, scan_plan),
         initial_state,
         proto_fields_by_class_and_offset,
         tracking_fields_by_class_and_offset,
@@ -227,11 +228,38 @@ def _build_single_block_cfg(
 def _decode_instruction_range(start_ea: int, end_ea: int) -> tuple[DecodedInstruction, ...]:
     decoded: list[DecodedInstruction] = []
     for ea in idautils.Heads(start_ea, end_ea):
-        insn = idaapi.insn_t()
-        if idaapi.decode_insn(insn, ea) == 0:
-            continue
-        decoded.append(DecodedInstruction(ea=ea, insn=insn, mnemonic=insn.get_canon_mnem()))
+        instruction = _decode_instruction(ea)
+        if instruction is not None:
+            decoded.append(instruction)
     return tuple(decoded)
+
+
+def _decode_instruction(ea: int) -> DecodedInstruction | None:
+    insn = idaapi.insn_t()
+    if idaapi.decode_insn(insn, ea) == 0:
+        return None
+    return DecodedInstruction(ea=ea, insn=insn, mnemonic=insn.get_canon_mnem())
+
+
+def _get_linear_function_instructions(
+    func: idaapi.func_t, scan_plan: FunctionScanPlan
+) -> tuple[DecodedInstruction, ...]:
+    if scan_plan.linear_instructions is not None:
+        return scan_plan.linear_instructions
+    instructions_by_address = {
+        decoded.ea: decoded
+        for instructions in scan_plan.instructions_by_block.values()
+        for decoded in instructions
+    }
+    result: list[DecodedInstruction] = []
+    for ea in idautils.Heads(func.start_ea, func.end_ea):
+        instruction = instructions_by_address.get(ea)
+        if instruction is None:
+            instruction = _decode_instruction(ea)
+        if instruction is not None:
+            result.append(instruction)
+    scan_plan.linear_instructions = tuple(result)
+    return scan_plan.linear_instructions
 
 
 def _compute_block_input_states(
@@ -248,9 +276,11 @@ def _compute_block_input_states(
     input_states: dict[int, AnalysisState] = {scan_plan.entry_block_start: copy_analysis_state(initial_state)}
     output_states: dict[int, AnalysisState] = {}
     pending_blocks: deque[int] = deque([scan_plan.entry_block_start])
+    queued_blocks = {scan_plan.entry_block_start}
 
     while pending_blocks:
         block_start = pending_blocks.popleft()
+        queued_blocks.remove(block_start)
         input_state = input_states.get(block_start)
         if input_state is None:
             continue
@@ -268,7 +298,7 @@ def _compute_block_input_states(
             function_scan_cache=None,
         )
         previous_output_state = output_states.get(block_start)
-        if analysis_state_equals(previous_output_state, output_state):
+        if previous_output_state == output_state:
             continue
         output_states[block_start] = output_state
         for successor_start in scan_plan.blocks[block_start].successors:
@@ -283,10 +313,12 @@ def _compute_block_input_states(
                 continue
             merged_input_state = merge_analysis_states(predecessor_states)
             previous_input_state = input_states.get(successor_start)
-            if analysis_state_equals(previous_input_state, merged_input_state):
+            if previous_input_state == merged_input_state:
                 continue
             input_states[successor_start] = merged_input_state
-            pending_blocks.append(successor_start)
+            if successor_start not in queued_blocks:
+                pending_blocks.append(successor_start)
+                queued_blocks.add(successor_start)
     return input_states
 
 
@@ -309,9 +341,7 @@ def _scan_basic_block(
     for decoded in instructions:
         collected.extend(
             _process_instruction(
-                decoded.insn,
-                decoded.ea,
-                decoded.mnemonic,
+                decoded,
                 state,
                 proto_fields_by_class_and_offset,
                 tracking_fields_by_class_and_offset,
@@ -329,9 +359,7 @@ def _scan_basic_block(
 
 
 def _process_instruction(
-    insn: idaapi.insn_t,
-    ea: int,
-    mnemonic: str,
+    insn: DecodedInstruction,
     state: AnalysisState,
     proto_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
     tracking_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
@@ -345,9 +373,17 @@ def _process_instruction(
     collect_entries: bool = True,
     function_scan_cache: FunctionScanCache | None = None,
 ) -> list[AccessEntry]:
+    ea = insn.ea
+    mnemonic = insn.mnemonic
     collected: list[AccessEntry] = []
     comparison_entries = track_field_comparisons(
-        insn, ea, mnemonic, state, proto_fields_by_class_and_offset, getter_setter_lookup
+        insn,
+        ea,
+        mnemonic,
+        state,
+        proto_fields_by_class_and_offset,
+        getter_setter_lookup,
+        collect_entries=collect_entries,
     )
     if collect_entries:
         collected.extend(comparison_entries)
@@ -378,6 +414,7 @@ def _process_instruction(
                 state.reg_state,
                 ienumerator_typeinfo_lookup=ienumerator_typeinfo_lookup,
                 ea=ea,
+                collect_entries=collect_entries,
             )
             if collect_entries:
                 collected.extend(typeinfo_entries)
@@ -449,6 +486,7 @@ def _process_instruction(
             ienumerator_typeinfo_lookup=ienumerator_typeinfo_lookup,
             ea=ea,
             frame_state=state.frame_state,
+            collect_entries=collect_entries,
         )
         if collect_entries:
             collected.extend(lea_entries)
@@ -465,7 +503,7 @@ def _process_instruction(
 
 
 def _collect_interprocedural_call_accesses(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     state: AnalysisState,
     proto_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
     tracking_fields_by_class_and_offset: dict[str, dict[int, DumpCSMessageField]],
@@ -481,7 +519,7 @@ def _collect_interprocedural_call_accesses(
 ) -> list[AccessEntry]:
     if context.depth >= context.max_depth:
         return []
-    target_addr = get_direct_call_target_addr(insn)
+    target_addr = insn.direct_call_target_addr
     if target_addr is None:
         return []
     call_arg_state = _build_call_argument_register_state(state.reg_state)

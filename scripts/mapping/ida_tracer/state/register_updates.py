@@ -6,6 +6,7 @@ from scripts.mapping.ida_tracer.core.operands import (
     is_register_operand,
     read_immediate_operand_value,
 )
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.invalidation import invalidate_heap_slots_for_register
 from scripts.mapping.ida_tracer.state.types import (
     RBP_REG,
@@ -30,10 +31,10 @@ def copy_frame_state(frame_state: StackFrameState) -> StackFrameState:
 
 
 def update_stack_frame_for_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     frame_state: StackFrameState,
 ) -> None:
-    mnemonic = insn.get_canon_mnem()
+    mnemonic = insn.mnemonic
     destination_operand = insn.ops[0]
     source_operand = insn.ops[1]
 
@@ -92,7 +93,7 @@ def update_stack_frame_for_instruction(
 
 
 def update_register_state_for_mov(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     frame_state: StackFrameState,
     stack_state: StackState,
@@ -150,7 +151,7 @@ def update_register_state_for_mov(
 
 
 def update_register_state_for_cmov(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     reg_state: RegisterState,
     frame_state: StackFrameState,
     stack_state: StackState,

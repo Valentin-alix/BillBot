@@ -31,6 +31,7 @@ from DBDofusUnity.proto_mapper_assembly.parsers.csharp_signature_utils import (
 )
 from DBDofusUnity.proto_mapper_assembly.parsers.dump_cs_parser import load_tracking_types, parse_messages
 from scripts.mapping.ida_tracer.analysis import auto_wait_analysis
+from scripts.mapping.ida_tracer.core.function_inspector import cache_function_inspection
 from scripts.mapping.ida_tracer.lookups.accessor_candidate import (
     AccessorCandidate,
     build_getter_setter_lookup,
@@ -51,6 +52,9 @@ from scripts.mapping.ida_tracer.lookups.name_resolution import (
     resolve_message_type_name,
     resolve_owner_class_name,
 )
+from scripts.mapping.ida_tracer.lookups.stable_symbols import (
+    build_callee_identity_lookup,
+)
 from scripts.mapping.ida_tracer.lookups.type_lookup import (
     build_long_name_by_alias,
     build_long_name_by_unique_alias,
@@ -62,9 +66,6 @@ from scripts.mapping.ida_tracer.signatures.parser import (
     extract_proto_parameter_seeds,
     method_has_this_parameter,
     select_signature_for_proto_tracking,
-)
-from scripts.mapping.ida_tracer.lookups.stable_symbols import (
-    build_callee_identity_lookup,
 )
 from scripts.mapping.ida_tracer.simulation.cfg_stats import (
     cfg_stats_for_func,
@@ -153,6 +154,9 @@ def scan_methods_for_accesses(
         **proto_fields_by_class_and_offset,
     }
     resolved_function_scan_cache = function_scan_cache if function_scan_cache is not None else {}
+    method_address_lookup = {
+        address: method_info.cls for address, method_info in handler_methodinfo_lookup.items()
+    }
     interprocedural_context = InterproceduralContext(
         depth=0,
         max_depth=MAX_INTERPROCEDURAL_DEPTH,
@@ -230,6 +234,8 @@ def scan_methods_for_accesses(
                 func,
                 filter_typeinfo_lookup,
                 handler_methodinfo_lookup,
+                method_address_lookup,
+                resolved_function_scan_cache,
             )
         )
         if not entries:
@@ -251,6 +257,7 @@ def scan_methods_for_accesses(
     return result
 
 
+@cache_function_inspection()
 def main() -> None:
     progress_reporter = ProgressReporter.from_environment()
     auto_wait_analysis(progress_reporter)

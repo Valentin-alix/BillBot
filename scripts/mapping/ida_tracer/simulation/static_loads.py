@@ -7,20 +7,24 @@ from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import TypeIn
 from scripts.mapping.ida_tracer.core.function_inspector import (
     get_operation_index_inside_function,
 )
+from scripts.mapping.ida_tracer.core.operands import Operand
 from scripts.mapping.ida_tracer.simulation.constants import (
-    IENUMERATOR_TYPEINFO_PREFIX,
     IENUMERABLE_TYPEINFO_PREFIX,
+    IENUMERATOR_TYPEINFO_PREFIX,
     KVP_VALUE_TYPEINFO_PREFIX,
 )
+from scripts.mapping.ida_tracer.state.basic_block import DecodedInstruction
 from scripts.mapping.ida_tracer.state.types import RegisterState
 
 
 def handle_mov_typeinfo_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     typeinfo_lookup: dict[int, str],
     reg_state: RegisterState,
     ea: int,
     ienumerator_typeinfo_lookup: dict[int, str] | None = None,
+    *,
+    collect_entries: bool = True,
 ) -> Sequence[TypeInfoAccessEntry]:
     return handle_typeinfo_load(
         insn.ops[0],
@@ -30,11 +34,12 @@ def handle_mov_typeinfo_instruction(
         ea=ea,
         clear_destination_on_failure=False,
         silent_typeinfo_lookup=ienumerator_typeinfo_lookup or {},
+        collect_entries=collect_entries,
     )
 
 
 def handle_mov_methodinfo_instruction(
-    insn: idaapi.insn_t,
+    insn: DecodedInstruction,
     methodinfo_get_enumerator_lookup: dict[int, str],
     reg_state: RegisterState,
 ) -> None:
@@ -49,39 +54,44 @@ def handle_mov_methodinfo_instruction(
 
 
 def handle_typeinfo_load(
-    destination_operand: idaapi.op_t,
-    source_operand: idaapi.op_t,
+    destination_operand: Operand,
+    source_operand: Operand,
     typeinfo_lookup: dict[int, str],
     reg_state: RegisterState,
     *,
     ea: int,
     clear_destination_on_failure: bool,
     silent_typeinfo_lookup: dict[int, str] | None = None,
+    collect_entries: bool = True,
 ) -> Sequence[TypeInfoAccessEntry]:
     if destination_operand.type != idaapi.o_reg:
-        return []
+        return ()
     source_addr = get_static_lookup_operand_addr(source_operand, typeinfo_lookup, silent_typeinfo_lookup)
     if source_addr is None:
         if clear_destination_on_failure:
             reg_state.pop(destination_operand.reg, None)
-        return []
+        return ()
     class_name = typeinfo_lookup.get(source_addr)
     if class_name is None:
         if silent_typeinfo_lookup is not None:
             silent_typeinfo_class_name = silent_typeinfo_lookup.get(source_addr)
             if silent_typeinfo_class_name is not None:
-                if silent_typeinfo_class_name.startswith((KVP_VALUE_TYPEINFO_PREFIX, IENUMERABLE_TYPEINFO_PREFIX)):
+                if silent_typeinfo_class_name.startswith(
+                    (KVP_VALUE_TYPEINFO_PREFIX, IENUMERABLE_TYPEINFO_PREFIX)
+                ):
                     reg_state[destination_operand.reg] = ("typeinfo", silent_typeinfo_class_name)
                 else:
                     reg_state[destination_operand.reg] = (
                         "typeinfo",
                         f"{IENUMERATOR_TYPEINFO_PREFIX}{silent_typeinfo_class_name}",
                     )
-                return []
+                return ()
         if clear_destination_on_failure:
             reg_state.pop(destination_operand.reg, None)
-        return []
+        return ()
     reg_state[destination_operand.reg] = ("typeinfo", class_name)
+    if not collect_entries:
+        return ()
     return [
         TypeInfoAccessEntry(
             type="typeinfo",
@@ -95,8 +105,8 @@ def handle_typeinfo_load(
 
 
 def handle_static_tracker_load(
-    destination_operand: idaapi.op_t,
-    source_operand: idaapi.op_t,
+    destination_operand: Operand,
+    source_operand: Operand,
     lookup: dict[int, str],
     reg_state: RegisterState,
     *,
@@ -119,7 +129,7 @@ def handle_static_tracker_load(
 
 
 def get_static_lookup_operand_addr(
-    operand: idaapi.op_t,
+    operand: Operand,
     primary_lookup: dict[int, str],
     secondary_lookup: dict[int, str] | None,
 ) -> int | None:
@@ -135,7 +145,7 @@ def get_static_lookup_operand_addr(
     return None
 
 
-def static_lookup_contains_operand(operand: idaapi.op_t, lookup: dict[int, str]) -> bool:
+def static_lookup_contains_operand(operand: Operand, lookup: dict[int, str]) -> bool:
     if operand.type not in {idaapi.o_mem, idaapi.o_displ}:
         return False
     return int(operand.addr) in lookup
