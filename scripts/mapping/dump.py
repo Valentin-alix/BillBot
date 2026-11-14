@@ -32,7 +32,7 @@ from DBDofusUnity.proto_mapper_assembly.helpers.obf_game_snapshot import (
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPairsConfig
 from DBDofusUnity.proto_mapper_assembly.pipeline import run_pipeline
-from scripts.mapping.ida_tracer_lib.main import run_ida_script
+from scripts.mapping.ida_tracer.main import run_ida_script
 
 
 @dataclass(frozen=True)

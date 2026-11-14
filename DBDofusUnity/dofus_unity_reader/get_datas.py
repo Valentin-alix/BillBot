@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
@@ -9,7 +8,9 @@ from zipfile import ZIP_DEFLATED, ZipFile
 import msgspec
 from tqdm import tqdm
 
-sys.path.append(str(Path(__file__).parent.parent.parent))
+ROOT = Path(__file__).resolve().parents[2]
+for import_root in (ROOT, ROOT / "AnkamaLauncherEmulator", ROOT / "DBDofusUnity"):
+    sys.path.insert(0, str(import_root))
 
 from DBDofusUnity.consts import (
     BUNDLES_ROOT,
@@ -25,6 +26,7 @@ from DBDofusUnity.consts import (
 from DBDofusUnity.dofus_unity_reader.bundle_export import iter_bundle_data
 from DBDofusUnity.dofus_unity_reader.data_center.data_reader import (
     FILEPATH_BY_MODEL,
+    DataReader,
     REQUIRED_DATA_FILENAMES,
 )
 from DBDofusUnity.dofus_unity_reader.extraction_manifest import ExtractionManifest
@@ -32,7 +34,9 @@ from DBDofusUnity.dofus_unity_reader.generator.i18n import I18NReader
 from DBDofusUnity.dofus_unity_reader.generator.maps import export_map_bundle
 from DBDofusUnity.dofus_unity_reader.models.datas.map_positions_root import MapInformationsRoot
 from DBDofusUnity.dofus_unity_reader.models.world_graph import WorldGraphData
-from src.utils.project_paths import BUNDLE_ROOT
+from DBDofusUnity.dofus_unity_reader.data_center.i18n import I18N
+from src.core.engine.crafts.recipes import is_supported_craft_recipe
+from src.services.display_catalog import DISPLAY_CATALOG_PATH, DisplayCatalog, RecipeEntry, ZoneEntry
 
 MANIFEST_PATH = BUNDLES_ROOT / ".extraction_manifest.json"
 DATA_MODEL_BY_FILENAME = {filename: model for model, filename in FILEPATH_BY_MODEL.items()}
@@ -145,6 +149,44 @@ def _clean_runtime_outputs() -> None:
                 path.unlink()
 
 
+def build_display_catalog() -> DisplayCatalog:
+    reader = DataReader()
+    names = I18N().name_by_id
+    areas = sorted(
+        (ZoneEntry(area.id, names[area.nameId]) for area in reader.area_by_id.values()),
+        key=lambda entry: entry.name,
+    )
+    sub_areas: dict[int, list[ZoneEntry]] = {}
+    for area in sorted(reader.sub_area_by_id.values(), key=lambda area: names[area.nameId]):
+        sub_areas.setdefault(area.areaId, []).append(ZoneEntry(area.id, names[area.nameId]))
+    map_names: dict[int, str] = {}
+    positions: dict[int, tuple[int, int]] = {}
+    for map_id, position in reader.map_info_by_map_id.items():
+        positions[map_id] = position.posX, position.posY
+        sub_area = reader.sub_area_by_id.get(position.subAreaId)
+        if sub_area is not None:
+            map_names[map_id] = names[sub_area.nameId]
+    recipes: dict[int, RecipeEntry] = {}
+    for recipe in reader.recipes:
+        if not is_supported_craft_recipe(recipe):
+            continue
+        item = reader.item_by_id[recipe.resultId]
+        recipes[recipe.resultId] = RecipeEntry(
+            recipe, names[item.nameId], names[reader.job_by_id[recipe.jobId].nameId], item.level or 0
+        )
+    return DisplayCatalog(
+        areas,
+        sub_areas,
+        map_names,
+        positions,
+        {key: names[job.nameId] for key, job in reader.job_by_id.items()},
+        {key: names[int(breed.shortNameId)] for key, breed in reader.breed_by_id.items()},
+        {key: names[server.nameId] for key, server in reader.server_by_id.items()},
+        recipes,
+    )
+
+
+
 def update_all_datas() -> None:
     BUNDLES_ROOT.mkdir(parents=True, exist_ok=True)
     manifest = ExtractionManifest.load(MANIFEST_PATH)
@@ -154,7 +196,7 @@ def update_all_datas() -> None:
     get_map_datas(manifest=manifest)
     manifest.save()
 
-    subprocess.run([sys.executable, "-m", "scripts.data.display_catalog"], cwd=BUNDLE_ROOT, check=True)
+    _write_json(DISPLAY_CATALOG_PATH, msgspec.json.encode(build_display_catalog()))
     _clean_runtime_outputs()
 
 

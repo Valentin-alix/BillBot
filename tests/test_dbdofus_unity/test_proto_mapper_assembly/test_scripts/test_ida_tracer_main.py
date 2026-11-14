@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scripts.mapping.ida_tracer_lib import main as ida_main
+from scripts.mapping.ida_tracer import main as ida_main
 
 
 class _CompletedThread:

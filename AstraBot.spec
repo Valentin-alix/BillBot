@@ -1,13 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import subprocess
-import sys
 from pathlib import Path
 
 import msgspec
 from PyInstaller.utils.hooks import copy_metadata
-
-subprocess.run([sys.executable, "-m", "scripts.data.display_catalog"], cwd=SPECPATH, check=True)
 
 a = Analysis(
     ['__main__.py'],

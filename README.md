@@ -72,7 +72,7 @@ at the next operation.
 
 Run tools from the repository root. The **Debug** view provides message inspection
 and searchable logs; start the standalone sniffer with
-`uv run python -m scripts.mapping.sniffer`.
+`uv run python -m scripts.mapping.debug.sniffer`.
 Each new Dofus build requires regenerating and verifying the protocol mapping.
 
 ### Build data tools

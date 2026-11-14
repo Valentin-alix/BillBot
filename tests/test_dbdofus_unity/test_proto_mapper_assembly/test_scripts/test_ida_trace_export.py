@@ -13,14 +13,14 @@ from DBDofusUnity.proto_mapper_assembly.controllers.access_signatures import (
     build_message_access_signatures_from_trace,
 )
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessTraceDocument
-from scripts.mapping.ida_tracer_lib.tracing.trace_export import (
+from scripts.mapping.ida_tracer.tracing.trace_export import (
     build_traced_functions_from_proto_infos,
 )
-from scripts.mapping.ida_tracer_lib.state.basic_block import (
+from scripts.mapping.ida_tracer.state.basic_block import (
     DecodedInstruction,
     FunctionScanPlan,
 )
-from scripts.mapping.ida_tracer_lib.tracing import stable_callees
+from scripts.mapping.ida_tracer.tracing import stable_callees
 
 
 def test_shared_native_function_retains_accesses_for_each_alias() -> None:

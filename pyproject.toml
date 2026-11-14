@@ -96,7 +96,7 @@ extra-paths = [
     ".stubs",
     "DBDofusUnity/datas/protos/non_obf/game",
     "DBDofusUnity/datas/protos/non_obf/connection",
-    "scripts/mapping/ida_tracer_lib/typings",
+    "scripts/mapping/ida_tracer/typings",
     "AnkamaLauncherEmulator",
     "DBDofusUnity",
 ]

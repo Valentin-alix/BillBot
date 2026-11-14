@@ -7,18 +7,18 @@ from tests.fixtures.proto_mapper.field_builders import dump_field, typed_dump_fi
 from DBDofusUnity.proto_mapper_assembly.interfaces.assembly_access import AccessEntry, FieldAccessEntry
 from DBDofusUnity.proto_mapper_assembly.interfaces.field_category import FieldCategoryEnum
 from DBDofusUnity.proto_mapper_assembly.interfaces.dump_cs_message import DumpCSMessageField
-from scripts.mapping.ida_tracer_lib.lookups.accessor_candidate import (
+from scripts.mapping.ida_tracer.lookups.accessor_candidate import (
     AccessorCandidate,
 )
-from scripts.mapping.ida_tracer_lib.simulation.scan_engine import (
+from scripts.mapping.ida_tracer.simulation.scan_engine import (
     scan_function_instructions,
 )
-from scripts.mapping.ida_tracer_lib.state.basic_block import (
+from scripts.mapping.ida_tracer.state.basic_block import (
     BasicBlock,
     DecodedInstruction,
     FunctionScanPlan,
 )
-from scripts.mapping.ida_tracer_lib.state.types import (
+from scripts.mapping.ida_tracer.state.types import (
     RegisterState,
     StackFrameState,
 )
@@ -72,7 +72,7 @@ def call(address: int) -> Instruction:
 @pytest.fixture
 def scan(monkeypatch: pytest.MonkeyPatch) -> Callable[..., list[AccessEntry]]:
     import idautils
-    from scripts.mapping.ida_tracer_lib.simulation.interproc_calls import (
+    from scripts.mapping.ida_tracer.simulation.interproc_calls import (
         _invokes_interface_slot,
     )
 

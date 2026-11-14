@@ -48,12 +48,12 @@ you're proposing and why the more durable options don't apply.
    mis-weighted signal in `proto_mapper_assembly/matching/` (`score_constraints.py`,
    `score_lookup.py`, `score_preparation.py`, `static_scores.py`, `runtime_rescore.py`),
    `affinities/`, or `scoring/message_scoring.py`. Diagnose with:
-   - `uv run python -m scripts.mapping.single_pair_match_result --obf <O> --non-obf <N>` — breaks down the score for one
+   - `uv run python -m scripts.mapping.debug.inspect_message_pair --obf <O> --non-obf <N>` — breaks down the score for one
      specific pair, showing which signal drove it.
-   - `uv run python -m scripts.mapping.group_match_candidates --incoherent` — lists non-obf `.proto` files whose messages are
+   - `uv run python -m scripts.mapping.debug.rank_group_candidates --incoherent` — lists non-obf `.proto` files whose messages are
      split across several obf groups (a scattered file means the mapping is wrong, not that the
      file moved; nothing written, read-only).
-   - `uv run python -m scripts.mapping.group_match_candidates --non-obf <X> --members` — for one file, ranks the obf groups it
+   - `uv run python -m scripts.mapping.debug.rank_group_candidates --non-obf <X> --members` — for one file, ranks the obf groups it
      could belong to and shows the message-level assignment inside the best candidate, so you can
      see which claim is a real pin vs. an algorithm guess.
    Fix the metric/heuristic (add a missing signal, correct a wrong one, adjust a weight/threshold

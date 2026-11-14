@@ -21,7 +21,7 @@ from scripts.mapping.dump import (
 from scripts.mapping.export_signature_overrides import (
     run_export_signature_overrides,
 )
-from scripts.mapping.ida_tracer_lib.main import run_ida_script
+from scripts.mapping.ida_tracer.main import run_ida_script
 from scripts.mapping.synchronize_protos import (
     synchronize_non_obf_mapping_artifacts,
 )

@@ -1,5 +1,5 @@
 from DBDofusUnity.proto_mapper_assembly.interfaces.pinned_pairs import PinnedPair, PinnedPairsConfig
-from scripts.mapping.benchmark_cross_build import _pins_for_run, _score_pins
+from scripts.mapping.debug.benchmark_cross_build import _pins_for_run, _score_pins
 from tests.fixtures.proto_mapper.script_builders import game_mapping_entry
 
 
