@@ -71,18 +71,13 @@ class AutoModeMappingContractError(ValueError):
     pass
 
 
-def load_auto_mode_mapping_contract(path: Path) -> AutoModeMappingContract:
-    return AutoModeMappingContract.model_validate_json(path.read_text(encoding="utf-8"))
-
-
 def check_auto_mode_mappings(
     *,
-    contract_path: Path,
+    contract: AutoModeMappingContract,
     detailed_mappings_path: Path,
     pinned_pairs_path: Path,
     observed_root_obf_messages: Mapping[str, ObservedRootObfMessage],
 ) -> AutoModeMappingAudit:
-    contract = load_auto_mode_mapping_contract(contract_path)
     mappings = load_game_mappings_document(detailed_mappings_path)
     pinned_pairs = load_pinned_pairs(pinned_pairs_path)
     entries_by_name = {

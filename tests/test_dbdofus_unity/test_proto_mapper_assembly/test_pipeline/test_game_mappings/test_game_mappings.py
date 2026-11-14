@@ -2,6 +2,8 @@
 from pathlib import Path
 
 import pytest
+
+from DBDofusUnity.proto_mapper_assembly.interfaces.auto_mode_mapping_contract import AutoModeMappingContract
 from tests.fixtures.proto_mapper.field_builders import dump_cs_field
 from tests.fixtures.proto_mapper.message_builders import (
     build_message_lookup,
@@ -158,7 +160,7 @@ class TestGameMappings:
         )
 
         audit = check_auto_mode_mappings(
-            contract_path=contract_path,
+            contract=AutoModeMappingContract.model_validate_json(contract_path.read_text(encoding="utf-8")),
             detailed_mappings_path=mappings_path,
             pinned_pairs_path=pins_path,
             observed_root_obf_messages={
@@ -249,7 +251,7 @@ class TestGameMappings:
 
         with pytest.raises(AutoModeMappingContractError) as error_info:
             check_auto_mode_mappings(
-                contract_path=contract_path,
+                contract=AutoModeMappingContract.model_validate_json(contract_path.read_text(encoding="utf-8")),
                 detailed_mappings_path=mappings_path,
                 pinned_pairs_path=pins_path,
                 observed_root_obf_messages={

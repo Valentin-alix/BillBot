@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from DBDofusUnity.consts import (
-    AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     GAME_MAPPINGS_JSON_FILE,
@@ -15,6 +14,8 @@ from DBDofusUnity.consts import (
     OBF_PROTOCOL_GAME_DUMP_CS_FILE,
     PINNED_PAIRS_FILE,
 )
+from DBDofusUnity.proto_mapper_assembly.controllers.bot_protocol_usage import generate_auto_mode_mapping_contract
+from DBDofusUnity.proto_mapper_assembly.interfaces.auto_mode_mapping_contract import AutoModeMappingContract
 from DBDofusUnity.proto_mapper_assembly.controllers.capture_sequence_hints import (
     load_capture_sequence_hints,
     resolve_capture_sequence_hints_non_obf_targets,
@@ -41,7 +42,6 @@ from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract im
 
 @dataclass(frozen=True)
 class PipelinePaths:
-    auto_mode_mapping_contract_path: Path
     obf_dump_cs_path: Path
     non_obf_dump_cs_path: Path
     obf_proto_accesses_path: Path
@@ -57,7 +57,6 @@ class PipelinePaths:
 def build_pipeline_paths(*, obf_dir: Path | None = None) -> PipelinePaths:
     if obf_dir is None:
         return PipelinePaths(
-            auto_mode_mapping_contract_path=AUTO_MODE_MAPPING_CONTRACT_FILE,
             obf_dump_cs_path=OBF_PROTOCOL_GAME_DUMP_CS_FILE,
             non_obf_dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
             obf_proto_accesses_path=OBF_PROTO_ACCESSES_FILE,
@@ -71,7 +70,6 @@ def build_pipeline_paths(*, obf_dir: Path | None = None) -> PipelinePaths:
         )
 
     return PipelinePaths(
-        auto_mode_mapping_contract_path=AUTO_MODE_MAPPING_CONTRACT_FILE,
         obf_dump_cs_path=obf_dir / "cs" / "Ankama.Dofus.Protocol.Game.cs",
         non_obf_dump_cs_path=NON_OBF_PROTOCOL_GAME_DUMP_CS_FILE,
         obf_proto_accesses_path=obf_dir / "proto_accesses.json",
@@ -86,6 +84,7 @@ def build_pipeline_paths(*, obf_dir: Path | None = None) -> PipelinePaths:
 
 
 def run_pipeline(*, do_load_pinned_pair: bool, obf_dir: Path | None = None) -> None:
+    contract = generate_auto_mode_mapping_contract()
     pipeline_paths = build_pipeline_paths(obf_dir=obf_dir)
     runtime_data_store = RuntimeDataStore()
     matching_inputs = load_matching_inputs(
@@ -127,6 +126,7 @@ def run_pipeline(*, do_load_pinned_pair: bool, obf_dir: Path | None = None) -> N
         non_obf_messages_by_cls=non_obf_messages_by_cls,
         pipeline_paths=pipeline_paths,
         runtime_data_store=runtime_data_store,
+        contract=contract,
     )
 
 
@@ -137,6 +137,7 @@ def publish_game_mappings(
     non_obf_messages_by_cls: dict[str, DumpCSMessage],
     pipeline_paths: PipelinePaths,
     runtime_data_store: RuntimeDataStore,
+    contract: AutoModeMappingContract,
 ) -> None:
     write_game_mappings(
         matches,
@@ -147,7 +148,7 @@ def publish_game_mappings(
     )
     try:
         audit = check_auto_mode_mappings(
-            contract_path=pipeline_paths.auto_mode_mapping_contract_path,
+            contract=contract,
             detailed_mappings_path=pipeline_paths.detailed_game_mappings_path,
             pinned_pairs_path=pipeline_paths.pinned_pairs_path,
             observed_root_obf_messages=runtime_data_store.get_observed_root_obf_messages(),

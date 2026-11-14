@@ -30,7 +30,7 @@ _PROTO_SCALAR_TO_CLR: dict[int, str] = {
 
 
 def build_dump_cs_messages_from_pb2(protos_dir: Path) -> dict[str, DumpCSMessage]:
-    descriptors_by_name = _build_pb2_index(protos_dir)
+    descriptors_by_name = build_protobuf_descriptor_index(protos_dir)
     enum_names = _collect_enum_names(descriptors_by_name.values())
     return {
         class_name: _descriptor_to_dump_cs(descriptor, enum_names=enum_names)
@@ -38,7 +38,7 @@ def build_dump_cs_messages_from_pb2(protos_dir: Path) -> dict[str, DumpCSMessage
     }
 
 
-def _build_pb2_index(protos_dir: Path) -> dict[str, Descriptor]:
+def build_protobuf_descriptor_index(protos_dir: Path) -> dict[str, Descriptor]:
     index: dict[str, Descriptor] = {}
     for subdir in _iter_pb2_directories(protos_dir):
         subdir_str = str(subdir)

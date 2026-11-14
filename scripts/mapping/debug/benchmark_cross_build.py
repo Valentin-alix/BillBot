@@ -28,7 +28,6 @@ from time import perf_counter
 from typing import Literal
 
 from DBDofusUnity.consts import (
-    AUTO_MODE_MAPPING_CONTRACT_FILE,
     CAPTURE_SEQUENCE_HINTS_FILE,
     GAME_MAPPINGS_DETAILED_JSON_FILE,
     NON_OBF_NEW_DUMP_CS_FILE,
@@ -82,9 +81,7 @@ from scripts.mapping.export_signature_overrides import (
     SignatureOverrideExportPaths,
     run_export_signature_overrides,
 )
-from DBDofusUnity.proto_mapper_assembly.validators.auto_mode_mapping_contract import (
-    load_auto_mode_mapping_contract,
-)
+from DBDofusUnity.proto_mapper_assembly.controllers.bot_protocol_usage import generate_auto_mode_mapping_contract
 
 _PINNED_PAIRS_PATH = Path("datas/proto_mapper/pinned_pairs.json")
 _ERA_PATHS = (_PINNED_PAIRS_PATH,)
@@ -489,7 +486,7 @@ def _score_bot_used_messages(
 
 
 def _load_bot_used_message_names() -> frozenset[str]:
-    contract = load_auto_mode_mapping_contract(AUTO_MODE_MAPPING_CONTRACT_FILE)
+    contract = generate_auto_mode_mapping_contract()
     return frozenset(requirement.message.rsplit(".", 1)[-1] for requirement in contract.messages)
 
 
@@ -835,7 +832,7 @@ def _score_current_requirements(
     candidate_document: GameMappingsDocument,
     pinned_pairs: PinnedPairsConfig,
 ) -> tuple[tuple[PinOutcome, ...], tuple[str, ...], tuple[FieldOutcome, ...]]:
-    contract = load_auto_mode_mapping_contract(AUTO_MODE_MAPPING_CONTRACT_FILE)
+    contract = generate_auto_mode_mapping_contract()
     references = {_normalize_name(key): entry for key, entry in reference_document.root.items()}
     candidates = {_normalize_name(key): entry for key, entry in candidate_document.root.items()}
     pins = {_normalize_name(pair.non_obf): pair for pair in pinned_pairs.pairs}

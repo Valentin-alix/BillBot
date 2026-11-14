@@ -1,6 +1,11 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
+from DBDofusUnity.proto_mapper_assembly.controllers.bot_protocol_usage import ProtocolUsageError
+from DBDofusUnity.proto_mapper_assembly.interfaces.auto_mode_mapping_contract import AutoModeMappingContract
+
 from tests.fixtures.proto_mapper.message_builders import message_signature
 from tests.fixtures.proto_mapper.pipeline_builders import (
     builder_matching_inputs,
@@ -28,6 +33,18 @@ from DBDofusUnity.proto_mapper_assembly.runtime.runtime_store import RuntimeData
 
 
 class TestRunPipeline:
+    def test_analysis_failure_stops_before_loading_matching_inputs_or_publishing(self) -> None:
+        with (
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.generate_auto_mode_mapping_contract",
+                  side_effect=ProtocolUsageError("source.py:10: unresolved protobuf access")),
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.load_matching_inputs") as load,
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.publish_game_mappings") as publish,
+        ):
+            with pytest.raises(ProtocolUsageError, match="source.py:10"):
+                run_pipeline(do_load_pinned_pair=True)
+        load.assert_not_called()
+        publish.assert_not_called()
+
     def test_uses_obf_dir_for_inputs_pins_overrides_and_outputs(self, tmp_path: Path) -> None:
         obf_dir = tmp_path / "20_05_2026"
         obf_message = DumpCSMessage(file_descriptor="GameReflection", name="obf")
@@ -37,6 +54,7 @@ class TestRunPipeline:
         fake_hints = CaptureSequenceHintsConfig(sequences=())
 
         with (
+            patch("DBDofusUnity.proto_mapper_assembly.pipeline.generate_auto_mode_mapping_contract", return_value=Mock(spec=AutoModeMappingContract)),
             patch(
                 "DBDofusUnity.proto_mapper_assembly.pipeline.load_matching_inputs",
                 return_value=builder_matching_inputs(
@@ -119,6 +137,7 @@ class TestPublishGameMappings:
                 non_obf_messages_by_cls={},
                 pipeline_paths=paths,
                 runtime_data_store=Mock(spec=RuntimeDataStore),
+                contract=Mock(spec=AutoModeMappingContract),
             )
 
         assert paths.game_mappings_path.read_text(encoding="utf-8") == "new-simple"
@@ -158,6 +177,7 @@ class TestPublishGameMappings:
                 non_obf_messages_by_cls={},
                 pipeline_paths=paths,
                 runtime_data_store=Mock(spec=RuntimeDataStore),
+                contract=Mock(spec=AutoModeMappingContract),
             )
 
         assert paths.game_mappings_path.read_text(encoding="utf-8") == "published-simple"

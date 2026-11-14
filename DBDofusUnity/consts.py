@@ -86,7 +86,6 @@ NON_OBF_GAME_ASSEMBLY_DLL_I64: Path = NON_OBF_GAME_DIR / "GameAssembly.dll.i64"
 NON_OBF_IL2CPP_METADATA_FILE: Path = NON_OBF_GAME_DIR / "global-metadata.dat"
 
 PROTO_MAPPER_DATA_ROOT: Path = DATA_ROOT / "proto_mapper"
-AUTO_MODE_MAPPING_CONTRACT_FILE: Path = PROTO_MAPPER_DATA_ROOT / "auto_mode_mapping_contract.json"
 PINNED_PAIRS_FILE: Path = PROTO_MAPPER_DATA_ROOT / "pinned_pairs.json"
 CAPTURE_SEQUENCE_HINTS_FILE: Path = (
     PROJECT_ROOT / "proto_mapper_assembly" / "validators" / "capture_sequence_hints.json"

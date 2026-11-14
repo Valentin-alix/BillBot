@@ -17,6 +17,8 @@ Repeat to persist field signatures; nested messages or changed shapes may need a
 
 ## Validators and IDA
 
+The mapping contract is inferred from `src/` before each mapping run. Keep protobuf bindings up to date; unresolved protobuf field access stops the run with a source location.
+
 - Validators return `False` for invalid input; let unexpected exceptions propagate. Fields in `global_validators` and `set_validators` cannot be nested: nested messages are not remapped.
 - Key `VALIDATORS_ON_FIELD` by generated protobuf classes (`type[Message]`), with string field names checked against descriptors at import. Group entries by source module.
 - Base IDA analysis, heuristics, and offsets on verifiable MCP, script, or export evidence. Identical tracing inputs must produce identical outputs.
