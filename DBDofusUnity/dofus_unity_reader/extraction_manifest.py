@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field, ValidationError
 
-PIPELINE_VERSION = "2026-07-26-content-hash-v1"
+PIPELINE_VERSION = "2026-11-14-unitypy-v1"
 
 _HASH_CHUNK_SIZE = 1024 * 1024
 
@@ -102,9 +102,3 @@ class ExtractionManifest:
             content_hash=_hash_file(source_path),
             outputs=sorted(_normalise_path(path) for path in output_paths),
         )
-
-    def referenced_outputs(self) -> set[Path]:
-        outputs: set[Path] = set()
-        for entry in self.data.bundles.values():
-            outputs.update(Path(output_path) for output_path in entry.outputs)
-        return outputs

@@ -12,7 +12,7 @@ Report findings before editing anything, unless the user already said to apply f
 
 Default to `git diff` (staged + unstaged) against `master`. If nothing changed, ask what to scan
 instead of guessing broad. Never sweep `DBDofusUnity/datas/**`, `Il2CppInspectorRedux/**`,
-`protodec/**`, `UABEA/**` (generated/vendored, see AGENTS.md).
+`protodec/**` (generated/vendored, see AGENTS.md).
 
 ## 2. Dead code
 

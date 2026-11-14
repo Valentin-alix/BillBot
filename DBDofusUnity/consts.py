@@ -34,7 +34,6 @@ IDA_EXE = get_path_from_env("IDA_EXE", _MISSING_GAME_TOOLCHAIN_PATH / "ida")
 DATA_ROOT: Path = PROJECT_ROOT / "datas"
 BUNDLES_ROOT: Path = DATA_ROOT / "bundles"
 DATA_BUNDLES_ROOT: Path = BUNDLES_ROOT / "data"
-MAP_BUNDLES_ROOT: Path = BUNDLES_ROOT / "map"
 MAPS_ARCHIVE_PATH: Path = BUNDLES_ROOT / "maps.zip"
 STANDALONE_BUNDLES_ROOT: Path = BUNDLES_ROOT / "standalone"
 I18N_OUTPUT_PATH: Path = BUNDLES_ROOT / "i18n.json"
@@ -45,10 +44,6 @@ GAME_MAPPINGS_DETAILED_JSON_FILE: Path = PROTOS_ROOT / "game_mappings_detailed.j
 DOFUS_ASSETS_FOLDER: Path = OBF_GAME_DIR / "Dofus_Data" / "StreamingAssets"
 DOFUS_CONTENT_FOLDER: Path = DOFUS_ASSETS_FOLDER / "Content"
 I18N_PATH: Path = DOFUS_CONTENT_FOLDER / "I18n" / "fr.bin"
-UABEA_PATH_EXE: Path = get_path_from_env(
-    "UABEA_EXECUTABLE",
-    PROJECT_ROOT / "UABEA" / "UABEAvalonia" / "bin" / "Debug" / "net6.0" / "UABEAvalonia.exe",
-)
 PATH_STANDALONE_BUNDLES: Path = get_path_from_env(
     "PATH_STANDALONE_BUNDLES",
     DOFUS_ASSETS_FOLDER / "aa" / "StandaloneWindows64",

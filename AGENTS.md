@@ -21,5 +21,5 @@ During iteration, run only the relevant check or test. For documentation-only ch
 
 ## Exploration
 
-- Avoid broad reads/searches of `DBDofusUnity/datas/**`, `DBDofusUnity/Il2CppInspectorRedux/**`, `DBDofusUnity/protodec/**`, `DBDofusUnity/UABEA/**`, and `resources/human_sessions.json` unless needed.
+- Avoid broad reads/searches of `DBDofusUnity/datas/**`, `DBDofusUnity/Il2CppInspectorRedux/**`, `DBDofusUnity/protodec/**`, and `resources/human_sessions.json` unless needed.
 - For protocol definition or mapping changes, read `DBDofusUnity/proto_mapper_assembly/AGENTS.md`, including when editing definitions outside that subtree.

@@ -23,6 +23,7 @@ dependencies = [
     "frida==17.20.0",
     "filelock==4.0.9",
     "tuna>=0.5.15",
+    "unitypy>=1.25.4",
 ]
 
 [dependency-groups]
@@ -118,7 +119,6 @@ exclude = [
     "DBDofusUnity/dofus_unity_reader/models/datas",
     "DBDofusUnity/Il2CppInspectorRedux",
     "DBDofusUnity/protodec",
-    "DBDofusUnity/UABEA",
     "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
     "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/login_message_pb2.py*",
     "**/.venv",
@@ -146,7 +146,6 @@ exclude = [
   "DBDofusUnity/.venv",
   "DBDofusUnity/Il2CppInspectorRedux",
   "DBDofusUnity/protodec",
-  "DBDofusUnity/UABEA",
   "AnkamaLauncherEmulator/ankama_launcher_emulator/gen_zaap",
   "AnkamaLauncherEmulator/ankama_launcher_emulator/proxy/login_message*",
   "**/.venv",
